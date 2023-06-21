@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""
-AS 1170.2:2021 method
+#AS 1170.2:2021 method
 
-This method references the following standard:
-NZS 1170.4:2021, for New Zealand structures.
-Method developed 23 January 2023
-(c) BVT Consulting Ltd
-"""
+#This method references the following standard:
+#NZS 1170.4:2021, for New Zealand structures.
+#Method developed 23 January 2023
+#(c) Constratum Ltd
+
 # Developer - Nima Shokrollahi
 
 # In[1]:
