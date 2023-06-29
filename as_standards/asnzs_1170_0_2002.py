@@ -32,49 +32,29 @@ Given the design working life, $N$, and the importance level, $IL$, this functio
 Note this function also includes SLS2 annual probabilities as given in NZS 1170.5, table 8.1, note 6.
 """
 
-#@title Table 3.3 - Annual probability of exceedence { vertical-output: true }
-#recreate table 3.3
-table3_3 = pd.DataFrame(
+#@title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
+#recreate table F2
+table_F2_cyclonic = pd.DataFrame(
 {"Wind ULS":['1/100',
-             '1/25','1/100','1/250','1/1000',
-             '1/25','1/250','1/500','1/1000',
-             '1/50','1/250','1/500','1/1000',
-             '1/100','1/500','1/1000','1/2500',
-             '1/250','1/1000','1/2500','*'],
+             '1/25','1/50','1/100',
+             '1/100','1/200','1/500','1/1000',
+             '1/200','1/500','1/1000','1/2500',
+             '1/500','1/1000','1/2500','*'],
  "Snow ULS":['1/50',
+             '1/25','1/50','1/100',
              '1/25','1/50','1/100','1/250',
-             '1/25','1/50','1/100','1/250',
-             '1/25','1/50','1/100','1/250',
-             '1/50','1/150','1/250','1/500',
-             '1/150','1/250','1/500','*'],
- "Earthquake ULS":['1/100',
-             '1/25','1/100','1/250','1/1000',
-             '1/25','1/250','1/500','1/1000',
-             '1/50','1/250','1/500','1/1000',
-             '1/100','1/500','1/1000','1/2500',
+             '1/100','1/150','1/200','1/500',
+             '1/200','1/250','1/500','*'],
+ "Earthquake ULS":['-',
+             '-','-','-',
+             '-','1/250','1/500','1/1000',
+             '1/250','1/500','1/1000','1/2500',
              '1/250','1/1000','1/2500','*'],
- "SLS1":    ['1/25',
-             '-','1/25','1/25','1/25',
-             '-','1/25','1/25','1/25',
-             '-','1/25','1/25','1/25',
-             '-','1/25','1/25','1/25',
-             '-','1/25','1/25','1/25'],
- "SLS2":    [' ',
-             ' ',' ',' ',' ',
-             '-','-','-','1/250',
-             '-','-','-','1/250',
-             '-','1/100','1/250','1/500',
-             '-','-','-','*'],
  },
  index = pd.MultiIndex.from_tuples([('Construction equipment',2),
-                                    ('Less than 6 months',1),
-                                    ('Less than 6 months',2),
-                                    ('Less than 6 months',3),
-                                    ('Less than 6 months',4),
-                                    ('5 years',1),
-                                    ('5 years',2),
-                                    ('5 years',3),
-                                    ('5 years',4),
+                                    ('Less than 5 years',1),
+                                    ('Less than 5 years',2),
+                                    ('Less than 5 years',3),
                                     ('25 years',1),
                                     ('25 years',2),
                                     ('25 years',3),
@@ -91,7 +71,48 @@ table3_3 = pd.DataFrame(
                                    names=['Design working life','Importance level'])    
 )
 
-table3_3
+table_F2_cyclonic
+
+#@title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
+#recreate table F2
+table_F2_non_cyclonic = pd.DataFrame(
+{"Wind ULS":['1/100',
+             '1/25','1/50','1/100',
+             '1/100','1/200','1/500','1/1000',
+             '1/100','1/500','1/1000','1/2500',
+             '1/500','1/1000','1/2500','*'],
+ "Snow ULS":['1/50',
+             '1/25','1/50','1/100',
+             '1/25','1/50','1/100','1/250',
+             '1/100','1/150','1/200','1/500',
+             '1/200','1/250','1/500','*'],
+ "Earthquake ULS":['-',
+             '-','-','-',
+             '-','1/250','1/500','1/1000',
+             '1/250','1/500','1/1000','1/2500',
+             '1/250','1/1000','1/2500','*'],
+ },
+ index = pd.MultiIndex.from_tuples([('Construction equipment',2),
+                                    ('Less than 5 years',1),
+                                    ('Less than 5 years',2),
+                                    ('Less than 5 years',3),
+                                    ('25 years',1),
+                                    ('25 years',2),
+                                    ('25 years',3),
+                                    ('25 years',4),
+                                    ('50 years',1),
+                                    ('50 years',2),
+                                    ('50 years',3),
+                                    ('50 years',4),
+                                    ('100 years or more',1),
+                                    ('100 years or more',2),
+                                    ('100 years or more',3),
+                                    ('100 years or more',4),
+                                    ],
+                                   names=['Design working life','Importance level'])    
+)
+
+table_F2_non_cyclonic
 
 #@title annual_probability_of_exceedence(N,IL,LS) { run: "auto", vertical-output: true }
 #@markdown Design Working Life:
@@ -101,16 +122,25 @@ IL = 4 #@param ["1", "2", "3", "4"] {type:"raw"}
 #@markdown Limit State:
 LS = "Earthquake ULS" #@param ["Wind ULS", "Snow ULS", "Earthquake ULS", "SLS1", "SLS2"]
 
-def annual_probability_of_exceedence(N,IL,LS):
+def annual_probability_of_exceedence_AS_cyclonic(N,IL,LS):
     if type(IL) == str:
         index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
         IL = [1 ,2, 3, 4][index]
         
-    P = table3_3.loc[(N,IL),LS]
+    P = table_F2_cyclonic.loc[(N,IL),LS]
+
+    return P
+
+def annual_probability_of_exceedence_AS_non_cyclonic(N,IL,LS):
+    if type(IL) == str:
+        index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
+        IL = [1 ,2, 3, 4][index]
+        
+    P = table_F2_non_cyclonic.loc[(N,IL),LS]
 
     return P
   
-print("P =",annual_probability_of_exceedence(N,IL,LS))
+#print("P =",annual_probability_of_exceedence(N,IL,LS))
 
 """#Table 4.1 Combinations of Actions - Imposed load factors
 
