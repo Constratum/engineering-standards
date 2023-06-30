@@ -528,4 +528,4 @@ def part_horizontal_design_action_simple_method(kp, Z, ChT, h_x, h_n, Ic, ac, Rc
     
     fc = max(kpZ * ChT * ax * (Ic * ac / Rc) * Wc, 0.05 * Wc)
 
-    return fc, kpZ
+    return fc, kpZ, ax
