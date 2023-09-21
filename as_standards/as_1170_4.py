@@ -138,7 +138,7 @@ table3_2 = pd.DataFrame(
         ["Dowerin", 0.20],
         ["Goomalling", 0.16],
         ["Kellerberrin", 0.14],
-        ["Meckering", 20],
+        ["Meckering", 0.20],
         ["Northam", 0.14],
         ["Wongan Hills", 0.15],
         ["Wickepin", 0.15],
