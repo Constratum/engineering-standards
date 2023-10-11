@@ -154,12 +154,13 @@ Table4_1 = pd.DataFrame([
 
 def interpolation(height):
     indices = Table4_1['Height'].searchsorted([height], side='right')
-    lower_bound_index = indices[0] - 1
+    lower_bound_index = max(0, indices[0] - 1)
     upper_bound_index = indices[0] if indices[0] != len(Table4_1) else indices[0] - 1
     height_low = Table4_1['Height'][lower_bound_index]
     height_high = Table4_1['Height'][upper_bound_index]
     interpolation_hn = (height - height_low) / (height_high - height_low)
     return interpolation_hn, lower_bound_index, upper_bound_index
+
 
 def Mz_cat(height, Terrain_category):
     interpolation_height, lower_bound_index, upper_bound_index = interpolation(height)
