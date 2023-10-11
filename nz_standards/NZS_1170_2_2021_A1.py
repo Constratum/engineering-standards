@@ -226,4 +226,13 @@ def site_wind_speed(p, location, height, Terrain_category, Md, Ms, Mt):
     
     return Vr * Md * (Mz_cat_value * Ms * Mt)
 
-
+def calc_wind_pressure(v_site):
+    
+    partition_overall_pressure_factor = 0.4
+    #Density of air (kg/m3)
+    rho_air = 1.2
+    #Partition and building assumed not to be dynamically sensitive
+    wind_dynamic_response_factor = 1.0
+    
+    wind_pressure = 0.5 * rho_air * (v_site**2) * partition_overall_pressure_factor * wind_dynamic_response_factor
+    return wind_pressure
