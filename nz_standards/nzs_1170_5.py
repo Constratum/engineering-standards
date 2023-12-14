@@ -225,6 +225,7 @@ table3_3 = pd.DataFrame([
 ['Ward',0.4,4,],
 ['Warkworth',0.13,20,],
 ['Wellington',0.4,0,],
+['Wellington ',0.4,0,],
 ['Wellington CBD',0.4,2,],
 ['Westport',0.3,20,],
 ['Whakatane',0.3,20,],
