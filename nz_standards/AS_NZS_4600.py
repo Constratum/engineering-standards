@@ -16,11 +16,11 @@ def foc_without_holes(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, Iw):
     beta = 1 - (x_o**2 / ro1**2) ** 2
 
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the x-axis
-    fox = (np.pi() ** 2 * E) / ((le_x / r_x) ** 2)
+    fox = (np.pi ** 2 * E) / ((le_x / r_x) ** 2)
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the y-axis
-    foy = (np.pi() ** 2 * E) / ((le_y / r_y) ** 2)
+    foy = (np.pi ** 2 * E) / ((le_y / r_y) ** 2)
     # Elastic buckling stress in an axially loaded compression member for torsional buckling
-    foz = (G * J / Ag * ro1**2) * (1 + (np.pi() ** 2 * E * Iw) / (G * J * le_z**2))
+    foz = (G * J / Ag * ro1**2) * (1 + (np.pi ** 2 * E * Iw) / (G * J * le_z**2))
 
     foxz = (1 / 2 * beta) * (
         (fox + foy) - np.sqrt((fox - foz) ** 2 - 4 * beta * foz * fox)
