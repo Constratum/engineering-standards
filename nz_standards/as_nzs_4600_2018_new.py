@@ -45,7 +45,8 @@ def landa_C(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, Iw, fy):
     foc = foc_without_holes(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, Iw)
     Ny = Ag * fy
     Noc = Ag * foc
-    λc = (Ny / Noc) ** 0.5
+    λc = np.sqrt(Ny / Noc)
+
 
     return λc
 
