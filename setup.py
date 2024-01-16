@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="engineering_standards",
-    version="0.091",
+    version="0.092",
     packages=find_packages(),
     install_requires=["numpy", "pandas"],
 )
