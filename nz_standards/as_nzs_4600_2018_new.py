@@ -13,7 +13,7 @@ def foc_without_holes(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, Iw):
     """
     G = 80 * 10**3  # MPa
     ro1 = np.sqrt(r_x**2 + r_y**2 + x_o**2 + y_o**2)
-    beta = 1 - (x_o**2 / ro1**2) ** 2
+    beta = 1 - (x_o / ro1) ** 2
 
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the x-axis
     fox = (np.pi**2 * E) / ((le_x / r_x) ** 2)
