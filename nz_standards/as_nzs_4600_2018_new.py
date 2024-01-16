@@ -82,7 +82,7 @@ def compression_members_without_holes_7_2_1_2_1(
 ### Local Buckling
 
 
-def local_buckling_without_holes_7_2_1_3_1(Nc, fe, Ae, Ag, Fy, foc, Nol):
+def local_buckling_without_holes_7_2_1_3_1(Nce, Nol):
     """
     Calculate the nominal member capacity (Nc) for local buckling.
 
@@ -102,7 +102,6 @@ def local_buckling_without_holes_7_2_1_3_1(Nc, fe, Ae, Ag, Fy, foc, Nol):
     float
         Nominal member capacity in compression for local buckling (N or kips)
     """
-    Nce = compression_members_without_holes_7_2_1_2_1(Nc, fe, Ae, Ag, Fy, foc)
     λl = (Nce / Nol) ** 0.5
 
     if λl <= 0.776:
