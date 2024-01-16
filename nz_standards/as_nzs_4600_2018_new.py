@@ -115,14 +115,14 @@ def local_buckling_without_holes_7_2_1_3_1(Nce, Nol):
 ### Distortional buckling
 
 
-def compression_members_without_holes_7_2_1_4_1(Ag, fy, fod):
+def distorsional_buckling_without_holes_without_holes_7_2_1_4_1(Ag, fy, fod):
     Nod = Ag * fod
     λd = (Ag * fy / Nod) ** 0.5
     if λd <= 0.561:
         Ncd = Ag * fy
     else:
         Ncd = (
-            [1 - 0.25 * (Nod / (Ag * fy)) ** 0.6] * ((Nod / (Ag * fy)) ** 0.6) * Ag * fy
+            (1 - 0.25 * (Nod / (Ag * fy)) ** 0.6) * ((Nod / (Ag * fy)) ** 0.6) * Ag * fy
         )
 
     return Ncd
