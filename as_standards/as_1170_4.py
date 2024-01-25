@@ -620,7 +620,7 @@ def part_horizontal_design_action_simple_method(
     subsoil_type = Subsoil_Type.split(" ")[0]
     EDC = get_EDC(IL, kpZ, subsoil_type, h_n)
     if EDC == "EDC not found":
-        fc = 0
+        fc = 0.01
     elif EDC == "I":
         # clause 5.3
         fc = 0.1 * Wc
