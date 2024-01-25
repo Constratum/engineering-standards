@@ -618,7 +618,8 @@ def part_horizontal_design_action_simple_method(
     kpZ = max(kp * Z, min_kpz)
     ax = height_amplification_factor(h_x, h_n)
     subsoil_type = Subsoil_Type.split(" ")[0]
-    EDC = get_EDC(IL, kpZ, subsoil_type, h_n)
+    il = IL.split("L")[1]
+    EDC = get_EDC(il, kpZ, subsoil_type, h_n)
     if EDC == "EDC not found":
         fc = 0.01
     elif EDC == "I":
