@@ -11,6 +11,96 @@
 import pandas as pd
 import numpy as np
 
+
+# Earthquake Design Category
+table2_1 = pd.DataFrame(
+    [
+        [2, "<=0.05", "<=0.05", "<=0.08", "<=0.11", "<=0.14", "<=12", "I"],
+        [2, "<=0.05", "<=0.05", "<=0.08", "<=0.11", "<=0.14", ">12, <50", "II"],
+        [2, "<=0.05", "<=0.05", "<=0.08", "<=0.11", "<=0.14", ">50", "III"],
+        [
+            2,
+            ">0.05, <=0.08",
+            ">0.05, <=0.08",
+            ">0.08, <=0.12",
+            ">0.11, <=0.17",
+            ">0.14, <=0.21",
+            "<50",
+            "II",
+        ],
+        [
+            2,
+            ">0.05, <=0.08",
+            ">0.05, <=0.08",
+            ">0.08, <=0.12",
+            ">0.11, <=0.17",
+            ">0.14, <=0.21",
+            ">=50",
+            "III",
+        ],
+        [2, ">0.08", ">0.08", ">0.12", ">0.17", ">0.21", "<25", "II"],
+        [2, ">0.08", ">0.08", ">0.12", ">0.17", ">0.21", ">=25", "III"],
+        [3, "<=0.08", "<=0.08", "<=0.12", "<=0.17", "<=0.21", "<50", "II"],
+        [3, "<=0.08", "<=0.08", "<=0.12", "<=0.17", "<=0.21", ">=50", "III"],
+        [3, ">0.08", ">0.08", ">0.12", ">0.17", ">0.21", "<25", "II"],
+        [3, ">0.08", ">0.08", ">0.12", ">0.17", ">0.21", ">=25", "III"],
+        [4, "", "", "", "", "", "<12", "II"],
+        [4, "", "", "", "", "", ">=12", "III"],
+    ],
+    columns=[
+        "Importance level",
+        "kpz_E",
+        "kpz_D",
+        "kpz_C",
+        "kpz_B",
+        "kpz_A",
+        "h_n",
+        "EDC",
+    ],
+)
+
+
+def check_condition(value, condition):
+    # Split the condition into individual comparisons
+    comparisons = condition.split(", ")
+
+    # Handle empty condition
+    if condition == "":
+        return True
+
+    for comparison in comparisons:
+        if "<=" in comparison:
+            op, num = comparison.split("<=")
+            if not (value <= float(num)):
+                return False
+        elif ">=" in comparison:
+            op, num = comparison.split(">=")
+            if not (value >= float(num)):
+                return False
+        elif "<" in comparison:
+            op, num = comparison.split("<")
+            if not (value < float(num)):
+                return False
+        elif ">" in comparison:
+            op, num = comparison.split(">")
+            if not (value > float(num)):
+                return False
+
+    return True
+
+
+def get_EDC(IL, kpz, subsoil, h_n):
+    kpz_subsoil = "kpz_" + subsoil
+
+    # Iterate over each row in the DataFrame
+    for index, row in table2_1.iterrows():
+        if row["Importance level"] == IL:
+            if check_condition(kpz, row[kpz_subsoil]) and check_condition(
+                h_n, row["h_n"]
+            ):
+                return row["EDC"]
+
+    return "EDC not found"
 # Site Hazard
 ## Annual probability of exceedance (P) and probability factor (kp)
 ### Table 3.1 - Probability Factor ($k_p$)
@@ -521,11 +611,21 @@ def height_amplification_factor(h_x, h_n):
     return ax
 
 
-def part_horizontal_design_action_simple_method(kp, Z, ChT, h_x, h_n, Ic, ac, Rc, Wc, P):
-    min_kpz = min_kp_z(P) 
-    kpZ = max(kp * Z, min_kpz)  
+def part_horizontal_design_action_simple_method(
+    IL, Subsoil_Type, kp, Z, ChT, h_x, h_n, Ic, ac, Rc, Wc, P
+):
+    min_kpz = min_kp_z(P)
+    kpZ = max(kp * Z, min_kpz)
     ax = height_amplification_factor(h_x, h_n)
-    
-    fc = max(kpZ * ChT * ax * (Ic * ac / Rc) * Wc, 0.05 * Wc)
+    subsoil_type = Subsoil_Type.split(" ")[0]
+    EDC = get_EDC(IL, kpZ, subsoil_type, h_n)
+    if EDC == "EDC not found":
+        fc = 0
+    elif EDC == "I":
+        # clause 5.3
+        fc = 0.1 * Wc
+    else:
+        # Section 8
+        fc = max(kpZ * ChT * ax * (Ic * ac / Rc) * Wc, 0.05 * Wc)
 
     return fc, kpZ, ax
