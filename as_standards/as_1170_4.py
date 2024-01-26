@@ -13,6 +13,8 @@ import numpy as np
 
 
 # Earthquake Design Category
+
+# Earthquake Design Category
 table2_1 = pd.DataFrame(
     [
         [2, "<=0.05", "<=0.05", "<=0.08", "<=0.11", "<=0.14", "<=12", "I"],
