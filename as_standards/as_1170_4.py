@@ -626,7 +626,7 @@ def part_horizontal_design_action_simple_method(
         importance_level = IL
     EDC = get_EDC(importance_level, kpZ, subsoil_type, h_n)
     if EDC == "EDC not found":
-        fc = 0.01
+        fc = 1000
     elif EDC == "I":
         # clause 5.3
         fc = 0.1 * Wc
