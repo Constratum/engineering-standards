@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 
-section_database = pd.read_csv("section_database.csv")
+from product_data import constratum_product_data_in
 
+section_database = constratum_product_data_in.get_df_from_file_name("section_database.csv")
 
 def initial_properties(grid_name):
     ### Global buckling
