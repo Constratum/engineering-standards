@@ -169,6 +169,7 @@ table3_2 = pd.DataFrame(
         ["Cairns", 0.06],
         ["Camden", 0.09],
         ["Canbern", 0.08],
+        ["Canberra", 0.08],
         ["Carnarvon", 0.09],
         ["Coffs Harbour", 0.05],
         ["Cooma", 0.08],
