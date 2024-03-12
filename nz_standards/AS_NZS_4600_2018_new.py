@@ -3,22 +3,35 @@ import pandas as pd
 
 from product_data import constratum_product_data_in
 
-section_database = constratum_product_data_in.get_df_from_file_name("section_database.csv")
+section_database = constratum_product_data_in.get_df_from_file_name(
+    "section_database.csv"
+)
 
-def initial_properties(grid_name):
-    ### Global buckling
 
+### Global Buckling
+
+
+def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
+    """
+    D1.1.1.1 Section not subject to torsional or flexural-torsional buckling:
+
+    le = effective lenght of member
+    r = raduis of gyration of the full, unreduced cross-section
+
+    """
     E = section_database.loc[
         section_database["Section Name"] == grid_name, "E (MPa)"
     ].values[0]
     G = section_database.loc[
         section_database["Section Name"] == grid_name, "G (MPa)"
     ].values[0]
-    # effective length
-    rx = section_database.loc[
+    J = section_database.loc[
+        section_database["Section Name"] == grid_name, "Torsion Const J (mm4)"
+    ].values[0]
+    r_x = section_database.loc[
         section_database["Section Name"] == grid_name, "Radi of Gyration rx (mm)"
     ].values[0]
-    ry = section_database.loc[
+    r_y = section_database.loc[
         section_database["Section Name"] == grid_name, "Radi of Gyration ry (mm)"
     ].values[0]
     x_o = section_database.loc[
@@ -27,10 +40,6 @@ def initial_properties(grid_name):
     y_o = section_database.loc[
         section_database["Section Name"] == grid_name, "y0_shear (mm)"
     ].values[0]
-
-    J = section_database.loc[
-        section_database["Section Name"] == grid_name, "Torsion Const J (mm4)"
-    ].values[0]
     Iw = section_database.loc[
         section_database["Section Name"] == grid_name, "Warping Const Iw (mm4)"
     ].values[0]
@@ -38,22 +47,6 @@ def initial_properties(grid_name):
     Ag = section_database.loc[
         section_database["Section Name"] == grid_name, "Area (mm2)"
     ].values[0]
-
-    return E, G, rx, ry, x_o, y_o, J, Iw, Ag
-
-
-### Global Buckling
-
-
-def foc_without_holes(grid_name, le_x, le_y, le_z):
-    """
-    D1.1.1.1 Section not subject to torsional or flexural-torsional buckling:
-
-    le = effective lenght of member
-    r = raduis of gyration of the full, unreduced cross-section
-
-    """
-    E, G, r_x, r_y, x_o, y_o, J, Iw, Ag = initial_properties(grid_name)
     ro1 = np.sqrt(r_x**2 + r_y**2 + x_o**2 + y_o**2)
     beta = 1 - (x_o / ro1) ** 2
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the x-axis
@@ -74,26 +67,73 @@ def foc_without_holes(grid_name, le_x, le_y, le_z):
     return fox, foy, foz, foxz, foc
 
 
-def weighted_avg_cross_sectional_properties(
-    A_g, A_net, Lg, L_net, Ig, I_net, J_net, x_o_net, y_o_net, x_o_g, y_o_g
-):
+def weighted_avg_cross_sectional_properties_table_D1_1_2_1(grid_name, Lg):
+    x_o_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "x0_shear (mm)"
+    ].values[0]
+    y_o_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "y0_shear (mm)"
+    ].values[0]
+
+    A_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Area (mm2)"
+    ].values[0]
+
+    Ixx_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Ixx (mm4)"
+    ].values[0]
+
+    Iyy_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Iyy (mm4)"
+    ].values[0]
+    A_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Area Net (mm2)"
+    ].values[0]
+
+    L_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Length Net x (mm)"
+    ].values[0]
+
+    x_o_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "x0_shear_net (mm)"
+    ].values[0]
+
+    y_o_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "y0_shear_net (mm)"
+    ].values[0]
+
+    Ixx_net = section_database.loc[
+        section_database["Section Name"] == grid_name,
+        "Moment of Inertia Ix with Hole (mm4)",
+    ].values[0]
+
+    Iyy_net = section_database.loc[
+        section_database["Section Name"] == grid_name,
+        "Moment of Inertia Iy with Hole (mm4)",
+    ].values[0]
+
+    J_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Torsion Const with Hole (mm4)"
+    ].values[0]
+
     """
     Calculate the weighted average of the cross-sectional properties of the member.
 
     Parameters:
     """
+
     A_avg = (A_g * Lg + A_net * L_net) / (Lg + L_net)
-    Ix_avg = (Ig * Lg + I_net * L_net) / (Lg + L_net)
-    Iy_avg = (Ig * Lg + I_net * L_net) / (Lg + L_net)
+    Ix_avg = (Ixx_g * Lg + Ixx_net * L_net) / (Lg + L_net)
+    Iy_avg = (Iyy_g * Lg + Iyy_net * L_net) / (Lg + L_net)
     J_avg = (J_net * L_net) / (L_net)
     ro1_avg = np.sqrt(x_o_avg**2 + y_o_avg**2 + (Ix_avg + Iy_avg) / A_avg)
-    x_o_avg = (x_o_net * L_net) / (L_net)
-    y_o_avg = (y_o_net * L_net) / (L_net)
+    x_o_avg = ((x_o_g * Lg) + (x_o_net * L_net)) / L_net
+    y_o_avg = ((y_o_g * Lg) + (y_o_net * L_net)) / L_net
 
     return A_avg, Ix_avg, Iy_avg, J_avg, ro1_avg, x_o_avg, y_o_avg
 
 
-def foc_with_holes(
+def foc_with_holes_D1_1_2_1(
     r_x_avg,
     r_y_avg,
     x_o_avg,
@@ -129,23 +169,6 @@ def foc_with_holes(
     foc = min(foxz, foy)
 
     return fox, foy, foz, foxz, foc
-
-
-# def landa_C(foc, Ny, Ag):
-#     """
-#       Calculate the non-dimensional slenderness (λc).
-
-#     Parameters:
-#     Ny : float
-#         Nominal yield capacity of the member in compression
-#     Nc : float
-#         Least of the elastic compression member buckling load in flexural, torsional, and flexural-torsional buckling
-
-#     """
-#     Noc = Ag * foc
-#     λc = np.sqrt(Ny / Noc)
-
-#     return λc
 
 
 def compression_global_buckling_without_holes_7_2_1_2_1(Noc, Ny):
@@ -251,7 +274,7 @@ def compression_distorsional_buckling_with_holes_without_holes_7_2_1_4_2(
 ## Compression Capacity
 
 
-def compression_capacity(Ncd, Ncl, Nce):
+def compression_capacity_7_2_1_1(Ncd, Ncl, Nce):
     """
     Calculate the compression capacity of the member.
 
@@ -402,3 +425,23 @@ def bending_distorsional_buckling_with_holes_7_2_2_4_3(My, Mod, My_net):
         Mbd = My_net - ((My_net - Md2) / (λd2 - λd1)) * (λd - λd1)
 
     return Mbd
+
+
+def bending_capacity_7_2_2_2(Mbd, Mbl, Mbe):
+    """
+    Calculate the bending capacity of the member.
+
+    Parameters:
+    Mbd : float
+        Nominal member capacity in compression for distortional buckling (N or kips)
+    Mbl : float
+        Nominal member capacity in compression for local buckling (N or kips)
+    Mbe : float
+        Nominal member capacity in compression for flexural, torsional or flexural-torsional buckling (N or kips)
+
+    Returns:
+    float
+        Compression capacity of the member (N or kips)
+    """
+    Mb = min(Mbd, Mbl, Mbe)
+    return Mb
