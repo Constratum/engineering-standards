@@ -8,104 +8,6 @@ section_database = constratum_product_data_in.get_df_from_file_name(
 )
 
 
-def initial_properties(grid_name):
-    ### Global buckling
-
-    E = section_database.loc[
-        section_database["Section Name"] == grid_name, "E (MPa)"
-    ].values[0]
-    G = section_database.loc[
-        section_database["Section Name"] == grid_name, "G (MPa)"
-    ].values[0]
-    # effective length
-    rx = section_database.loc[
-        section_database["Section Name"] == grid_name, "Radi of Gyration rx (mm)"
-    ].values[0]
-    ry = section_database.loc[
-        section_database["Section Name"] == grid_name, "Radi of Gyration ry (mm)"
-    ].values[0]
-    x_o = section_database.loc[
-        section_database["Section Name"] == grid_name, "x0_shear (mm)"
-    ].values[0]
-    y_o = section_database.loc[
-        section_database["Section Name"] == grid_name, "y0_shear (mm)"
-    ].values[0]
-
-    J = section_database.loc[
-        section_database["Section Name"] == grid_name, "Torsion Const J (mm4)"
-    ].values[0]
-    Iw = section_database.loc[
-        section_database["Section Name"] == grid_name, "Warping Const Iw (mm4)"
-    ].values[0]
-
-    Ag = section_database.loc[
-        section_database["Section Name"] == grid_name, "Area (mm2)"
-    ].values[0]
-
-    Ixx = section_database.loc[
-        section_database["Section Name"] == grid_name, "Ixx (mm4)"
-    ].values[0]
-
-    Iyy = section_database.loc[
-        section_database["Section Name"] == grid_name, "Iyy (mm4)"
-    ].values[0]
-
-    A_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Area Net (mm2)"
-    ].values[0]
-
-    L_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Length Net x (mm)"
-    ].values[0]
-
-    # L_y_net = section_database.loc[
-    #     section_database["Section Name"] == grid_name, "Length Net y (mm)"
-    # ].values[0]
-
-    x_o_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "x0_shear_net (mm)"
-    ].values[0]
-
-    y_o_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "y0_shear_net (mm)"
-    ].values[0]
-
-    I_x_net = section_database.loc[
-        section_database["Section Name"] == grid_name,
-        "Moment of Inertia Ix with Hole (mm4)",
-    ].values[0]
-
-    I_y_net = section_database.loc[
-        section_database["Section Name"] == grid_name,
-        "Moment of Inertia Iy with Hole (mm4)",
-    ].values[0]
-
-    J_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Torsion Const with Hole (mm4)"
-    ].values[0]
-
-    return (
-        E,
-        G,
-        rx,
-        ry,
-        x_o,
-        y_o,
-        J,
-        Iw,
-        Ag,
-        Ixx,
-        Iyy,
-        A_net,
-        L_net,
-        x_o_net,
-        y_o_net,
-        I_x_net,
-        I_y_net,
-        J_net,
-    )
-
-
 ### Global Buckling
 
 
@@ -117,7 +19,34 @@ def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
     r = raduis of gyration of the full, unreduced cross-section
 
     """
-    E, G, r_x, r_y, x_o, y_o, J, Iw, Ag, _ = initial_properties(grid_name)
+    E = section_database.loc[
+        section_database["Section Name"] == grid_name, "E (MPa)"
+    ].values[0]
+    G = section_database.loc[
+        section_database["Section Name"] == grid_name, "G (MPa)"
+    ].values[0]
+    J = section_database.loc[
+        section_database["Section Name"] == grid_name, "Torsion Const J (mm4)"
+    ].values[0]
+    r_x = section_database.loc[
+        section_database["Section Name"] == grid_name, "Radi of Gyration rx (mm)"
+    ].values[0]
+    r_y = section_database.loc[
+        section_database["Section Name"] == grid_name, "Radi of Gyration ry (mm)"
+    ].values[0]
+    x_o = section_database.loc[
+        section_database["Section Name"] == grid_name, "x0_shear (mm)"
+    ].values[0]
+    y_o = section_database.loc[
+        section_database["Section Name"] == grid_name, "y0_shear (mm)"
+    ].values[0]
+    Iw = section_database.loc[
+        section_database["Section Name"] == grid_name, "Warping Const Iw (mm4)"
+    ].values[0]
+
+    Ag = section_database.loc[
+        section_database["Section Name"] == grid_name, "Area (mm2)"
+    ].values[0]
     ro1 = np.sqrt(r_x**2 + r_y**2 + x_o**2 + y_o**2)
     beta = 1 - (x_o / ro1) ** 2
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the x-axis
@@ -139,26 +68,53 @@ def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
 
 
 def weighted_avg_cross_sectional_properties_table_D1_1_2_1(grid_name, Lg):
-    (
-        E,
-        G,
-        r_x,
-        r_y,
-        x_o_g,
-        y_o_g,
-        J,
-        Ig,
-        A_g,
-        A_net,
-        L_net,
-        x_o_net,
-        y_o_net,
-        Ixx_g,
-        Iyy_g,
-        Ixx_net,
-        Iyy_net,
-        J_net,
-    ) = initial_properties(grid_name)
+    x_o_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "x0_shear (mm)"
+    ].values[0]
+    y_o_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "y0_shear (mm)"
+    ].values[0]
+
+    A_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Area (mm2)"
+    ].values[0]
+
+    Ixx_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Ixx (mm4)"
+    ].values[0]
+
+    Iyy_g = section_database.loc[
+        section_database["Section Name"] == grid_name, "Iyy (mm4)"
+    ].values[0]
+    A_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Area Net (mm2)"
+    ].values[0]
+
+    L_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Length Net x (mm)"
+    ].values[0]
+
+    x_o_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "x0_shear_net (mm)"
+    ].values[0]
+
+    y_o_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "y0_shear_net (mm)"
+    ].values[0]
+
+    Ixx_net = section_database.loc[
+        section_database["Section Name"] == grid_name,
+        "Moment of Inertia Ix with Hole (mm4)",
+    ].values[0]
+
+    Iyy_net = section_database.loc[
+        section_database["Section Name"] == grid_name,
+        "Moment of Inertia Iy with Hole (mm4)",
+    ].values[0]
+
+    J_net = section_database.loc[
+        section_database["Section Name"] == grid_name, "Torsion Const with Hole (mm4)"
+    ].values[0]
 
     """
     Calculate the weighted average of the cross-sectional properties of the member.
