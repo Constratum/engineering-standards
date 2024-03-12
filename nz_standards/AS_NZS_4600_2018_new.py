@@ -245,7 +245,7 @@ def compression_local_buckling_with_holes_7_2_1_3_2(Nce, Nol, Ny_net):
 ### Distortional buckling
 
 
-def compression_distorsional_buckling_without_holes_without_holes_7_2_1_4_1(Ny, Nod):
+def compression_distorsional_buckling_without_holes_7_2_1_4_1(Ny, Nod):
     λd = (Ny / Nod) ** 0.5
     if λd <= 0.561:
         Ncd = Ny
@@ -255,9 +255,7 @@ def compression_distorsional_buckling_without_holes_without_holes_7_2_1_4_1(Ny, 
     return Ncd
 
 
-def compression_distorsional_buckling_with_holes_without_holes_7_2_1_4_2(
-    Ny, Nod, Ny_net
-):
+def compression_distorsional_buckling_with_holes_7_2_1_4_2(Ny, Nod, Ny_net):
     λd = (Ny / Nod) ** 0.5
     λd1 = 0.561 * (Ny_net / Ny)
     λd2 = 0.561 * (14 * ((Ny / Ny_net) ** 0.4) - 13)
