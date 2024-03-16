@@ -10,6 +10,7 @@ section_database = constratum_product_data_in.get_df_from_file_name(
 
 ## Section 5: Connection
 ### Section 5.4: Screwed Connections
+### Screw connections in shear
 def calculate_tension_in_connected_part_5_4_2_3(
     d_t, s_f, f_u, a_n=None, single_screw=True
 ):
