@@ -287,8 +287,8 @@ ChT = spectral_shape_factor(Subsoil_Type, T, spectral_method)
 print("Spectral shape factor =", ChT)
 
 
-def site_hazard_spectra_vertical_loading(Subsoil_Type, T, spectral_method):
-
+def site_hazard_spectra_vertical_loading(Subsoil_Type, T):
+    spectral_method = "modal, numerical, parts (table 3.2)"
     if Subsoil_Type == "A Strong rock and B rock" or Subsoil_Type == "C Shallow soil":
         alpha = 0.9
     else:
