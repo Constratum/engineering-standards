@@ -172,7 +172,7 @@ def tension_axial_net_section_3_4_2(alloy_temper, product, welded_region, sectio
 
 
 # Compression Capacity - 3.4.8
-def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, G, J, xo, Cw):
+def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw):
     """
     Calculate the compression capacity based on torsional and torsional-flexural buckling.
 
@@ -197,6 +197,8 @@ def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, s
 
     E = table_3_3_A.loc[
         (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compressive modulus of elasticity_E"].values[0]
+    
+    G = (3*E) / 8
     # Calculate F_ex (Flexural buckling stress)
     F_ex = (np.pi ** 2 * E) / ((kx * Lb / rx) ** 2)
 
@@ -221,7 +223,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, s
     return kL_r
 
 
-def calculate_compression_capacity(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, G, J, xo, Cw):
+def calculate_compression_capacity(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw):
     """
     Calculate the compression capacity of a column.
 
@@ -244,7 +246,7 @@ def calculate_compression_capacity(alloy_temper, product, welded_region, Lb, Lt,
     Fcy = table_3_3_A.loc[
         (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compression_Fcy"].values[0]
 
-    kL_r = define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, G, J, xo, Cw)
+    kL_r = define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw)
     kc = kc_table_3_4_b(alloy_temper, welded_region)
     # Calculate slenderness parameter (λ)
     lambda_ = kL_r * (1 / np.pi) * np.sqrt(Fcy / E)
