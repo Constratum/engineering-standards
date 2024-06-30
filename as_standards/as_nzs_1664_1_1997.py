@@ -223,7 +223,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, s
     return kL_r
 
 
-def calculate_compression_capacity(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw):
+def calculate_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw):
     """
     Calculate the compression capacity of a column.
 
