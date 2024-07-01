@@ -154,7 +154,7 @@ def kc_table_3_4_b(alloy_temper, welded_region):
 
 
 # Tension in Axial, Net Section - Section 3.4.2
-def tension_axial_net_section_3_4_2(alloy_temper, product, welded_region, sectio_area):
+def tension_stress_axial_net_section_3_4_2(alloy_temper, product, welded_region):
     φ_y = 0.95
     φ_u = 0.85
 
@@ -163,11 +163,37 @@ def tension_axial_net_section_3_4_2(alloy_temper, product, welded_region, sectio
     tension_ftu_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
 
     fl_yield_stress = φ_y * tension_fty_value
-    fl_yield_force = fl_yield_stress * sectio_area
     kt = kt_table_3_4_b(alloy_temper, welded_region)
     fl_ultimate_stress = φ_u * tension_ftu_value/kt
-    fl_ultimate_force = fl_ultimate_stress * sectio_area
-    tension_capacity = min((fl_yield_force, fl_ultimate_force))
+    tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
+    return tension_capacity
+
+def tension_stress_extreme_fibers_bent_strong_axis_3_4_3(alloy_temper, product, welded_region):
+    φ_y = 0.95
+    φ_u = 0.85
+
+    # Get the Tension_Fty* value
+    tension_fty_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
+    tension_ftu_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
+
+    fl_yield_stress = φ_y * tension_fty_value
+    kt = kt_table_3_4_b(alloy_temper, welded_region)
+    fl_ultimate_stress = φ_u * tension_ftu_value/kt
+    tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
+    return tension_capacity
+
+
+def tension_stress_extreme_fibers_bent_weak_axis_3_4_5(alloy_temper, product, welded_region):
+    φ_y = 0.95
+    φ_u = 0.85
+
+    tension_fty_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
+    tension_ftu_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
+
+    fl_yield_stress = 1.3 * φ_y * tension_fty_value
+    kt = kt_table_3_4_b(alloy_temper, welded_region)
+    fl_ultimate_stress = 1.42 * φ_u * tension_ftu_value/kt
+    tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
     return tension_capacity
 
 
@@ -223,7 +249,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, s
     return kL_r
 
 
-def calculate_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw):
+def calculate_axial_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw):
     """
     Calculate the compression capacity of a column.
 
@@ -240,11 +266,12 @@ def calculate_compression_capacity_3_4_8_3(alloy_temper, product, welded_region,
     Returns:
     float: Compression capacity
     """
-
     E = table_3_3_A.loc[
         (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compressive modulus of elasticity_E"].values[0]
     Fcy = table_3_3_A.loc[
         (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compression_Fcy"].values[0]
+
+    G = 3*E/8
 
     kL_r = define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw)
     kc = kc_table_3_4_b(alloy_temper, welded_region)
@@ -258,8 +285,6 @@ def calculate_compression_capacity_3_4_8_3(alloy_temper, product, welded_region,
         phi_cc = 0.14 * lambda_ + 0.58
 
     phi_cc = min(phi_cc, 0.95)
-
-
 
     # Table 3.3(D) Bc and Cc
     # filtered_row = table_3_3_A[(table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)]
@@ -283,6 +308,194 @@ def calculate_compression_capacity_3_4_8_3(alloy_temper, product, welded_region,
     else:
         compression_capacity = (phi_cc / lambda_ ** 2) * Fcy
 
-    return compression_capacity * section_area
+    return compression_capacity
 
 
+def compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, welded_region, Lb, ry):
+    """
+    Calculate the compression capacity based on Clause 3.4.12 of AS/NZS 1664.1:1997.
+
+    Parameters:
+    E (float): Modulus of elasticity (MPa)
+    F_cy (float): Compressive yield strength (MPa)
+    B_c (float): Buckling coefficient
+    D_c (float): Buckling coefficient
+    C_c (float): Buckling coefficient
+    L_b (float): Length of the beam between bracing points (mm)
+    r_y (float): Radius of gyration about the y-axis (mm)
+
+    Returns:
+    float: Compression capacity (kN)
+    """
+
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compressive modulus of elasticity_E"].values[0]
+    Fcy = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compression_Fcy"].values[0]
+
+    Bc = Fcy * (1 + (Fcy / 15510)**0.5)
+    Dc = (Bc / 10) * ((Bc / E) ** 0.5)
+    Cc = 0.41 * Bc / Dc    
+    # Constants
+    phi_y = 0.95
+    phi_b = 0.85
+    
+    # Slenderness limits
+    S1 = 1.2 * (Bc - (phi_y * Fcy / phi_b)) / Dc
+    S2 = 1.2 * Cc
+
+    Lb_ry = Lb / ry
+    print("Lb_ry: ", Lb_ry, "S1: ", S1, "S2: ", S2)
+    # Calculate compression capacity
+    if Lb_ry < S1:
+        # Case (a)
+        phi_FL = phi_y * Fcy
+    elif S1 <= Lb_ry <= S2:
+        # Case (b)
+        phi_FL = phi_b * (Bc - (Dc * Lb) / (1.2 * ry))
+    else:
+        # Case (c)
+        phi_FL = phi_b * (np.pi ** 2 * E) / ((Lb / (1.2 * ry)) ** 2)
+    
+    return phi_FL
+
+def compression_extreme_fibre_bent_weak_axis_3_4_21(alloy_temper, product, welded_region, b, t):
+    """
+    Calculate the compression capacity for flat plates with compression edge free and tension edge supported.
+    
+    Parameters:
+    E (float): Modulus of elasticity (MPa)
+    F_cy (float): Compressive yield strength (MPa)
+    B_br (float): Buckling coefficient
+    D_br (float): Buckling coefficient
+    C_br (float): Buckling coefficient
+    b (float): Width of the plate (mm)
+    t (float): Thickness of the plate (mm)
+    
+    Returns:
+    float: Compression capacity (MPa)
+    """
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compressive modulus of elasticity_E"].values[0]
+    Fcy = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compression_Fcy"].values[0]
+
+    # Constants
+    phi_y = 0.95
+    phi_b = 0.85
+
+    # Table 3.3(D)
+    Bbr = 1.3 * Fcy * (1 + ((Fcy)**0.5)/13.3)
+    Dbr = (Bbr / 20) * (6 * Bbr / E) ** 0.5
+    Cbr = 0.67 * (Bbr / Dbr)
+    # Slenderness limits
+    S1 = (Bbr - 1.3 * Fcy * (phi_y/phi_b)) / (3.5 * Dbr)
+    S2 = Cbr / 3.5
+
+    b_t = b / t
+
+    print("b/t: ", b_t, "S1: ", S1, "S2: ", S2)
+    # Calculate compression capacity
+    if b_t < S1:
+        # Case (a)
+        phi_FL = 1.3 * phi_y * Fcy
+    elif S1 <= b_t <= S2:
+        # Case (b)
+        phi_FL = phi_b * (Bbr - 3.5 * Dbr * b_t)
+    else:
+        # Case (c)
+        phi_FL = phi_b * (np.pi ** 2 * E) / ((3.5 * b_t) ** 2)
+    
+    return phi_FL
+
+def combined_compression_bending_4_1_1(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw, b, t, fa, fbx, fby):
+    """
+    Check combined compression and bending based on AS/NZS 1664.1:1997 Clause 4.1.1.
+
+    Parameters:
+    fa (float): Average compressive stress on cross-section produced by the factored compressive load
+    fbx (float): Maximum compressive bending stress about the x-axis
+    fby (float): Maximum compressive bending stress about the y-axis
+    Fa (float): Factored limit state stress for axially loaded column
+    Fao (float): Factored limit state stress for short column
+    Fbx (float): Factored limit state stress for a beam about the x-axis
+    Fby (float): Factored limit state stress for a beam about the y-axis
+    Cmx (float): Moment modification factor for the x-axis
+    Cmy (float): Moment modification factor for the y-axis
+    Fex (float): Factored elastic buckling stress about the x-axis
+    Fey (float): Factored elastic buckling stress about the y-axis
+
+    Returns:
+    bool: True if all checks are satisfied, otherwise False
+    """
+    Fbx = compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, welded_region, Lb, ry)
+    Fby = compression_extreme_fibre_bent_weak_axis_3_4_21(alloy_temper, product, welded_region, b, t)
+    Fa = calculate_axial_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, rx, ry, J, xo, Cw)
+
+    kx = 1
+    ky = 1
+    Cmx = Cmy = 0.6
+
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compressive modulus of elasticity_E"].values[0]
+    tension_fty_value = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Tension_Fty"].values[0]
+
+    Fao = tension_fty_value
+
+    Fcy = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product), "Compression_Fcy"].values[0]
+
+    G = 3*E/8
+
+    kL_r = define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw)
+    kc = kc_table_3_4_b(alloy_temper, welded_region)
+    # Calculate slenderness parameter (λ)
+    lambda_ = kL_r * (1 / np.pi) * np.sqrt(Fcy / E)
+
+    # Determine φcc based on λ
+    if lambda_ <= 1.2:
+        phi_cc = 1 - 0.21 * (lambda_ ** 2)
+    else:
+        phi_cc = 0.14 * lambda_ + 0.58
+
+    phi_cc = min(phi_cc, 0.95)
+
+    Fex = phi_cc * (np.pi**2) * E / (kx * Lb/rx)**2
+    Fey = phi_cc * (np.pi**2) * E / (ky * Lb/ry)**2
+
+
+    equation_4_1_1_1 = (fa / Fa + (Cmx * fbx) / (Fbx * (1 - fa / Fex)) + (Cmy * fby) / (Fby * (1 - fa / Fey)))
+    equation_4_1_1_2 = (fa / Fao + fbx / Fbx + fby / Fby)
+    equation_4_1_1_3 = (fa / Fa + fbx / Fbx + fby / Fby)
+
+    if fa / Fa <= 0.15:
+      unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
+      if equation_4_1_1_1 > 1.0 or equation_4_1_1_2 > 1.0 or equation_4_1_1_3 > 1.0:
+        compliance = False
+        return unity, compliance
+      else:
+        compliance = True
+        return unity, compliance
+    else:
+      unity = max(equation_4_1_1_1, equation_4_1_1_2)
+      if equation_4_1_1_1 > 1.0 or equation_4_1_1_2> 1.0:
+        compliance = False
+        return unity, compliance
+      else:
+        compliance = True
+        return unity, compliance
+    
+def combined_tension_bending_4_1_2(alloy_temper, product, welded_region, fa, fbx, fby):
+
+
+  Ft = tension_stress_axial_net_section_3_4_2(alloy_temper, product, welded_region)
+  Fbx = tension_stress_extreme_fibers_bent_strong_axis_3_4_3(alloy_temper, product, welded_region)
+  Fby = tension_stress_extreme_fibers_bent_weak_axis_3_4_5(alloy_temper, product, welded_region)
+
+  unity = (fa / Ft + fbx / Fbx + fby / Fby)
+  if unity > 1.0:
+    compliance = False
+  else:
+    compliance = True
+  return unity, compliance
+  
