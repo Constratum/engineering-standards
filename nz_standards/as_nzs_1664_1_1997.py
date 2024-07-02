@@ -430,7 +430,7 @@ def combined_compression_bending_4_1_1(alloy_temper, product, welded_region, Lb,
     """
     Fbx = compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, welded_region, Lb, ry)
     Fby = compression_extreme_fibre_bent_weak_axis_3_4_21(alloy_temper, product, welded_region, b, t)
-    Fa = calculate_axial_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, rx, ry, J, xo, Cw)
+    Fa = calculate_axial_compression_capacity_3_4_8_3(alloy_temper, product, welded_region, Lb, Lt, section_area, rx, ry, J, xo, Cw)
 
     kx = 1
     ky = 1
