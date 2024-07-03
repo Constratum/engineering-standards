@@ -499,3 +499,153 @@ def combined_tension_bending_4_1_2(alloy_temper, product, welded_region, fa, fbx
     compliance = True
   return unity, compliance
   
+  
+# Connections
+## Table 5.1.1(A) -  Factored limit state stresses for bolts
+data_5_1_1_a = {
+    'Alloy and Temper': ['2024-T4', '6061-T6', '7075-T73'],
+    'Minimum expected shear strength': [255, 172, 283],
+    'Shear stress on effective area': [165, 110, 186],
+    'Minimum expected tensile strength': [427, 290, 469],
+    'Tensile stress on root area': [299, 179, 290]
+}
+table_5_1_1_a = pd.DataFrame(data_5_1_1_a)
+
+## Table 5.1.1(B) -  Factored limit state stresses for rivets
+data_5_1_1_b = {
+    'Designation before driving': ['1100-H14', '2017-T4', '2117-T4', '5056-H32', '6053-T61', '6061-T6', '7050-T7'],
+    'Minimum expected shear strength MPa': [65, 227, 179, 172, 138, 172, 269],
+    'Shear stress on effective area MPa': [41, 145, 117, 110, 90, 110, 172]
+}
+table_5_1_1_b = pd.DataFrame(data_5_1_1_b)
+
+## Shear Capacity
+def bearing_rivets_bolts_3_4_6(alloy_temper, product, edge_distance, fastener_diameter):
+    """
+    Calculate the bearing stress on rivets and bolts based on Clause 3.4.6.
+
+    Parameters:
+    F_by (float): Bearing strength based on yield (MPa)
+    F_bu (float): Bearing strength based on ultimate (MPa)
+    edge_distance (float): Edge distance (mm)
+    fastener_diameter (float): Fastener diameter (mm)
+
+    Returns:
+    float: Factored limit state bearing stress (MPa)
+    """
+    # Reduction factors
+    phi_y = 0.95
+    phi_u = 0.85
+    F_by = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Bearing_Fbry"].values[0]
+    F_bu = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper) & (table_3_3_A["Product"] == product)), "Bearing_Fbru"].values[0]
+    # Calculate bearing stresses
+    phi_FL_y = phi_y * F_by
+    phi_FL_u = phi_u * F_bu / 1.2
+
+    # Edge distance ratio
+    edge_distance_ratio = edge_distance / (2 * fastener_diameter)
+
+    # Adjust bearing stress if edge distance ratio is less than 2
+    if edge_distance_ratio < 2:
+        phi_FL_y *= edge_distance_ratio
+        phi_FL_u *= edge_distance_ratio
+
+    # Minimum bearing stress
+    phi_FL = min(phi_FL_y, phi_FL_u)
+
+    return phi_FL
+
+## Tension Capacity
+def calculate_tension_strength_5_3_3(F_tu1, F_tu2, D, t1, t2, t_c, D_ws, D_h, C):
+    """
+    Calculate the factored limit state strength in tension for a screw.
+
+    Parameters:
+    F_tu1 (float): Tensile strength of the material for pull-over (MPa)
+    F_tu2 (float): Tensile strength of the material for pull-out (MPa)
+    D (float): Diameter of the screw (mm)
+    t1 (float): Thickness of the connected plate (mm)
+    t2 (float): Thickness of the second plate (mm)
+    t_c (float): Thickness of the screw penetration (mm)
+    D_ws (float): Washer diameter (mm)
+    D_h (float): Screw head diameter (mm)
+    C (float): Coefficient depending on screw location (1.0 for valley, 0.7 for crown)
+    phi_sc (float): Reduction factor for tensile strength (default 0.50)
+
+    Returns:
+    float: Factored limit state strength in tension (kN)
+    """
+    phi_sc=0.50
+    # Calculate Pull-out Force (P_not)
+    P_not = 0.85 * t_c * D * F_tu2
+
+    # Calculate Pull-over Force (P_nov)
+    P_nov = C * t1 * F_tu1 * (D_ws - D_h)
+
+    # Nominal tensile strength (P_nt) is the lesser of P_not and P_nov
+    P_nt = min(P_not, P_nov)
+
+    # Factored limit state tensile strength (phi P_at)
+    phi_P_at = phi_sc * P_nt
+
+    return phi_P_at
+
+
+
+######
+# Additional functions for shear
+## Shear Screws Capacity
+def calculate_shear_strength_5_3_2(alloy_temper_1, product_1, alloy_temper_2, product_2, alloy_temper_rivet, product_rivet, t1, t2, D, edge_distance, fastener_diameter):
+    """
+    Calculate the connection shear factored limit state shear strength per screw (phi P_as).
+
+    Parameters:
+    F_by1 (float): Yield strength for the first element (MPa)
+    F_by2 (float): Yield strength for the second element (MPa)
+    F_u1 (float): Ultimate strength for the first element (MPa)
+    F_u2 (float): Ultimate strength for the second element (MPa)
+    t1 (float): Thickness of the first element (mm)
+    t2 (float): Thickness of the second element (mm)
+    D (float): Diameter of the screw (mm)
+    phi_sc (float): Reduction factor for shear strength (default 0.50)
+    phi_y (float): Reduction factor for yield strength (default 0.95)
+    phi_u (float): Reduction factor for ultimate strength (default 0.85)
+
+    Returns:
+    float: Factored limit state shear strength per screw (phi P_as)
+    """
+    phi_sc = 0.50
+    phi_y = 0.95
+    phi_u = 0.85
+
+    rivet_bearing_stress_capacity = bearing_rivets_bolts_3_4_6(alloy_temper_rivet, product_rivet, edge_distance, fastener_diameter)
+    rivet_bearing_capacity = rivet_bearing_stress_capacity * D * min(t1, t2)
+    # Calculate F_by1, F_by2, F_u1, F_u2
+    F_by1 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_1) & (table_3_3_A["Product"] == product_1)), "Bearing_Fbry"].values[0]
+    F_by2 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_2) & (table_3_3_A["Product"] == product_2)), "Bearing_Fbry"].values[0]
+
+    F_u1 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_1) & (table_3_3_A["Product"] == product_1)), "Bearing_Fbru"].values[0]
+    F_u2 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_2) & (table_3_3_A["Product"] == product_2)), "Bearing_Fbru"].values[0]
+
+    # Calculate P_ns values
+    P_ns1 = (phi_y / phi_sc) * F_by1 * t1
+    P_ns2 = (phi_y / phi_sc) * F_by2 * t2
+    P_ns3 = (phi_u / (1.2 * phi_sc)) * F_u1 * t1
+    P_ns4 = (phi_u / (1.2 * phi_sc)) * F_u2 * t2
+
+    # For t2/t1 <= 1.0, calculate additional P_ns value
+    if t2 / t1 <= 1.0:
+        P_ns5 = 4.2 * (t2 / t1)**0.75 * D**0.5 * F_u2
+        P_ns = min(P_ns1, P_ns2, P_ns3, P_ns4, P_ns5)
+    else:
+        P_ns = min(P_ns1, P_ns2, P_ns3, P_ns4)
+
+    # Calculate phi P_as
+    phi_P_as = phi_sc * P_ns
+
+    shear_capacity = min(rivet_bearing_capacity, phi_P_as)
+    return shear_capacity
+
+
+
+
