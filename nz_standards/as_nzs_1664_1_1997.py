@@ -556,7 +556,7 @@ def bearing_rivets_bolts_3_4_6(alloy_temper, product, edge_distance, fastener_di
     return phi_FL
 
 ## Tension Capacity
-def calculate_tension_strength_5_3_3(F_tu1, F_tu2, D, t1, t2, t_c, D_ws, D_h, C):
+def calculate_tension_strength_5_3_3(alloy_temper_1, product_1, alloy_temper_2, product_2, D, t1, t2, t_c, D_ws, D_h, C):
     """
     Calculate the factored limit state strength in tension for a screw.
 
@@ -575,6 +575,10 @@ def calculate_tension_strength_5_3_3(F_tu1, F_tu2, D, t1, t2, t_c, D_ws, D_h, C)
     Returns:
     float: Factored limit state strength in tension (kN)
     """
+
+    F_tu1 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_1) & (table_3_3_A["Product"] == product_1)), "Bearing_Fbru"].values[0]
+    F_tu2 = table_3_3_A.loc[((table_3_3_A["Alloy and temper"] == alloy_temper_2) & (table_3_3_A["Product"] == product_2)), "Bearing_Fbru"].values[0]
+
     phi_sc=0.50
     # Calculate Pull-out Force (P_not)
     P_not = 0.85 * t_c * D * F_tu2
