@@ -160,7 +160,7 @@ def bearing_capacity_5_3_4_2(sheet_grade, bearing_type, d_bolt, t):
     Vb = alpha * C * d_bolt * t * fu * phi
     return Vb
 
-def bolt_shear_capacity(bolt_grade, n_n, Ac, n_x, Ao):
+def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     """
     Calculate the nominal shear capacity of a bolt.
 
