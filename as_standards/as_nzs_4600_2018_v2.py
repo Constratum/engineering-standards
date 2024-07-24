@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 
@@ -50,7 +51,18 @@ data_1_5_2 = {
 # Create DataFrame
 table_1_5_2 = pd.DataFrame(data_1_5_2)
 
+## Section 3: Axial Tension
+def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
+    phi_t = 0.8
+    Nt_g = phi_t * Ag * fy
+    if An != None and fu != None:
+        kt = 1.0
+        Nt_net = phi_t * (0.85 * kt * An * fu)
+        Nt = min(Nt_g, Nt_net)
+    else:
+        Nt = Nt_g
 
+    return Nt
 ## Section 5: Connection
 ### Section 5.3: Bolted Connections
 def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
@@ -157,7 +169,7 @@ def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
     Vb = alpha * C * d_bolt * t * fu_bolt * phi
     return Vb
 
-def bolt_shear_capacity(bolt_grade, n_n, Ac, n_x, Ao):
+def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     """
     Calculate the nominal shear capacity of a bolt.
 
