@@ -61,7 +61,7 @@ def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
     else:
         Nt = Nt_g
 
-return Nt
+    return Nt
 ## Section 5: Connection
 ### Section 5.3: Bolted Connections
 def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
