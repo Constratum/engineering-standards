@@ -686,11 +686,11 @@ cpi_building_table_5_1_a = pd.DataFrame(
 # })
 cpi_building_table_5_1_b = pd.DataFrame(
     [
-        ["0.5", -0.3],
-        ["1", -0.3],
-        ["2", 0.7],
-        ["4", 0.85],
-        ["6", 0.85],
+        [0.5, -0.3],
+        [1, -0.3],
+        [2, 0.7],
+        [4, 0.85],
+        [6, 0.85],
     ],
     columns=["Ratio", "Cpi"],
 )
@@ -723,32 +723,32 @@ def get_building_cpi_table_5_1(ratio, permeability):
         # return cpi_building_table_5_1_b.loc[cpi_building_table_5_1_b['Ratio'] == ratio, wall_type].values[0]
 
 
-def get_internal_cpi_5_3_3(building_cpi, element_type):
+def get_internal_cpi_5_3_3(building_cpi, intenral_condition):
     """
     Get the internal Cpi for ceilings and partitions.
 
     :param building_cpi: Cpi value for the building
-    :param element_type: 'ceiling', 'partition_adjacent', 'partition_sealed', or 'partition_unsealed'
+    :param intenral_condition: 'ceiling', 'adjacent', 'sealed', or 'unsealed'
     :return: Total internal Cpi
     """
     additional_cpi = {
-        "ceiling": 0.4,
-        "partition_adjacent": 0.2,  # Use abs(building_cpi) + 0.2 or abs(building_cpi) - 0.2, whichever is larger
-        "partition_sealed": 0.4,
-        "partition_unsealed": 0.3,
+        # "ceiling": 0.4,
+        "adjacent": 0.2,  # Use abs(building_cpi) + 0.2 or abs(building_cpi) - 0.2, whichever is larger
+        "sealed": 0.4,
+        "unsealed": 0.3,
     }
 
     building_cpi = float(building_cpi)
 
-    if element_type == "partition_adjacent":
-        return max(abs(building_cpi) + 0.2, abs(building_cpi) - 0.2)
+    if intenral_condition == "adjacent":
+        return max(abs(building_cpi + 0.2), abs(building_cpi - 0.2))
     else:
-        return abs(building_cpi) + additional_cpi[element_type]
+        return abs(building_cpi) + additional_cpi[intenral_condition]
 
 
-def calculate_internal_cpi(ratio, element_type, permeability=None):
+def calculate_internal_cpi(ratio, intenral_condition, permeability=None):
     building_cpi = get_building_cpi_table_5_1(ratio, permeability)
-    internal_cpi = get_internal_cpi_5_3_3(building_cpi, element_type)
+    internal_cpi = get_internal_cpi_5_3_3(building_cpi, intenral_condition)
     return internal_cpi
 
 
@@ -776,13 +776,13 @@ def calculate_kv_5_3_4(A, Vol, is_largest_opening_on_wall=True):
 
 def Cshp_5_2(
     ratio,
-    element_type,
+    intenral_condition,
     permeability,
     is_largest_opening_on_wall,
     kci=1.0,
     kv=1.0,
 ):
-    cpi = calculate_internal_cpi(ratio, element_type, permeability)
+    cpi = calculate_internal_cpi(ratio, intenral_condition, permeability)
     kv = calculate_kv_5_3_4(0.5, 100, is_largest_opening_on_wall)
     cshp = cpi * kv * kci
     return cshp
@@ -801,11 +801,9 @@ def site_wind_speed(p, location, height, Terrain_category):
 
 def calc_wind_pressure(
     v_site,
-    rho_air,
     ratio,
-    element_type,
+    intenral_condition,
     permeability,
-    is_largest_opening_on_wall,
     kci=1.0,
     kv=1.0,
     Cdyn=1.0,
@@ -813,12 +811,12 @@ def calc_wind_pressure(
 
     C_shp = Cshp_5_2(
         ratio,
-        element_type,
+        intenral_condition,
         permeability,
-        is_largest_opening_on_wall,
         kci,
         kv,
     )
+    rho_air = 1.2
     print("C_shp: ", C_shp)
     wind_pressure = 0.5 * rho_air * (v_site**2) * C_shp * Cdyn
     return wind_pressure
@@ -827,6 +825,6 @@ def calc_wind_pressure(
 v = site_wind_speed(1 / 500, "Sydney", 20, "TC2")
 print("v: ", v)
 wind_pressure = calc_wind_pressure(
-    v, 1.2, "0.5", "ceiling", "One Windward wall permeable", True, 1.0, 1.0, 1.0
+    v, 0.5, "sealed", "One Windward wall permeable", 1.0, 1.0, 1.0
 )
 print(wind_pressure)
