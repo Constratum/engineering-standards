@@ -789,8 +789,9 @@ def Cshp_5_2(
 
 
 def site_wind_speed(p, location, height, Terrain_category):
-
-    Vr = Vr_table_3_1_A(p, location)
+    num, denom = p.split("/")
+    R = int(num) / int(denom)
+    Vr = Vr_table_3_1_A(R, location)
     Md = Md_table_3_2_a(location)
     Mt = Mt_4_4(location)
     Ms = Ms_4_3()
@@ -822,7 +823,7 @@ def calc_wind_pressure(
     return wind_pressure
 
 
-v = site_wind_speed(1 / 500, "Sydney", 20, "TC2")
+v = site_wind_speed("1 / 500", "Sydney", 20, "TC2")
 print("v: ", v)
 wind_pressure = calc_wind_pressure(
     v, 0.5, "sealed", "One Windward wall permeable", 1.0, 1.0, 1.0
