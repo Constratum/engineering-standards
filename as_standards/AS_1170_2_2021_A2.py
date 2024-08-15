@@ -549,7 +549,7 @@ def Ms_4_3():
 
 
 ## Mt - Topographic multiplier
-cities_elevelatio = pd.DataFrame(
+cities_elevation = pd.DataFrame(
     [
         ["Adelaide", 50],
         ["Albany", 30],
@@ -644,9 +644,9 @@ cities_elevelatio = pd.DataFrame(
 
 def Mt_4_4(location):
     region = location_wind_region(location)
-    Mh = 1.71  # Is considere conservatily
+    Mh = 1.0  # Flat assumption
     Mlee = 1.0
-    E = cities_elevelatio[cities_elevelatio["Location"] == location][
+    E = cities_elevation[cities_elevation["Location"] == location][
         "Elevation (m)"
     ].values[0]
     if region == "A4" and E > 500:
