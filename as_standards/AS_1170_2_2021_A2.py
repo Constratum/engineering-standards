@@ -791,6 +791,12 @@ def Cshp_5_2(
 def site_wind_speed(p, location, height, Terrain_category):
     num, denom = p.split("/")
     R = int(num) / int(denom)
+
+    # Table F2 upscale for cyclonic zone
+    wind_region = location_wind_region(location)
+    if IL = 1 and wind_region = ("B2","C","D") and design_working_life = "50 years"
+        R = 200
+    
     Vr = Vr_table_3_1_A(R, location)
     Md = Md_table_3_2_a(location)
     Mt = Mt_4_4(location)
