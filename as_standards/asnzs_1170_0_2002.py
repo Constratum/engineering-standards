@@ -32,231 +32,570 @@ Given the design working life, $N$, and the importance level, $IL$, this functio
 Note this function also includes SLS2 annual probabilities as given in NZS 1170.5, table 8.1, note 6.
 """
 
-#@title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
-#recreate table F2
+# @title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
+# recreate table F2
 table_F2_cyclonic = pd.DataFrame(
-{"Wind ULS":['1/100',
-             '1/25','1/50','1/100',
-             '1/100','1/200','1/500','1/1000',
-             '1/200','1/500','1/1000','1/2500',
-             '1/500','1/1000','1/2500','*'],
- "Snow ULS":['1/50',
-             '1/25','1/50','1/100',
-             '1/25','1/50','1/100','1/250',
-             '1/100','1/150','1/200','1/500',
-             '1/200','1/250','1/500','*'],
- "Earthquake ULS":['-',
-             '-','-','-',
-             '-','1/250','1/500','1/1000',
-             '1/250','1/500','1/1000','1/2500',
-             '1/250','1/1000','1/2500','*'],
- },
- index = pd.MultiIndex.from_tuples([('Construction equipment',2),
-                                    ('Less than 5 years',1),
-                                    ('Less than 5 years',2),
-                                    ('Less than 5 years',3),
-                                    ('25 years',1),
-                                    ('25 years',2),
-                                    ('25 years',3),
-                                    ('25 years',4),
-                                    ('50 years',1),
-                                    ('50 years',2),
-                                    ('50 years',3),
-                                    ('50 years',4),
-                                    ('100 years or more',1),
-                                    ('100 years or more',2),
-                                    ('100 years or more',3),
-                                    ('100 years or more',4),
-                                    ],
-                                   names=['Design working life','Importance level'])    
+    {
+        "Wind ULS": [
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/100",
+            "1/200",
+            "1/500",
+            "1/1000",
+            "1/200",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+        "Snow ULS": [
+            "1/50",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/250",
+            "1/100",
+            "1/150",
+            "1/200",
+            "1/500",
+            "1/200",
+            "1/250",
+            "1/500",
+            "*",
+        ],
+        "Earthquake ULS": [
+            "-",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/250",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+    },
+    index=pd.MultiIndex.from_tuples(
+        [
+            ("Construction equipment", 2),
+            ("Less than 5 years", 1),
+            ("Less than 5 years", 2),
+            ("Less than 5 years", 3),
+            ("25 years", 1),
+            ("25 years", 2),
+            ("25 years", 3),
+            ("25 years", 4),
+            ("50 years", 1),
+            ("50 years", 2),
+            ("50 years", 3),
+            ("50 years", 4),
+            ("100 years or more", 1),
+            ("100 years or more", 2),
+            ("100 years or more", 3),
+            ("100 years or more", 4),
+        ],
+        names=["Design working life", "Importance level"],
+    ),
 )
 
 table_F2_cyclonic
 
-#@title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
-#recreate table F2
+# @title table_F2_cyclonic - Annual probability of exceedence - Australia { vertical-output: true }
+# recreate table F2
 table_F2_non_cyclonic = pd.DataFrame(
-{"Wind ULS":['1/100',
-             '1/25','1/50','1/100',
-             '1/100','1/200','1/500','1/1000',
-             '1/100','1/500','1/1000','1/2500',
-             '1/500','1/1000','1/2500','*'],
- "Snow ULS":['1/50',
-             '1/25','1/50','1/100',
-             '1/25','1/50','1/100','1/250',
-             '1/100','1/150','1/200','1/500',
-             '1/200','1/250','1/500','*'],
- "Earthquake ULS":['-',
-             '-','-','-',
-             '-','1/250','1/500','1/1000',
-             '1/250','1/500','1/1000','1/2500',
-             '1/250','1/1000','1/2500','*'],
- },
- index = pd.MultiIndex.from_tuples([('Construction equipment',2),
-                                    ('Less than 5 years',1),
-                                    ('Less than 5 years',2),
-                                    ('Less than 5 years',3),
-                                    ('25 years',1),
-                                    ('25 years',2),
-                                    ('25 years',3),
-                                    ('25 years',4),
-                                    ('50 years',1),
-                                    ('50 years',2),
-                                    ('50 years',3),
-                                    ('50 years',4),
-                                    ('100 years or more',1),
-                                    ('100 years or more',2),
-                                    ('100 years or more',3),
-                                    ('100 years or more',4),
-                                    ],
-                                   names=['Design working life','Importance level'])    
+    {
+        "Wind ULS": [
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/100",
+            "1/200",
+            "1/500",
+            "1/1000",
+            "1/100",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+        "Snow ULS": [
+            "1/50",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/250",
+            "1/100",
+            "1/150",
+            "1/200",
+            "1/500",
+            "1/200",
+            "1/250",
+            "1/500",
+            "*",
+        ],
+        "Earthquake ULS": [
+            "-",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/250",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+    },
+    index=pd.MultiIndex.from_tuples(
+        [
+            ("Construction equipment", 2),
+            ("Less than 5 years", 1),
+            ("Less than 5 years", 2),
+            ("Less than 5 years", 3),
+            ("25 years", 1),
+            ("25 years", 2),
+            ("25 years", 3),
+            ("25 years", 4),
+            ("50 years", 1),
+            ("50 years", 2),
+            ("50 years", 3),
+            ("50 years", 4),
+            ("100 years or more", 1),
+            ("100 years or more", 2),
+            ("100 years or more", 3),
+            ("100 years or more", 4),
+        ],
+        names=["Design working life", "Importance level"],
+    ),
 )
 
 table_F2_non_cyclonic
 
-#@title annual_probability_of_exceedence(N,IL,LS) { run: "auto", vertical-output: true }
-#@markdown Design Working Life:
-N = "50 years" #@param ["Construction equipment", "Less than 6 months", "5 years", "25 years", "50 years", "100 years or more"]
-#@markdown Importance Level:
-IL = 4 #@param ["1", "2", "3", "4"] {type:"raw"}
-#@markdown Limit State:
-LS = "Earthquake ULS" #@param ["Wind ULS", "Snow ULS", "Earthquake ULS", "SLS1", "SLS2"]
+table_F2 = pd.DataFrame(
+    {
+        "Wind ULS": [
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/100",
+            "1/200",
+            "1/500",
+            "1/1000",
+            "1/100",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+        "Snow ULS": [
+            "1/50",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/25",
+            "1/50",
+            "1/100",
+            "1/250",
+            "1/100",
+            "1/150",
+            "1/200",
+            "1/500",
+            "1/200",
+            "1/250",
+            "1/500",
+            "*",
+        ],
+        "Earthquake ULS": [
+            "-",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/250",
+            "1/500",
+            "1/1000",
+            "1/2500",
+            "1/250",
+            "1/1000",
+            "1/2500",
+            "*",
+        ],
+    },
+    index=pd.MultiIndex.from_tuples(
+        [
+            ("Construction equipment", 2),
+            ("Less than 5 years", 1),
+            ("Less than 5 years", 2),
+            ("Less than 5 years", 3),
+            ("25 years", 1),
+            ("25 years", 2),
+            ("25 years", 3),
+            ("25 years", 4),
+            ("50 years", 1),
+            ("50 years", 2),
+            ("50 years", 3),
+            ("50 years", 4),
+            ("100 years or more", 1),
+            ("100 years or more", 2),
+            ("100 years or more", 3),
+            ("100 years or more", 4),
+        ],
+        names=["Design working life", "Importance level"],
+    ),
+)
+# @title annual_probability_of_exceedence(N,IL,LS) { run: "auto", vertical-output: true }
+# @markdown Design Working Life:
+N = "50 years"  # @param ["Construction equipment", "Less than 6 months", "5 years", "25 years", "50 years", "100 years or more"]
+# @markdown Importance Level:
+IL = 4  # @param ["1", "2", "3", "4"] {type:"raw"}
+# @markdown Limit State:
+LS = "Earthquake ULS"  # @param ["Wind ULS", "Snow ULS", "Earthquake ULS", "SLS1", "SLS2"]
 
-def annual_probability_of_exceedence_AS_cyclonic(N,IL,LS):
+
+def annual_probability_of_exceedence_AS_cyclonic(N, IL, LS):
     if type(IL) == str:
         index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
-        IL = [1 ,2, 3, 4][index]
-        
-    P = table_F2_cyclonic.loc[(N,IL),LS]
+        IL = [1, 2, 3, 4][index]
+
+    P = table_F2_cyclonic.loc[(N, IL), LS]
 
     return P
 
-def annual_probability_of_exceedence_AS_non_cyclonic(N,IL,LS):
+
+def annual_probability_of_exceedence_AS_non_cyclonic(N, IL, LS):
     if type(IL) == str:
         index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
-        IL = [1 ,2, 3, 4][index]
-        
-    P = table_F2_non_cyclonic.loc[(N,IL),LS]
+        IL = [1, 2, 3, 4][index]
+
+    P = table_F2_non_cyclonic.loc[(N, IL), LS]
 
     return P
-  
-#print("P =",annual_probability_of_exceedence(N,IL,LS))
+
+
+def annual_probability_of_exceedence_aus(N, IL, LS):
+    if type(IL) == str:
+        index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
+        IL = [1, 2, 3, 4][index]
+
+    P = table_F2.loc[(N, IL), LS]
+
+    return P
+
+
+# print("P =",annual_probability_of_exceedence(N,IL,LS))
 
 """#Table 4.1 Combinations of Actions - Imposed load factors
 
 Given the Character of imposed action, this function returns the short term, long term, combination and earthquake factors. 
 """
 
-#@title Table 4.1 - Short-term, long-term and combination factors { vertical-output: true }
-#recreate table 4.1
+# @title Table 4.1 - Short-term, long-term and combination factors { vertical-output: true }
+# recreate table 4.1
 table4_1 = pd.DataFrame(
-{"Short-term factor":[0.7,0.7,0.7,0.7,1.0,1.0,0.7,0.7,1.0,1.0,1.0,1.0,1.0,1.0],
- "Long-term factor":[0.4,0.4,0.4,0.4,0.6,0.6,0.4,0.0,0.6,0.4,0.6,0.0,0.0,1.0],
- "Combination factor":[0.4,0.4,0.4,0.4,0.6,0.6,0.4,0.0,0.6,0.4,0.4,0.0,0.0,1.2],
- "Earthquake combination factor":[0.3,0.3,0.3,0.3,0.6,0.6,0.3,0.0,0.3,0.3,0.3,0.0,0.0,1.0]
- },
- index = pd.MultiIndex.from_tuples([("Distributed imposed actions","Residential and domestic floors"),
-                                  ("Distributed imposed actions","Office floors"),
-                                  ("Distributed imposed actions","Parking floors"),
-                                  ("Distributed imposed actions", "Retail floors"),
-                                  ("Distributed imposed actions","Storage floors"),
-                                  ("Distributed imposed actions","Other floors"), 
-                                  ("Distributed imposed actions","Roofs used for floor type activities"),
-                                  ("Distributed imposed actions","All other roofs"),
-                                  ("Concentrated imposed actions","Floors"),
-                                  ("Concentrated imposed actions","Floors of domestic housing"), 
-                                  ("Concentrated imposed actions","Roofs used for floor type activities"), 
-                                  ("Concentrated imposed actions","All other roofs"), 
-                                  ("Concentrated imposed actions","Balustrades"), 
-                                  ("Concentrated imposed actions","Long-term installed machinery, tare weight")]) 
+    {
+        "Short-term factor": [
+            0.7,
+            0.7,
+            0.7,
+            0.7,
+            1.0,
+            1.0,
+            0.7,
+            0.7,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+        ],
+        "Long-term factor": [
+            0.4,
+            0.4,
+            0.4,
+            0.4,
+            0.6,
+            0.6,
+            0.4,
+            0.0,
+            0.6,
+            0.4,
+            0.6,
+            0.0,
+            0.0,
+            1.0,
+        ],
+        "Combination factor": [
+            0.4,
+            0.4,
+            0.4,
+            0.4,
+            0.6,
+            0.6,
+            0.4,
+            0.0,
+            0.6,
+            0.4,
+            0.4,
+            0.0,
+            0.0,
+            1.2,
+        ],
+        "Earthquake combination factor": [
+            0.3,
+            0.3,
+            0.3,
+            0.3,
+            0.6,
+            0.6,
+            0.3,
+            0.0,
+            0.3,
+            0.3,
+            0.3,
+            0.0,
+            0.0,
+            1.0,
+        ],
+    },
+    index=pd.MultiIndex.from_tuples(
+        [
+            ("Distributed imposed actions", "Residential and domestic floors"),
+            ("Distributed imposed actions", "Office floors"),
+            ("Distributed imposed actions", "Parking floors"),
+            ("Distributed imposed actions", "Retail floors"),
+            ("Distributed imposed actions", "Storage floors"),
+            ("Distributed imposed actions", "Other floors"),
+            ("Distributed imposed actions", "Roofs used for floor type activities"),
+            ("Distributed imposed actions", "All other roofs"),
+            ("Concentrated imposed actions", "Floors"),
+            ("Concentrated imposed actions", "Floors of domestic housing"),
+            ("Concentrated imposed actions", "Roofs used for floor type activities"),
+            ("Concentrated imposed actions", "All other roofs"),
+            ("Concentrated imposed actions", "Balustrades"),
+            (
+                "Concentrated imposed actions",
+                "Long-term installed machinery, tare weight",
+            ),
+        ]
+    ),
 )
 
 table4_1
 
-#@title imposed_load_factors(action_type,action_character) { run: "auto", vertical-output: true }
+# @title imposed_load_factors(action_type,action_character) { run: "auto", vertical-output: true }
 
-action_type = "Distributed imposed actions" #@param ["Distributed imposed actions", "Concentrated imposed actions"]
-distributed_action_character = "Storage floors" #@param ["Residential and domestic floors", "Office floors", "Parking floors", "Retail floors", "Storage floors", "Other floors", "Roofs used for floor type activities", "All other roofs"]
-concentrated_action_character = "Floors" #@param ["Floors", "Floors of domestic housing", "Roofs used for floor type activities", "All other roofs", "Balustrades", "Long-term installed machinery, tare weight"]
+action_type = "Distributed imposed actions"  # @param ["Distributed imposed actions", "Concentrated imposed actions"]
+distributed_action_character = "Storage floors"  # @param ["Residential and domestic floors", "Office floors", "Parking floors", "Retail floors", "Storage floors", "Other floors", "Roofs used for floor type activities", "All other roofs"]
+concentrated_action_character = "Floors"  # @param ["Floors", "Floors of domestic housing", "Roofs used for floor type activities", "All other roofs", "Balustrades", "Long-term installed machinery, tare weight"]
 
-if action_type == "Distributed imposed actions": 
-    action_character=distributed_action_character
-elif action_type == "Concentrated imposed actions": 
-    action_character=concentrated_action_character
+if action_type == "Distributed imposed actions":
+    action_character = distributed_action_character
+elif action_type == "Concentrated imposed actions":
+    action_character = concentrated_action_character
 
-def imposed_load_factors(action_type,action_character):
-    
-    df1 = table4_1.loc[(action_type,action_character)]
+
+def imposed_load_factors(action_type, action_character):
+
+    df1 = table4_1.loc[(action_type, action_character)]
 
     return df1
 
-imposed_load_factors(action_type,action_character)
+
+imposed_load_factors(action_type, action_character)
 
 """#4.2 Combinations of actions for ultimate and serviceability limit states
 
 Given an action type and action character for imposed loads, this function returns a summary of all action combinations as a dataframe.
 """
 
-#@title Section 4 - Combination of actions table for ULS and SLS { vertical-output: true }
+# @title Section 4 - Combination of actions table for ULS and SLS { vertical-output: true }
 
-def action_combinations(action_type,action_character):
 
-    df1 = imposed_load_factors(action_type,action_character)
+def action_combinations(action_type, action_character):
+
+    df1 = imposed_load_factors(action_type, action_character)
     PsiS = df1.iloc[0]
     PsiL = df1.iloc[1]
     PsiC = df1.iloc[2]
     PsiE = df1.iloc[3]
 
     df2 = pd.DataFrame(
-        {'G, permanent action':[0.9,1.35,1.2,1.2,1,1.2,1.35,1.2,1.2,1.2,0.9,1,1.2,1,0,0,0,0,0],
-         'Q, imposed or live action':[0,0,1.5,PsiC,PsiE,PsiC,0,1.5,1.5*PsiL,PsiC,0,PsiE,PsiC,0,PsiS,PsiL,0,0,0],
-         'W, wind action':[0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0],
-         'E, earthquake action':[0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0],
-         'S, other actions':[0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1]
+        {
+            "G, permanent action": [
+                0.9,
+                1.35,
+                1.2,
+                1.2,
+                1,
+                1.2,
+                1.35,
+                1.2,
+                1.2,
+                1.2,
+                0.9,
+                1,
+                1.2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],
+            "Q, imposed or live action": [
+                0,
+                0,
+                1.5,
+                PsiC,
+                PsiE,
+                PsiC,
+                0,
+                1.5,
+                1.5 * PsiL,
+                PsiC,
+                0,
+                PsiE,
+                PsiC,
+                0,
+                PsiS,
+                PsiL,
+                0,
+                0,
+                0,
+            ],
+            "W, wind action": [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+            "E, earthquake action": [
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+            ],
+            "S, other actions": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+            ],
         },
-        index = pd.MultiIndex.from_tuples(
-            [('ULS stability','stabilising permanent action only'),
-             ('ULS stability','destabilising permanent action only'),
-             ('ULS stability','permanent and imposed action'),
-             ('ULS stability','permanent, wind and imposed action'),
-             ('ULS stability','permanent, earthquake and imposed action'),
-             ('ULS stability','permanent, other actions and imposed action'),
-             ('ULS strength','permanent action only'),
-             ('ULS strength','permanent and imposed action'),
-             ('ULS strength','permanent and long term imposed action'),
-             ('ULS strength','permanent, wind and imposed action'),
-             ('ULS strength','permanent and wind action reversal'),
-             ('ULS strength','permanent, earthquake and imposed action'),
-             ('ULS strength','permanent, other actions and imposed action'),
-             ('SLS','permanent action only'),
-             ('SLS','short term imposed action only'),
-             ('SLS','long term imposed action only'),
-             ('SLS','wind action only'),
-             ('SLS','earthquake action only'),
-             ('SLS','other actions only'),
-             ])
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("ULS stability", "stabilising permanent action only"),
+                ("ULS stability", "destabilising permanent action only"),
+                ("ULS stability", "permanent and imposed action"),
+                ("ULS stability", "permanent, wind and imposed action"),
+                ("ULS stability", "permanent, earthquake and imposed action"),
+                ("ULS stability", "permanent, other actions and imposed action"),
+                ("ULS strength", "permanent action only"),
+                ("ULS strength", "permanent and imposed action"),
+                ("ULS strength", "permanent and long term imposed action"),
+                ("ULS strength", "permanent, wind and imposed action"),
+                ("ULS strength", "permanent and wind action reversal"),
+                ("ULS strength", "permanent, earthquake and imposed action"),
+                ("ULS strength", "permanent, other actions and imposed action"),
+                ("SLS", "permanent action only"),
+                ("SLS", "short term imposed action only"),
+                ("SLS", "long term imposed action only"),
+                ("SLS", "wind action only"),
+                ("SLS", "earthquake action only"),
+                ("SLS", "other actions only"),
+            ]
+        ),
     )
 
     return df2
-  
-Section_4_2and3_df = action_combinations(action_type,action_character)
+
+
+Section_4_2and3_df = action_combinations(action_type, action_character)
 Section_4_2and3_df
 
-#@title imposed_load_factors(action_type,action_character) { run: "auto", vertical-output: true }
+# @title imposed_load_factors(action_type,action_character) { run: "auto", vertical-output: true }
 
-action = "Q, imposed or live action" #@param ["G, permanent action", "Q, imposed or live action","W, wind action","E, earthquake action","S, other actions"]
-load_case_general = "ULS strength" #@param ["ULS stability", "ULS strength", "SLS"]
-load_case_specific = "permanent and imposed action" #@param ["stabilising permanent action only", "destabilising permanent action only", "permanent and imposed action", "permanent, wind and imposed action", "permanent, earthquake and imposed action", "permanent, other actions and imposed action","permanent action only","permanent and long term imposed action","permanent and wind action reversal","short term imposed action only","long term imposed action only","wind action only","earthquake action only","other actions only"]
+action = "Q, imposed or live action"  # @param ["G, permanent action", "Q, imposed or live action","W, wind action","E, earthquake action","S, other actions"]
+load_case_general = "ULS strength"  # @param ["ULS stability", "ULS strength", "SLS"]
+load_case_specific = "permanent and imposed action"  # @param ["stabilising permanent action only", "destabilising permanent action only", "permanent and imposed action", "permanent, wind and imposed action", "permanent, earthquake and imposed action", "permanent, other actions and imposed action","permanent action only","permanent and long term imposed action","permanent and wind action reversal","short term imposed action only","long term imposed action only","wind action only","earthquake action only","other actions only"]
 
-def Section_4_2and3_load_combination_factors(action, load_case_general, load_case_specific):
-    
-    Section_4_2and3_df = action_combinations(action_type,action_character)
+
+def Section_4_2and3_load_combination_factors(
+    action, load_case_general, load_case_specific
+):
+
+    Section_4_2and3_df = action_combinations(action_type, action_character)
     series1 = Section_4_2and3_df.loc[(load_case_general, load_case_specific)]
     load_factor = series1[action]
 
     return load_factor
 
-print(f'Load factor for selected action is: {Section_4_2and3_load_combination_factors(action, load_case_general, load_case_specific)}')
+
+print(
+    f"Load factor for selected action is: {Section_4_2and3_load_combination_factors(action, load_case_general, load_case_specific)}"
+)
 
 """#7.2.1 ULS stability confirmation method
 
@@ -265,14 +604,18 @@ Given stabilising design actions, design capacity and destabilising actions, thi
 $$E_{d,stb} + R_d \ge E_{d,dst}$$
 """
 
-def uls_stability(Edstb,Rd,Eddst):
 
-  if Edstb + Rd >= Eddst: compliance = True
-  else: compliance = False
+def uls_stability(Edstb, Rd, Eddst):
 
-  unity = Eddst / (Edstb + Rd)
+    if Edstb + Rd >= Eddst:
+        compliance = True
+    else:
+        compliance = False
 
-  return compliance,unity
+    unity = Eddst / (Edstb + Rd)
+
+    return compliance, unity
+
 
 """#7.2.2 ULS strength confirmation method
 
@@ -281,14 +624,18 @@ Given design action effect and design capacity, this function returns a unity nu
 $$R_d \ge E_{d}$$
 """
 
-def uls_strength(Rd,Ed):
 
-  if Rd >= Ed: compliance = True
-  else: compliance = False
+def uls_strength(Rd, Ed):
 
-  unity = Ed / Rd
+    if Rd >= Ed:
+        compliance = True
+    else:
+        compliance = False
 
-  return compliance,unity
+    unity = Ed / Rd
+
+    return compliance, unity
+
 
 """#7.3 SLS confirmation method
 
@@ -297,11 +644,14 @@ Given a servicability parameter from design actions and a limiting servicability
 $$\delta \le \delta_l$$
 """
 
-def sls(delta,delta_l):
 
-  if delta <= delta_l: compliance = True
-  else: compliance = False
+def sls(delta, delta_l):
 
-  unity = delta / delta_l
+    if delta <= delta_l:
+        compliance = True
+    else:
+        compliance = False
 
-  return compliance,unity
+    unity = delta / delta_l
+
+    return compliance, unity
