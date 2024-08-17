@@ -1557,7 +1557,7 @@ def calc_wind_pressure(
 
 
 
-v = site_wind_speed("1 / 500", "Auckland", 20, "TC2")
-print("v: ", v)
-wind_pressure = calc_wind_pressure(v, 1.0, "adjacent")
-print(wind_pressure)
+# v = site_wind_speed("1 / 500", "Auckland", 20, "TC2")
+# print("v: ", v)
+# wind_pressure = calc_wind_pressure(v, 1.0, "adjacent")
+# print(wind_pressure)
