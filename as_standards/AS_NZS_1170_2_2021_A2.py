@@ -1539,23 +1539,22 @@ def site_wind_speed(p, location, height, Terrain_category):
 
 def calc_wind_pressure(
     v_site,
-    ratio,
     intenral_condition,
 ):
     kci = 0.9
     kv = 1.0
     Cdyn = 1.0
-
+    opening_ratio = 1.0
     C_shp = Cshp_5_2(
-        ratio,
+        opening_ratio,
         intenral_condition,
         kci,
         kv,
     )
     rho_air = 1.2
-    print("C_shp: ", C_shp)
     wind_pressure = 0.5 * rho_air * (v_site**2) * C_shp * Cdyn
     return wind_pressure
+
 
 
 v = site_wind_speed("1 / 500", "Auckland", 20, "TC2")
