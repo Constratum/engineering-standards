@@ -308,7 +308,7 @@ def annual_probability_of_exceedence_AS_non_cyclonic(N, IL, LS):
     return P
 
 
-def annual_probability_of_exceedence_aus(N, IL, LS):
+def annual_probability_of_exceedence(N, IL, LS):
     if type(IL) == str:
         index = ["IL1", "IL2", "IL3", "IL4"].index(IL)
         IL = [1, 2, 3, 4][index]
