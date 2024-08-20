@@ -161,7 +161,6 @@ fig3_1_b = pd.DataFrame([
 columns = ["Location","Wind Region"]                       
 )
 
-import numpy as np
 def location_wind_region(location):
     return fig3_1_b[fig3_1_b["Location"] == location]["Wind Region"].values[0]
 

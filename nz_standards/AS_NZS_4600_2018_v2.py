@@ -1,12 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from product_data import constratum_product_data_in
-
-section_database = constratum_product_data_in.get_df_from_file_name(
-    "section_database.csv"
-)
-
 ## Section 1.5.2: Design Stresses
 
 data_1_5_2 = {
@@ -75,7 +69,7 @@ def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
     return net_area_reduction
 
 ### Section 5.3.2: Tearout
-def design_shear_force_tearout_5_3_2(steel_grade, t, e):
+def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
     """
     Calculate the design shear force considering tearout for a connected part.
     
@@ -94,15 +88,13 @@ def design_shear_force_tearout_5_3_2(steel_grade, t, e):
         The design shear force considering tearout (in kN or appropriate unit).
     """
     # Determine the capacity reduction factor (φ) based on the ratio of fu to fy
-    fy = table_1_5_2.loc[table_1_5_2["Grade"] == steel_grade, "Yield stress (fy) MPa"].values[0]
-    fu = table_1_5_2.loc[table_1_5_2["Grade"] == steel_grade, "Tensile strength (fu) MPa"].values[0]
-    if fu / fy >= 1.05:
+    if fu_bolt / fy_bolt >= 1.05:
         phi = 0.70
     else:
         phi = 0.60
     
     # Calculate the nominal shear capacity (Vr)
-    Vf = t * e * fu
+    Vf = t * e * fu_bolt
     
     # Calculate the design shear force considering tearout (Vr_star)
     Vf_tearout = phi * Vf
@@ -139,7 +131,7 @@ def table_5_3_4_2_b(t, d):
         C = 4 - 0.1*d/t
     return C
 
-def bearing_capacity_5_3_4_2(sheet_grade, bearing_type, d_bolt, t):
+def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
     """
     Calculate the nominal bearing capacity for a bolted connection.
     
@@ -161,12 +153,11 @@ def bearing_capacity_5_3_4_2(sheet_grade, bearing_type, d_bolt, t):
     """
     alpha = table_5_3_4_2_a.loc[table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"].values[0]
     C = table_5_3_4_2_b(t, d_bolt)
-    fu = table_1_5_2.loc[table_1_5_2["Grade"] == sheet_grade, "Tensile strength (fu) MPa"].values[0]
     phi = 0.60  # Capacity reduction factor for bearing capacity without considering bolt hole deformation
-    Vb = alpha * C * d_bolt * t * fu * phi
+    Vb = alpha * C * d_bolt * t * fu_bolt * phi
     return Vb
 
-def bolt_shear_capacity(bolt_grade, n_n, Ac, n_x, Ao):
+def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     """
     Calculate the nominal shear capacity of a bolt.
 
@@ -221,10 +212,11 @@ def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac,
         compliance = False
     return unity, compliance
 
-   
+## Section 5: Connections
 ### Section 5.4: Screwed Connections
+
 def calculate_tension_in_connected_part_5_4_2_3(
-    d_t, s_f, f_u, a_n=None, single_screw=True
+    d_f, s_f, f_u, a_n=None, single_screw=True
 ):
     """
     Calculate the nominal tensile capacity (N_t) of the net section of the connected part
@@ -244,7 +236,7 @@ def calculate_tension_in_connected_part_5_4_2_3(
 
     # For a single screw or a single row of screws perpendicular to the force
     if single_screw:
-        N_t = min((2.5 * d_t / s_f) * a_n * f_u, a_n * f_u)
+        N_t = min((2.5 * d_f / s_f) * a_n * f_u, a_n * f_u)
     else:
         # For multiple screws in the line parallel to the force
         if a_n is None:
@@ -285,7 +277,7 @@ def get_bearing_factor_table_5_4_2_4(d_f, t1):
     return C
 
 
-def calculate_nominal_bearing_capacity(t2, t1, d_f, f_u1, f_u2):
+def calculate_nominal_bearing_capacity_5_4_2_4(t2, t1, d_f, f_u1, f_u2):
     """
     Calculate the nominal bearing capacity (V_b) based on the provided parameters,
     taking into account the appropriate conditions from the standard.
@@ -305,15 +297,46 @@ def calculate_nominal_bearing_capacity(t2, t1, d_f, f_u1, f_u2):
 
     # Apply the condition for t2/t1 ≤ 1.0
     if t2 / t1 <= 1.0:
-        V_b_options = [4.2 * (t1**1.5) * f_u1, C * d_f * f_u1, C * d_f * f_u2]
+        v_b = min(
+            4.2 * (t2**1.5) * (d_f**0.5) * f_u2,
+            C * t1 * d_f * f_u1,
+            C * t2 * d_f * f_u2,
+        )
     # Apply the condition for t2/t1 > 1.0
-    else:
-        V_b_options = [C * d_f * f_u1, C * d_f * f_u2]
-
+    if t2 / t1 >= 2.5:
+        v_b = min(C * t1 * d_f * f_u1, C * t2 * d_f * f_u2)
+    if 1.0 < t2 / t1 < 2.5:
+        v_b_1 = min(
+            4.2 * (t2**1.5) * (d_f**0.5) * f_u2,
+            C * t1 * d_f * f_u1,
+            C * t2 * d_f * f_u2,
+        )
+        v_b_2 = min(C * t1 * d_f * f_u1, C * t2 * d_f * f_u2)
+        v_b = v_b_1 + v_b_2 / 2
     # V_b shall be taken as the smallest of the calculated options
-    V_b = min(V_b_options)
 
-    return V_b
+    return v_b
+
+
+def conc_shear_tearout_5_4_2_5(fu, fy, t, e):
+    """
+    Calculate the design shear force as limited by end distance shall satifisy
+    V_fv<phi*V_fv
+
+    Parameters:
+    fu (float): Ultimate tensile strength of the connected part.
+    fy (float): Yield strength of the connected part.
+    t (float): Thickness of the connected part.
+    e (float): Edge distance from the center of the fastener to the edge of the connected part.
+
+    """
+    if fu / fy >= 1.05:
+        phi = 0.7
+    if fu / fy < 1.05:
+        phi = 0.6
+
+    v_fv = phi * t * e * fu
+    return v_fv
 
 
 def calculate_effective_pull_over_diameter_5_4_3_2(d_h, t_w, d_w, t1, washer_type):
@@ -365,10 +388,12 @@ def calculate_nominal_capacity_pull_out_5_4_3_2(
     return pull_out_capacity
 
 
+# Section 7: Direct Strength Method
+
 ### Global Buckling
 
 
-def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
+def foc_without_holes_D1_1_1_2(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, Iw, G):
     """
     D1.1.1.1 Section not subject to torsional or flexural-torsional buckling:
 
@@ -376,34 +401,6 @@ def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
     r = raduis of gyration of the full, unreduced cross-section
 
     """
-    E = section_database.loc[
-        section_database["Section Name"] == grid_name, "E (MPa)"
-    ].values[0]
-    G = section_database.loc[
-        section_database["Section Name"] == grid_name, "G (MPa)"
-    ].values[0]
-    J = section_database.loc[
-        section_database["Section Name"] == grid_name, "Torsion Const J (mm4)"
-    ].values[0]
-    r_x = section_database.loc[
-        section_database["Section Name"] == grid_name, "Radi of Gyration rx (mm)"
-    ].values[0]
-    r_y = section_database.loc[
-        section_database["Section Name"] == grid_name, "Radi of Gyration ry (mm)"
-    ].values[0]
-    x_o = section_database.loc[
-        section_database["Section Name"] == grid_name, "x0_shear (mm)"
-    ].values[0]
-    y_o = section_database.loc[
-        section_database["Section Name"] == grid_name, "y0_shear (mm)"
-    ].values[0]
-    Iw = section_database.loc[
-        section_database["Section Name"] == grid_name, "Warping Const Iw (mm4)"
-    ].values[0]
-
-    Ag = section_database.loc[
-        section_database["Section Name"] == grid_name, "Area (mm2)"
-    ].values[0]
     ro1 = np.sqrt(r_x**2 + r_y**2 + x_o**2 + y_o**2)
     beta = 1 - (x_o / ro1) ** 2
     # Elastic buckling stress in an axially loaded compression member for flexural buckling about the x-axis
@@ -420,72 +417,25 @@ def foc_without_holes_D1_1_1_2(grid_name, le_x, le_y, le_z):
         (fox + foz) - (np.sqrt((fox + foz) ** 2 - (4 * beta * fox * foz)))
     )
     foc = min(foxz, foy)
-
+    print("ro1", ro1)
     return fox, foy, foz, foxz, foc
 
 
-def weighted_avg_cross_sectional_properties_table_D1_1_2_1(grid_name, Lg):
-    x_o_g = section_database.loc[
-        section_database["Section Name"] == grid_name, "x0_shear (mm)"
-    ].values[0]
-    y_o_g = section_database.loc[
-        section_database["Section Name"] == grid_name, "y0_shear (mm)"
-    ].values[0]
-
-    A_g = section_database.loc[
-        section_database["Section Name"] == grid_name, "Area (mm2)"
-    ].values[0]
-
-    Ixx_g = section_database.loc[
-        section_database["Section Name"] == grid_name, "Ixx (mm4)"
-    ].values[0]
-
-    Iyy_g = section_database.loc[
-        section_database["Section Name"] == grid_name, "Iyy (mm4)"
-    ].values[0]
-    A_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Area Net (mm2)"
-    ].values[0]
-
-    L_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Length Net x (mm)"
-    ].values[0]
-
-    x_o_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "x0_shear_net (mm)"
-    ].values[0]
-
-    y_o_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "y0_shear_net (mm)"
-    ].values[0]
-
-    Ixx_net = section_database.loc[
-        section_database["Section Name"] == grid_name,
-        "Moment of Inertia Ix with Hole (mm4)",
-    ].values[0]
-
-    Iyy_net = section_database.loc[
-        section_database["Section Name"] == grid_name,
-        "Moment of Inertia Iy with Hole (mm4)",
-    ].values[0]
-
-    J_net = section_database.loc[
-        section_database["Section Name"] == grid_name, "Torsion Const with Hole (mm4)"
-    ].values[0]
-
+def weighted_avg_cross_sectional_properties_table_D1_1_2_1(
+    A_g, A_net, Lg, L_net, Ig, I_net, J_net, x_o_net, y_o_net, x_o_g, y_o_g
+):
     """
     Calculate the weighted average of the cross-sectional properties of the member.
 
     Parameters:
     """
-
     A_avg = (A_g * Lg + A_net * L_net) / (Lg + L_net)
-    Ix_avg = (Ixx_g * Lg + Ixx_net * L_net) / (Lg + L_net)
-    Iy_avg = (Iyy_g * Lg + Iyy_net * L_net) / (Lg + L_net)
+    Ix_avg = (Ig * Lg + I_net * L_net) / (Lg + L_net)
+    Iy_avg = (Ig * Lg + I_net * L_net) / (Lg + L_net)
     J_avg = (J_net * L_net) / (L_net)
     ro1_avg = np.sqrt(x_o_avg**2 + y_o_avg**2 + (Ix_avg + Iy_avg) / A_avg)
-    x_o_avg = ((x_o_g * Lg) + (x_o_net * L_net)) / L_net
-    y_o_avg = ((y_o_g * Lg) + (y_o_net * L_net)) / L_net
+    x_o_avg = (x_o_net * L_net) / (L_net)
+    y_o_avg = (y_o_net * L_net) / (L_net)
 
     return A_avg, Ix_avg, Iy_avg, J_avg, ro1_avg, x_o_avg, y_o_avg
 
@@ -526,6 +476,23 @@ def foc_with_holes_D1_1_2_1(
     foc = min(foxz, foy)
 
     return fox, foy, foz, foxz, foc
+
+
+# def landa_C(foc, Ny, Ag):
+#     """
+#       Calculate the non-dimensional slenderness (λc).
+
+#     Parameters:
+#     Ny : float
+#         Nominal yield capacity of the member in compression
+#     Nc : float
+#         Least of the elastic compression member buckling load in flexural, torsional, and flexural-torsional buckling
+
+#     """
+#     Noc = Ag * foc
+#     λc = np.sqrt(Ny / Noc)
+
+#     return λc
 
 
 def compression_global_buckling_without_holes_7_2_1_2_1(Noc, Ny):
@@ -688,7 +655,7 @@ def calc_Mo_D_2_1_1_2_a(cb, Ag, ro1, foy, foz):
     return Mo
 
 
-def calc_Mo_D_2_1_1_2_b(Ag, ro1, beta_y, fox, foy, foz, lips_tension):
+def calc_Mo_D_2_1_1_2_b(Ag, ro1, beta_y, fox, foz, lips_tension):
     ctf = 1.0  # if the bending moment at any point within an unbraced length is larger than that at both ends of this length, Ctf shall be taken as unity
 
     if lips_tension == "Yes":

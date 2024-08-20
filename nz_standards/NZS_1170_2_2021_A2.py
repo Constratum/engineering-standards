@@ -1368,9 +1368,7 @@ cities_elevelatio_nz = pd.DataFrame(
 )
 
 
-def Mt_4_4(location):
-    Mh = 1.0
-    Mlee = 1.0
+def Mt_4_4(location, Mh=1.0, Mlee=1.0):
     if location in cities_elevelatio_aus["Location"].values:
         region = location_wind_region(location)
 
@@ -1430,12 +1428,6 @@ cpi_building_table_5_1_b = pd.DataFrame(
 )
 
 
-#     'Ratio': ['0.5 or less', '1', '2', '4', '6 or more'],
-#     'Windward': [-0.3, -0.1, 0.7, 0.85, 0.85],
-#     'Leeward': [-0.3, -0.3, 0.7, 0.85, 0.85],
-#     'Side': [-0.3, -0.3, 0.7, 0.85, 0.85],
-#     'Roof': [-0.3, -0.3, 0.7, 0.85, 0.85]
-# })
 def get_building_cpi_table_5_1(ratio):
     """
     Get the building Cpi based on the opening ratio, wall type, and permeability.
@@ -1484,7 +1476,7 @@ def get_internal_cpi_5_3_3(building_cpi, intenral_condition):
         )
 
 
-def calculate_internal_cpi(ratio, intenral_condition):
+def calculate_internal_cpi_5_3(ratio, intenral_condition):
     building_cpi = get_building_cpi_table_5_1(ratio)
     internal_cpi = get_internal_cpi_5_3_3(building_cpi, intenral_condition)
     return internal_cpi
@@ -1513,14 +1505,10 @@ def calculate_kv_5_3_4(A, Vol, is_largest_opening_on_wall=True):
 
 
 def Cshp_5_2(
-    ratio,
-    intenral_condition,
-    is_largest_opening_on_wall,
+    cpi,
     kci=1.0,
     kv=1.0,
 ):
-    cpi = calculate_internal_cpi(ratio, intenral_condition)
-    kv = calculate_kv_5_3_4(0.5, 100, is_largest_opening_on_wall)
     cshp = cpi * kv * kci
     return cshp
 
@@ -1536,26 +1524,8 @@ def site_wind_speed(p, location, height, Terrain_category):
     return Vr * Md * (Mz_cat_value * Ms * Mt)
 
 
-def calc_wind_pressure(
-    v_site,
-    intenral_condition,
-):
-    kci = 0.9
-    kv = 1.0
-    Cdyn = 1.0
-    opening_ratio = 1.0
-    C_shp = Cshp_5_2(
-        opening_ratio,
-        intenral_condition,
-        kci,
-        kv,
-    )
+def calc_wind_pressure(v_site, C_shp, Cdyn):
+
     rho_air = 1.2
     wind_pressure = 0.5 * rho_air * (v_site**2) * C_shp * Cdyn
     return wind_pressure
-
-
-# v = site_wind_speed("1 / 500", "Auckland", 20, "TC2")
-# print("v: ", v)
-# wind_pressure = calc_wind_pressure(v, 1.0, "adjacent")
-# print(wind_pressure)
