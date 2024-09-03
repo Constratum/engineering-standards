@@ -266,7 +266,6 @@ table3_3 = pd.DataFrame(
     }
 )
 
-
 def min_kp_z(P):
     min_kpZ = table3_3.loc[
         table3_3["Annual probability of exceedance (P)"] == P, "Minimum value of kpZ"
@@ -274,6 +273,14 @@ def min_kp_z(P):
 
     return min_kpZ
 
+# Seismic weight (Wi)
+
+def seismic_weight_6_2_6(G,Psi_c,Q):
+
+    W_i = G + Psi_c * Q
+
+    return W_i
+    
 
 # location = "Albany" #@param ['Adelaide','Albany','Albury/Wodonga','Alice Springs','Ballarat','Bathurst','Bendigo','Brisbane','Broome','Burnie','Camden','Canbern','Carnarvon','Coffs Harbour','Cooma','Dampier','Darwin','Derby','Dubbo','Esperance','Geelong','Geraldton','Gladstone','Gold Coast','Gosford','Grafton','Gippsland','Goulburn','Karratha','Katoomba','Latrobe Valley','Launceston','Lismore','Mackay','Melbourne','Mittagong', 'Morisset', 'Newcastle', 'Noosa', 'Orange', 'Perth', 'Port Augusta', 'Port Lincoln', 'Port Hedland', 'Port Macquarie', 'Port Pirie', 'Robe', 'Rockhampton', 'Shepparton', 'Sydney', 'Sydney', 'Sydney', 'Tennant Creek', 'Toowoomba', 'Toowoomba', 'Tweed Heads', 'Uluru', 'Wagga Wagga', 'Wangaratta', 'Whyalla', 'Wollongong', 'Woomera', 'Wyndham', 'Wyong', 'Ballidu', 'Corrigin', 'Cunderdin', 'Dowerin', 'Goomalling', 'Kellerberrin', 'Meckering', 'Northam', 'Wongan Hills', 'Wickepin', 'York', 'Christmas Island', 'Christmas Island', 'Heard Island', 'Lord Howe Island', 'Lord Howe Island', 'Lord Howe Island']
 
