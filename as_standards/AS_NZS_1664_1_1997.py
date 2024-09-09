@@ -702,19 +702,15 @@ def combined_compression_bending_4_1_1(
     Fex = phi_cc * (np.pi**2) * E / (kx * Lb / rx) ** 2
     Fey = phi_cc * (np.pi**2) * E / (ky * Lb / ry) ** 2
 
-    # equation_4_1_1_1 = (
-    #     fa / Fa
-    #     + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
-    #     + (Cmy * fby) / (Fby * (1 - fa / Fey))
-    # )
     equation_4_1_1_1 = (
-        fa / Fa
-        + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
-    )    
-    # equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
-    # equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
-    equation_4_1_1_2 = fa / Fao + fbx / Fbx
-    equation_4_1_1_3 = fa / Fa + fbx / Fbx 
+         fa / Fa
+         + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
+         + (Cmy * fby) / (Fby * (1 - fa / Fey))
+     )
+  
+    equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
+    equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
+
 
     if fa / Fa <= 0.15:
         unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
