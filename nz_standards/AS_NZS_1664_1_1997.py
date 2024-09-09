@@ -398,7 +398,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(
     return kL_r
 
 
-def calculate_axial_compression_capacity_3_4_8_3(
+def calculate_axial_compression_capacity_3_4_8(
     alloy_temper, product, welded_region, kL_r
 ):
     """
@@ -522,7 +522,40 @@ def compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, Lb,
 
     return phi_FL
 
+def compression_extreme_fibre_bent_strong_axis_3_4_17(alloy_temper, product, b, t):
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper)
+        & (table_3_3_A["Product"] == product),
+        "Compressive modulus of elasticity_E",
+    ].values[0]
+    Fcy = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper)
+        & (table_3_3_A["Product"] == product),
+        "Compression_Fcy",
+    ].values[0]
 
+    phi_y = 0.95
+    phi_b = 0.85
+
+    # Buckling constants for flat plates
+    Bp = Fcy * (1 + ((Fcy)**0.33)/21.7)
+    Dp = (Bp / 10) * ((Bp / E)**0.5)
+    k1 = 0.35
+    k2 = 2.27
+     
+    S1 = (Bp - Fcy * phi_y / phi_b) / (1.6 * Dp)
+    S2 = (k1 * Bp) / (1.6 * Dp)
+    
+    if b/t < S1:
+        phi_FL = phi_y * Fcy
+    elif S1 <= b/t <= S2:
+        phi_FL = phi_b * (Bp - 1.6 * Dp * b/t)
+    else:
+        phi_FL = (phi_b * k2 * (Bp * E) ** 0.5) / (1.6 * b/t)
+    
+    
+    return phi_FL
+    
 def compression_extreme_fibre_bent_weak_axis_3_4_21(alloy_temper, product, b, t):
     """
     Calculate the compression capacity for flat plates with compression edge free and tension edge supported.
@@ -681,18 +714,18 @@ def combined_compression_bending_4_1_1(
         unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
         if equation_4_1_1_1 > 1.0 or equation_4_1_1_2 > 1.0 or equation_4_1_1_3 > 1.0:
             compliance = False
-            return unity, compliance
+            return compliance, unity
         else:
             compliance = True
-            return unity, compliance
+            return compliance, unity
     else:
         unity = max(equation_4_1_1_1, equation_4_1_1_2)
         if equation_4_1_1_1 > 1.0 or equation_4_1_1_2 > 1.0:
             compliance = False
-            return unity, compliance
+            return compliance, unity
         else:
             compliance = True
-            return unity, compliance
+            return compliance, unity 
 
 
 def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
@@ -710,7 +743,7 @@ def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
         compliance = False
     else:
         compliance = True
-    return unity, compliance
+    return compliance, unity
 
 
 # Connections
