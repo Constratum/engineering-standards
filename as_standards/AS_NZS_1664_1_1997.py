@@ -714,18 +714,18 @@ def combined_compression_bending_4_1_1(
         unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
         if equation_4_1_1_1 > 1.0 or equation_4_1_1_2 > 1.0 or equation_4_1_1_3 > 1.0:
             compliance = False
-            return unity, compliance
+            return compliance, unity
         else:
             compliance = True
-            return unity, compliance
+            return compliance, unity
     else:
         unity = max(equation_4_1_1_1, equation_4_1_1_2)
         if equation_4_1_1_1 > 1.0 or equation_4_1_1_2 > 1.0:
             compliance = False
-            return unity, compliance
+            return compliance, unity
         else:
             compliance = True
-            return unity, compliance
+            return compliance, unity 
 
 
 def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
@@ -743,7 +743,7 @@ def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
         compliance = False
     else:
         compliance = True
-    return unity, compliance
+    return compliance, unity
 
 
 # Connections
