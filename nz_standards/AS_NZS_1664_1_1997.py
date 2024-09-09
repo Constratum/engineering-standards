@@ -702,13 +702,19 @@ def combined_compression_bending_4_1_1(
     Fex = phi_cc * (np.pi**2) * E / (kx * Lb / rx) ** 2
     Fey = phi_cc * (np.pi**2) * E / (ky * Lb / ry) ** 2
 
+    # equation_4_1_1_1 = (
+    #     fa / Fa
+    #     + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
+    #     + (Cmy * fby) / (Fby * (1 - fa / Fey))
+    # )
     equation_4_1_1_1 = (
         fa / Fa
         + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
-        + (Cmy * fby) / (Fby * (1 - fa / Fey))
-    )
-    equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
-    equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
+    )    
+    # equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
+    # equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
+    equation_4_1_1_2 = fa / Fao + fbx / Fbx
+    equation_4_1_1_3 = fa / Fa + fbx / Fbx 
 
     if fa / Fa <= 0.15:
         unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
@@ -738,7 +744,9 @@ def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
     #     alloy_temper, product, welded_region
     # )
 
-    unity = fa / Ft + fbx / Fbx + fby / Fby
+    # unity = fa / Ft + fbx / Fbx + fby / Fby
+    unity = fa / Ft + fbx / Fbx
+    
     if unity > 1.0:
         compliance = False
     else:
