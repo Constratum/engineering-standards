@@ -740,8 +740,7 @@ def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
     #     alloy_temper, product, welded_region
     # )
 
-    # unity = fa / Ft + fbx / Fbx + fby / Fby
-    unity = fa / Ft + fbx / Fbx
+    unity = fa / Ft + fbx / Fbx + fby / Fby
     
     if unity > 1.0:
         compliance = False
