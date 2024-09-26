@@ -770,3 +770,29 @@ def bending_capacity_7_2_2_2(Mbd, Mbl, Mbe):
     """
     Mb = min(Mbd, Mbl, Mbe)
     return Mb
+
+def combined_axial_compression_bending_7_2_4(Nc, Mbx, Mby, na, mbx, mby):
+    phi_b = 0.9
+    phi_c = 0.85
+    unity = (na / (phi_c * Nc)) + (mbx / (phi_b * Mbx)) + (mby / (phi_b * Mby))
+    if unity > 1:
+        compliance = False
+    else:
+        compliance = True
+    return compliance, unity
+
+
+def combined_axial_tension_bending_7_2_5(Nt, Mbx, Mby, na, mtx, mty, Zx, Zy, fy):
+    phi_b = 0.9
+    phi_t = 0.9
+    unity_1 = (mtx / (phi_b * Mbx)) + (mty / (phi_b * Mby)) - (na / (phi_t * Nt))
+    Msxf = Zx * fy
+    Msyf = Zy * fy
+    unity_2 = (na / (phi_t * Nt)) + (mtx / (phi_b * Msxf)) + (mty / (phi_b * Msxf))
+
+    max_unity = max(unity_1, unity_2)
+    if max_unity > 1:
+        compliance = False
+    else:
+        compliance = True
+    return compliance, max_unity
