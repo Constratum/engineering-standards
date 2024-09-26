@@ -50,6 +50,18 @@ data_1_5_2 = {
 # Create DataFrame
 table_1_5_2 = pd.DataFrame(data_1_5_2)
 
+## Section 3: Axial Tension
+def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
+    phi_t = 0.8
+    Nt_g = phi_t * Ag * fy
+    if An != None and fu != None:
+        kt = 1.0
+        Nt_net = phi_t * (0.85 * kt * An * fu)
+        Nt = min(Nt_g, Nt_net)
+    else:
+        Nt = Nt_g
+
+    return Nt
 
 ## Section 5: Connection
 ### Section 5.3: Bolted Connections
