@@ -256,6 +256,11 @@ table3_1_1 = pd.DataFrame(
     ],
 )
 
+def seismic_weight_6_2_6(G,Psi_c,Q):
+
+    W_i = G + Psi_c * Q
+
+    return W_i
 # table3_1_1.plot(table=True,figsize=(15, 10))
 
 # @title spectral_shape_factor(Subsoil_Type,T,spectral_method) { run: "auto", vertical-output: true }
