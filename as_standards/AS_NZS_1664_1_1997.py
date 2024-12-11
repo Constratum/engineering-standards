@@ -825,6 +825,27 @@ def bearing_rivets_bolts_3_4_6(alloy_temper, product, edge_distance, fastener_di
 
     return phi_FL
 
+def bearing_on_surface_3_4_7(alloy_temper, product, edge_distance, fastener_diameter):
+    # Reduction factors
+    phi_y = 0.95
+    phi_u = 0.85
+    F_by = table_3_3_A.loc[
+        (
+            (table_3_3_A["Alloy and temper"] == alloy_temper)
+            & (table_3_3_A["Product"] == product)
+        ),
+        "Bearing_Fbry",
+    ].values[0]
+    F_bu = table_3_3_A.loc[
+        (
+            (table_3_3_A["Alloy and temper"] == alloy_temper)
+            & (table_3_3_A["Product"] == product)
+        ),
+        "Bearing_Fbru",
+    ].values[0]
+    
+    bearing = min(phi_y * F_by, phi_u * F_bu)
+    return bearing
 
 ## Tension Capacity
 def calculate_tension_strength_5_3_3(
