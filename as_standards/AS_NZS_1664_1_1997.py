@@ -825,7 +825,7 @@ def bearing_rivets_bolts_3_4_6(alloy_temper, product, edge_distance, fastener_di
 
     return phi_FL
 
-def bearing_on_surface_3_4_7(alloy_temper, product, edge_distance, fastener_diameter):
+def bearing_on_surface_3_4_7(alloy_temper, product):
     # Reduction factors
     phi_y = 0.95
     phi_u = 0.85
