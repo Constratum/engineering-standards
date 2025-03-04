@@ -920,7 +920,6 @@ def calculate_shear_strength_5_3_2(
     t2,
     D,
     edge_distance,
-    fastener_diameter,
 ):
     """
     Calculate the connection shear factored limit state shear strength per screw (phi P_as).
@@ -945,7 +944,7 @@ def calculate_shear_strength_5_3_2(
     phi_u = 0.85
 
     rivet_bearing_stress_capacity = bearing_rivets_bolts_3_4_6(
-        alloy_temper_rivet, product_rivet, edge_distance, fastener_diameter
+        alloy_temper_rivet, product_rivet, edge_distance, D
     )
     rivet_bearing_capacity = rivet_bearing_stress_capacity * D * min(t1, t2)
     # Calculate F_by1, F_by2, F_u1, F_u2
