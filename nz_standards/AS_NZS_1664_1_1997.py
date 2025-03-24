@@ -937,7 +937,7 @@ def bearing_on_surface_3_4_7(alloy_temper, product):
 
 ## Tension Capacity
 def calculate_tension_strength_5_3_3(
-    alloy_temper_1, product_1, alloy_temper_2, product_2, D, t1, t2, t_c, D_ws, D_h, C
+    alloy_temper_1, product_1, alloy_temper_2, product_2, D, t1, t_c, D_ws, D_h, C
 ):
     """
     Calculate the factored limit state strength in tension for a screw.
