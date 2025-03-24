@@ -341,6 +341,30 @@ def tension_stress_extreme_fibers_bent_weak_axis_3_4_5(
 
 
 # Compression Capacity - 3.4.8
+def define_equivalent_slenderness_ratio_3_4_8_2(
+    alloy_temper, product, Lb, rx, ry, J, xo, Cw
+):
+    """
+    Calculate the equivalent slenderness ratio for compression members.
+
+
+    """
+    kx = 1
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper)
+        & (table_3_3_A["Product"] == product),
+        "Compressive modulus of elasticity_E",
+    ].values[0]
+
+    G = (3 * E) / 8
+    # Calculate F_ex (Flexural buckling stress)
+    F_ex = (np.pi**2 * E) / ((kx * Lb / rx) ** 2)
+    # Calculate equivalent slenderness ratio
+    kL_r_e = np.pi * np.sqrt(E / F_ex)
+    kL_r_flexural = kx * Lb / rx
+    kL_r = max(kL_r_flexural, kL_r_e)
+    return kL_r
+
 def define_equivalent_slenderness_ratio_3_4_8_3(
     alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw
 ):
@@ -519,6 +543,65 @@ def compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, Lb,
     else:
         # Case (c)
         phi_FL = phi_b * (np.pi**2 * E) / ((Lb / (1.2 * ry)) ** 2)
+
+    return phi_FL
+
+
+def compression_extreme_fibre_rectangular_tubes_3_4_15(
+    alloy_temper, product, Lb, Ix, J
+):
+    """
+    Calculate the compression capacity for rectangular tubes, box sections, and beams with tubular portions
+    based on Clause 3.4.15 of AS/NZS 1664.1:1997.
+
+    Parameters:
+    alloy_temper (str): Alloy and temper designation
+    product (str): Product type
+    Lb (float): Length of the beam between bracing points (mm)
+    Ix (float): Moment of inertia of a beam about axis parallel to web (mm^4)
+    J (float): Torsion constant (mm^4)
+
+    Returns:
+    float: Compression capacity (MPa)
+    """
+    E = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper)
+        & (table_3_3_A["Product"] == product),
+        "Compressive modulus of elasticity_E",
+    ].values[0]
+
+    Fcy = table_3_3_A.loc[
+        (table_3_3_A["Alloy and temper"] == alloy_temper)
+        & (table_3_3_A["Product"] == product),
+        "Compression_Fcy",
+    ].values[0]
+
+    # Constants
+    phi_y = 0.95
+    phi_b = 0.85
+
+    # Buckling constants
+    Bc = Fcy * (1 + (Fcy / 15510) ** 0.5)
+    Dc = (Bc / 10) * (Bc / E) ** 0.5
+    Cc = 0.41 * Bc / Dc
+
+    # Slenderness parameter
+    slenderness = (Lb * np.sqrt(Ix / J)) / (0.5 * np.sqrt(Ix * J))
+
+    # Slenderness limits
+    S1 = ((Bc - (phi_y * Fcy / phi_b)) / (1.6 * Dc)) ** 2
+    S2 = (Cc / 1.6) ** 2
+
+    # Calculate compression capacity based on slenderness
+    if slenderness < S1:
+        # Case (a) - Equation 3.4.15(1)
+        phi_FL = phi_y * Fcy
+    elif S1 <= slenderness <= S2:
+        # Case (b) - Equation 3.4.15(2)
+        phi_FL = phi_b * (Bc - 1.6 * Dc * np.sqrt(slenderness))
+    else:
+        # Case (c) - Equation 3.4.15(3)
+        phi_FL = (phi_b * np.pi**2 * E) / (2.56 * slenderness)
 
     return phi_FL
 
@@ -702,15 +785,19 @@ def combined_compression_bending_4_1_1(
     Fex = phi_cc * (np.pi**2) * E / (kx * Lb / rx) ** 2
     Fey = phi_cc * (np.pi**2) * E / (ky * Lb / ry) ** 2
 
+    # equation_4_1_1_1 = (
+    #     fa / Fa
+    #     + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
+    #     + (Cmy * fby) / (Fby * (1 - fa / Fey))
+    # )
     equation_4_1_1_1 = (
-         fa / Fa
-         + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
-         + (Cmy * fby) / (Fby * (1 - fa / Fey))
-     )
-  
-    equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
-    equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
-
+        fa / Fa
+        + (Cmx * fbx) / (Fbx * (1 - fa / Fex))
+    )    
+    # equation_4_1_1_2 = fa / Fao + fbx / Fbx + fby / Fby
+    # equation_4_1_1_3 = fa / Fa + fbx / Fbx + fby / Fby
+    equation_4_1_1_2 = fa / Fao + fbx / Fbx
+    equation_4_1_1_3 = fa / Fa + fbx / Fbx 
 
     if fa / Fa <= 0.15:
         unity = max(equation_4_1_1_1, equation_4_1_1_2, equation_4_1_1_3)
@@ -740,7 +827,8 @@ def combined_tension_bending_4_1_2(fa, fbx, fby, Ft, Fbx, Fby):
     #     alloy_temper, product, welded_region
     # )
 
-    unity = fa / Ft + fbx / Fbx + fby / Fby
+    # unity = fa / Ft + fbx / Fbx + fby / Fby
+    unity = fa / Ft + fbx / Fbx
     
     if unity > 1.0:
         compliance = False
@@ -849,7 +937,7 @@ def bearing_on_surface_3_4_7(alloy_temper, product):
 
 ## Tension Capacity
 def calculate_tension_strength_5_3_3(
-    alloy_temper_1, product_1, alloy_temper_2, product_2, D, t1, t2, t_c, D_ws, D_h, C
+    alloy_temper_1, product_1, alloy_temper_2, product_2, D, t1, t_c, D_ws, D_h, C
 ):
     """
     Calculate the factored limit state strength in tension for a screw.
@@ -909,12 +997,10 @@ def calculate_shear_strength_5_3_2(
     product_1,
     alloy_temper_2,
     product_2,
-    alloy_temper_rivet,
-    product_rivet,
+    shear_screw,
     t1,
     t2,
     D,
-    edge_distance,
 ):
     """
     Calculate the connection shear factored limit state shear strength per screw (phi P_as).
@@ -938,10 +1024,6 @@ def calculate_shear_strength_5_3_2(
     phi_y = 0.95
     phi_u = 0.85
 
-    rivet_bearing_stress_capacity = bearing_rivets_bolts_3_4_6(
-        alloy_temper_rivet, product_rivet, edge_distance, D
-    )
-    rivet_bearing_capacity = rivet_bearing_stress_capacity * D * min(t1, t2)
     # Calculate F_by1, F_by2, F_u1, F_u2
     F_by1 = table_3_3_A.loc[
         (
@@ -974,14 +1056,14 @@ def calculate_shear_strength_5_3_2(
     ].values[0]
 
     # Calculate P_ns values
-    P_ns1 = (phi_y / phi_sc) * F_by1 * t1
-    P_ns2 = (phi_y / phi_sc) * F_by2 * t2
-    P_ns3 = (phi_u / (1.2 * phi_sc)) * F_u1 * t1
-    P_ns4 = (phi_u / (1.2 * phi_sc)) * F_u2 * t2
+    P_ns1 = (phi_y / phi_sc) * F_by1 * t1 * D
+    P_ns2 = (phi_y / phi_sc) * F_by2 * t2 * D
+    P_ns3 = (phi_u / (1.2 * phi_sc)) * F_u1 * t1 * D
+    P_ns4 = (phi_u / (1.2 * phi_sc)) * F_u2 * t2 * D
 
     # For t2/t1 <= 1.0, calculate additional P_ns value
     if t2 / t1 <= 1.0:
-        P_ns5 = 4.2 * (t2 / t1) ** 0.75 * D**0.5 * F_u2
+        P_ns5 = 4.2 * ((t2**3 * D) ** 0.5) * F_u2
         P_ns = min(P_ns1, P_ns2, P_ns3, P_ns4, P_ns5)
     else:
         P_ns = min(P_ns1, P_ns2, P_ns3, P_ns4)
@@ -989,5 +1071,5 @@ def calculate_shear_strength_5_3_2(
     # Calculate phi P_as
     phi_P_as = phi_sc * P_ns
 
-    shear_capacity = min(rivet_bearing_capacity, phi_P_as)
+    shear_capacity = min(shear_screw, phi_P_as)
     return shear_capacity
