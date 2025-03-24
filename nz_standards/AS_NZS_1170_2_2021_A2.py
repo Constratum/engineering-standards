@@ -1504,6 +1504,143 @@ def calculate_kv_5_3_4(A, Vol, is_largest_opening_on_wall=True):
         return 1.01 + 0.15 * np.log10(ratio)
 
 
+def area_reduction_factor(tributary_area):
+    """
+    Calculate the area reduction factor (Ka) for roofs and side walls
+    based on the tributary area as per Table 5.4.
+    
+    Parameters:
+    -----------
+    tributary_area : float
+        The tributary area (A) in m² contributing to the force being considered
+    
+    Returns:
+    --------
+    float
+        The area reduction factor (Ka)
+    
+    Notes:
+    ------
+    For all cases other than roofs and sidewalls, Ka shall be taken as 1.0.
+    For intermediate values of tributary area, linear interpolation shall be used.
+    """
+    # For all cases other than roofs and sidewalls, Ka = 1.0
+    # For roofs and sidewalls:
+    if tributary_area <= 10:
+        return 1.0
+    elif tributary_area >= 100:
+        return 0.8
+    elif tributary_area <= 25:
+        # Linear interpolation between 10 and 25
+        return 1.0 - 0.1 * (tributary_area - 10) / 15
+    else:
+        # Linear interpolation between 25 and 100
+        return 0.9 - 0.1 * (tributary_area - 25) / 75
+
+
+def cpn_B_2(b, c, h, distance=None, theta=0, has_corner=False):
+    """
+    Calculate the net pressure coefficient (Cp,n) for hoardings and freestanding walls
+    based on Tables B.2(A), B.2(B), B.2(C), and B.2(D).
+    
+    Parameters:
+    -----------
+    b : float
+        Width of the hoarding or wall
+    c : float
+        Depth of the hoarding or wall
+    h : float
+        Height of the hoarding or wall
+    distance : float or None
+        Distance from windward free end (in terms of c or h depending on context)
+        Only required for theta=45 (Table B.2(C)) or theta=90 (Table B.2(D))
+    theta : int
+        Wind direction angle in degrees (0, 45, or 90)
+        0° = Wind normal to hoarding or wall
+        45° = Wind at 45° to hoarding or wall
+        90° = Wind parallel to hoarding or wall
+    has_corner : bool
+        Whether there's a return wall or hoarding forming a corner extending more than 1c
+        Only used for Table B.2(C)
+    
+    Returns:
+    --------
+    tuple
+        (Cp,n value, eccentricity e)
+    """
+    # Calculate the ratios
+    b_over_c = b / c
+    c_over_h = c / h
+    
+    # Wind normal to hoarding or wall (θ = 0°) - Table B.2(A)
+    if theta == 0:
+        e = 0  # Eccentricity
+        
+        if c_over_h < 0.2:
+            return (1.4 + 0.3 * np.log10(b_over_c), e)
+        elif 0.2 <= c_over_h <= 1:
+            if 0.5 <= b_over_c <= 5:
+                return (1.3 + 0.5 * (0.3 + np.log10(b_over_c)) * (0.8 - c_over_h), e)
+            elif b_over_c > 5:
+                return (1.7 - 0.5 * c_over_h, e)
+    
+    # Wind at 45° to hoarding or wall (θ = 45°) - Table B.2(B)
+    elif theta == 45 and distance is None:
+        if c_over_h < 0.2:
+            e = 0.2 * h
+            return (1.4 + 0.3 * np.log10(b_over_c), e)
+        elif 0.2 <= c_over_h <= 1 and 0.5 <= b_over_c <= 5:
+            e = 0.2 * h
+            return (1.3 + 0.5 * (0.3 + np.log10(b_over_c)) * (0.8 - c_over_h), e)
+    
+    # Wind at 45° to hoarding or wall with distance consideration (θ = 45°) - Table B.2(C)
+    elif theta == 45 and distance is not None:
+        if b_over_c <= 0.7:
+            if distance <= 2 * c:
+                if has_corner:
+                    return (2.2, 0)  # For hoarding
+                else:
+                    return (3.0, 0)
+            elif 2 * c < distance <= 4 * c:
+                return (1.5, 0)
+            elif distance > 4 * c:
+                return (0.75, 0)
+        elif b_over_c > 0.7:
+            if distance <= 2 * h:  # Note: using h instead of c for this condition
+                if has_corner:
+                    return (1.8, 0)  # For wall
+                else:
+                    return (2.4, 0)
+            elif 2 * h < distance <= 4 * h:  # Note: using h instead of c
+                return (1.2, 0)
+            elif distance > 4 * h:  # Note: using h instead of c
+                return (0.6, 0)
+    
+    # Wind parallel to hoarding or wall (θ = 90°) - Table B.2(D)
+    elif theta == 90 and distance is not None:
+        # Note: For Table B.2(D), the sign of Cp,n should be the same
+        # The caller should handle this based on their specific requirements
+        
+        if c_over_h <= 0.7:
+            if distance <= 2 * c:
+                return (1.2, 0)
+            elif 2 * c < distance <= 4 * c:
+                return (0.6, 0)
+            elif distance > 4 * c:
+                return (0.3, 0)
+        elif c_over_h > 0.7:
+            if distance <= 2 * h:  # Note: using h instead of c
+                return (1.0, 0)
+            elif 2 * h < distance <= 4 * h:  # Note: using h instead of c
+                return (0.25, 0)
+            elif distance > 4 * h:  # Note: using h instead of c
+                return (0.25, 0)
+    
+    # If no condition matches or invalid input
+    raise ValueError("Invalid combination of parameters for calculating Cp,n")
+
+
+
 def Cshp_5_2(
     cpi,
     kci=1.0,
