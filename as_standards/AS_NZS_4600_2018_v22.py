@@ -62,6 +62,7 @@ def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
         Nt = Nt_g
 
     return Nt
+
 ## Section 5: Connection
 ### Section 5.3: Bolted Connections
 def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
@@ -80,7 +81,7 @@ def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
     return net_area_reduction
 
 ### Section 5.3.2: Tearout
-def design_shear_force_tearout_5_3_2(steel_grade, t, e):
+def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
     """
     Calculate the design shear force considering tearout for a connected part.
     
@@ -99,15 +100,13 @@ def design_shear_force_tearout_5_3_2(steel_grade, t, e):
         The design shear force considering tearout (in kN or appropriate unit).
     """
     # Determine the capacity reduction factor (φ) based on the ratio of fu to fy
-    fy = table_1_5_2.loc[table_1_5_2["Grade"] == steel_grade, "Yield stress (fy) MPa"].values[0]
-    fu = table_1_5_2.loc[table_1_5_2["Grade"] == steel_grade, "Tensile strength (fu) MPa"].values[0]
-    if fu / fy >= 1.05:
+    if fu_bolt / fy_bolt >= 1.05:
         phi = 0.70
     else:
         phi = 0.60
     
     # Calculate the nominal shear capacity (Vr)
-    Vf = t * e * fu
+    Vf = t * e * fu_bolt
     
     # Calculate the design shear force considering tearout (Vr_star)
     Vf_tearout = phi * Vf
@@ -144,7 +143,7 @@ def table_5_3_4_2_b(t, d):
         C = 4 - 0.1*d/t
     return C
 
-def bearing_capacity_5_3_4_2(sheet_grade, bearing_type, d_bolt, t):
+def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
     """
     Calculate the nominal bearing capacity for a bolted connection.
     
@@ -166,9 +165,8 @@ def bearing_capacity_5_3_4_2(sheet_grade, bearing_type, d_bolt, t):
     """
     alpha = table_5_3_4_2_a.loc[table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"].values[0]
     C = table_5_3_4_2_b(t, d_bolt)
-    fu = table_1_5_2.loc[table_1_5_2["Grade"] == sheet_grade, "Tensile strength (fu) MPa"].values[0]
     phi = 0.60  # Capacity reduction factor for bearing capacity without considering bolt hole deformation
-    Vb = alpha * C * d_bolt * t * fu * phi
+    Vb = alpha * C * d_bolt * t * fu_bolt * phi
     return Vb
 
 def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
@@ -217,7 +215,7 @@ def bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension):
 
 def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac, n_x, Ao):
     Nft = bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension)
-    Vfv = bolt_shear_capacity(bolt_grade, n_n, Ac, n_x, Ao)
+    Vfv = bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao)
     
     unity = (Nu / Nft)**2 + (Vu / Vfv)**2
     if unity <= 1:
@@ -228,6 +226,18 @@ def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac,
 
 ## Section 5: Connections
 ### Section 5.4: Screwed Connections
+def calculate_shear_capacity_screwed_connection_5_4_2_1(
+    d_f, s_f, t1, t2, f_u1, f_u2, fy_1, e, a_n=None, single_screw=True
+):
+    """
+    Calculate the nominal shear capacity (V_w) of the screwed connection
+    """
+    Nt = calculate_tension_in_connected_part_5_4_2_3(d_f, s_f, f_u1, a_n, single_screw)
+    Vw = calculate_nominal_bearing_capacity_5_4_2_4(t2, t1, d_f, f_u1, f_u2)
+    Vfv = conc_shear_tearout_5_4_2_5(f_u1, fy_1, t2, e)
+    Vw = min(Nt, Vw, Vfv)
+
+    return Vw
 
 def calculate_tension_in_connected_part_5_4_2_3(
     d_f, s_f, f_u, a_n=None, single_screw=True
@@ -781,7 +791,7 @@ def bending_capacity_7_2_2_2(Mbd, Mbl, Mbe):
     """
     Mb = min(Mbd, Mbl, Mbe)
     return Mb
-
+    
 def combined_axial_compression_bending_7_2_4(Nc, Mbx, Mby, na, mbx, mby):
     phi_b = 0.9
     phi_c = 0.85
