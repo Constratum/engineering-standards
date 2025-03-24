@@ -215,7 +215,7 @@ def bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension):
 
 def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac, n_x, Ao):
     Nft = bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension)
-    Vfv = bolt_shear_capacity(bolt_grade, n_n, Ac, n_x, Ao)
+    Vfv = bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao)
     
     unity = (Nu / Nft)**2 + (Vu / Vfv)**2
     if unity <= 1:
@@ -226,6 +226,18 @@ def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac,
 
 ## Section 5: Connections
 ### Section 5.4: Screwed Connections
+def calculate_shear_capacity_screwed_connection_5_4_2_1(
+    d_f, s_f, t1, t2, f_u1, f_u2, fy_1, e, a_n=None, single_screw=True
+):
+    """
+    Calculate the nominal shear capacity (V_w) of the screwed connection
+    """
+    Nt = calculate_tension_in_connected_part_5_4_2_3(d_f, s_f, f_u1, a_n, single_screw)
+    Vw = calculate_nominal_bearing_capacity_5_4_2_4(t2, t1, d_f, f_u1, f_u2)
+    Vfv = conc_shear_tearout_5_4_2_5(f_u1, fy_1, t2, e)
+    Vw = min(Nt, Vw, Vfv)
+
+    return Vw
 
 def calculate_tension_in_connected_part_5_4_2_3(
     d_f, s_f, f_u, a_n=None, single_screw=True

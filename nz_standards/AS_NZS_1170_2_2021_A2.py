@@ -1512,6 +1512,41 @@ def Cshp_5_2(
     cshp = cpi * kv * kci
     return cshp
 
+def Cshp_5_2_c(
+    cpn,
+    solidity_ratio = 1.0,
+):
+    def calculate_net_porosity_factor(solidity_ratio = 1.0):
+        """
+        Calculate the net porosity factor (Kp) for freestanding hoardings and walls
+        based on Equation B.1 from AS/NZS 1170.2:2021.
+        
+        Parameters:
+        -----------
+        solidity_ratio : float
+            Solidity ratio (δ) of the structure (surface or open frame), which is 
+            the ratio of solid area to total area of the structure
+            
+        Returns:
+        --------
+        float
+            The net porosity factor (Kp)
+            
+        Notes:
+        ------
+        For freestanding hoardings and walls, Kp is calculated using Equation B.1:
+        Kp = 1-(1-δ)²
+        
+        For all other cases in this Appendix, Kp = 1.0.
+        """
+        # For freestanding hoardings and walls
+        if 0 <= solidity_ratio <= 1:
+            return 1 - (1 - solidity_ratio)**2
+        else:
+            raise ValueError("Solidity ratio must be between 0 and 1")
+    kp = calculate_net_porosity_factor(solidity_ratio)
+    cshp = cpn * kp
+    return cshp
 
 def site_wind_speed(p, location, height, Terrain_category):
     num, denom = p.split("/")
