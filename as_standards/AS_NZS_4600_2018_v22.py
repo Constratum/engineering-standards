@@ -673,7 +673,8 @@ def calc_Beta_E2(t, xc, a, b, c, Iy, x_o, section_type):
     return beta_y
 
 
-def calc_Mo_D_2_1_1_2_a(cb, Ag, ro1, foy, foz):
+def calc_Mo_D_2_1_1_2_a(Ag, ro1, foy, foz, fy, le):
+    cb = calc_cb_D_2_1_1_2(fy, le)
     Mo = cb * Ag * ro1 * (foy * foz) ** 0.5
 
     return Mo
