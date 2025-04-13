@@ -750,7 +750,7 @@ class CoachScrewedJoint:
         effective_thickness,
         bolt_diameter,
         angle_degrees,
-        is_seasoned=False,
+        is_seasoned=None,
     ):
         """
         Get the characteristic capacity for a single bolt loaded at an angle to the grain
@@ -759,13 +759,17 @@ class CoachScrewedJoint:
         Args:
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
             effective_thickness (int): Effective timber thickness in mm
-            bolt_diameter (str): Bolt diameter (e.g., 'M12')
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
             angle_degrees (float): Angle between load direction and grain direction in degrees
-            is_seasoned (bool): Whether the timber is seasoned
+            is_seasoned (bool, optional): Whether the timber is seasoned. If None, uses the instance's is_seasoned.
 
         Returns:
             float: Characteristic capacity in N
         """
+        # Use instance is_seasoned if not provided
+        if is_seasoned is None:
+            is_seasoned = self.is_seasoned
+
         # Get capacities parallel and perpendicular to grain
         Q_parallel = self.get_characteristic_capacity_parallel(
             joint_group, effective_thickness, bolt_diameter, is_seasoned
@@ -1117,182 +1121,892 @@ class BoltedJointSystem:
     NZS AS 1720.1:2022 standard, section 4.4.2.4.
     """
 
-    def __init__(self, is_seasoned=False):
+    # Table 4.12 - Factor for multiple bolted joints (k17)
+    TABLE_4_3_A = (
+        1.0  # Default value for k17, should be updated based on the number of rows
+    )
+
+    # Table C6 - Values of f'pj for bolted joints
+    TABLE_C6 = {
+        # Unseasoned timber
+        "J1": 22.0,
+        "J2": 17.5,
+        "J3": 11.0,
+        "J4": 7.1,
+        "J5": 4.7,
+        "J6": 2.4,
+        # Seasoned timber
+        "JD1": 29.0,
+        "JD2": 22.5,
+        "JD3": 17.0,
+        "JD4": 12.5,
+        "JD5": 9.0,
+        "JD6": 6.1,
+    }
+
+    def __init__(self, joint_type=None, joint_group=None, is_seasoned=False):
         """
         Initialize the BoltedJointSystem class.
 
         Args:
+            joint_type (int): Type of joint (1 or 2)
+            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
             is_seasoned (bool): Whether the timber is seasoned
         """
+        self.joint_type = joint_type
+        self.joint_group = joint_group
         self.is_seasoned = is_seasoned
-        self.coach_screwed_joint = CoachScrewedJoint()
-        # Initialize tables
-        self.coach_screwed_joint._create_tables()
 
-    def get_characteristic_capacity(
-        self,
-        joint_group,
-        effective_thickness,
-        bolt_diameter,
-        load_direction,
-        angle_degrees=0,
-    ):
+        # Table 4.11 - Maximum tensile load capacity
+        self.max_tensile_capacity = {
+            "M6": 6400,
+            "M8": 11700,
+            "M10": 18600,
+            "M12": 27000,
+            "M16": 50200,
+            "M20": 78400,
+            "M24": 113000,
+            "M30": 180000,
+            "M36": 312000,
+        }
+
+        # Table 2.6 - Length of bearing factor
+        self.k7_table = {
+            12: 1.75,
+            25: 1.40,
+            50: 1.20,
+            75: 1.15,
+            125: 1.10,
+            150: 1.00,  # 150 or more
+        }
+
+        # Initialize tables for characteristic capacities
+        self._create_tables()
+
+    def _create_tables(self):
+        """Create tables for characteristic bolt capacities."""
+        # Table 4.9(B) - Characteristic capacities for bolts loaded parallel to grain in unseasoned timber
+        self.table_4_9B = {
+            # This would contain actual values from the standard
+            # For simplicity, using placeholder values here
+            "J1": {
+                "M6": 2000,
+                "M8": 2500,
+                "M10": 3000,
+                "M12": 3500,
+                "M16": 4500,
+                "M20": 5500,
+            },
+            "J2": {
+                "M6": 1700,
+                "M8": 2100,
+                "M10": 2500,
+                "M12": 3000,
+                "M16": 3800,
+                "M20": 4700,
+            },
+            "J3": {
+                "M6": 1400,
+                "M8": 1700,
+                "M10": 2100,
+                "M12": 2500,
+                "M16": 3100,
+                "M20": 3800,
+            },
+            "J4": {
+                "M6": 1000,
+                "M8": 1300,
+                "M10": 1600,
+                "M12": 1900,
+                "M16": 2400,
+                "M20": 3000,
+            },
+            "J5": {
+                "M6": 800,
+                "M8": 1000,
+                "M10": 1200,
+                "M12": 1500,
+                "M16": 1900,
+                "M20": 2300,
+            },
+            "J6": {
+                "M6": 600,
+                "M8": 800,
+                "M10": 1000,
+                "M12": 1200,
+                "M16": 1500,
+                "M20": 1800,
+            },
+        }
+
+        # Table 4.9(C) - Characteristic capacities for bolts loaded parallel to grain in seasoned timber
+        self.table_4_9C = {
+            # Placeholder values
+            "JD1": {
+                "M6": 2400,
+                "M8": 3000,
+                "M10": 3600,
+                "M12": 4200,
+                "M16": 5400,
+                "M20": 6600,
+            },
+            "JD2": {
+                "M6": 2000,
+                "M8": 2500,
+                "M10": 3000,
+                "M12": 3600,
+                "M16": 4600,
+                "M20": 5600,
+            },
+            "JD3": {
+                "M6": 1700,
+                "M8": 2100,
+                "M10": 2500,
+                "M12": 3000,
+                "M16": 3800,
+                "M20": 4600,
+            },
+            "JD4": {
+                "M6": 1200,
+                "M8": 1600,
+                "M10": 1900,
+                "M12": 2300,
+                "M16": 2900,
+                "M20": 3600,
+            },
+            "JD5": {
+                "M6": 1000,
+                "M8": 1200,
+                "M10": 1500,
+                "M12": 1800,
+                "M16": 2300,
+                "M20": 2800,
+            },
+            "JD6": {
+                "M6": 700,
+                "M8": 900,
+                "M10": 1200,
+                "M12": 1400,
+                "M16": 1800,
+                "M20": 2200,
+            },
+        }
+
+        # Table 4.10(B) - Characteristic capacities for bolts loaded perpendicular to grain in unseasoned timber
+        self.table_4_10B = {
+            # Placeholder values
+            "J1": {
+                "M6": 1600,
+                "M8": 2000,
+                "M10": 2400,
+                "M12": 2800,
+                "M16": 3600,
+                "M20": 4400,
+            },
+            "J2": {
+                "M6": 1360,
+                "M8": 1680,
+                "M10": 2000,
+                "M12": 2400,
+                "M16": 3040,
+                "M20": 3760,
+            },
+            "J3": {
+                "M6": 1120,
+                "M8": 1360,
+                "M10": 1680,
+                "M12": 2000,
+                "M16": 2480,
+                "M20": 3040,
+            },
+            "J4": {
+                "M6": 800,
+                "M8": 1040,
+                "M10": 1280,
+                "M12": 1520,
+                "M16": 1920,
+                "M20": 2400,
+            },
+            "J5": {
+                "M6": 640,
+                "M8": 800,
+                "M10": 960,
+                "M12": 1200,
+                "M16": 1520,
+                "M20": 1840,
+            },
+            "J6": {
+                "M6": 480,
+                "M8": 640,
+                "M10": 800,
+                "M12": 960,
+                "M16": 1200,
+                "M20": 1440,
+            },
+        }
+
+        # Table 4.10(C) - Characteristic capacities for bolts loaded perpendicular to grain in seasoned timber
+        self.table_4_10C = {
+            # Placeholder values
+            "JD1": {
+                "M6": 1920,
+                "M8": 2400,
+                "M10": 2880,
+                "M12": 3360,
+                "M16": 4320,
+                "M20": 5280,
+            },
+            "JD2": {
+                "M6": 1600,
+                "M8": 2000,
+                "M10": 2400,
+                "M12": 2880,
+                "M16": 3680,
+                "M20": 4480,
+            },
+            "JD3": {
+                "M6": 1360,
+                "M8": 1680,
+                "M10": 2000,
+                "M12": 2400,
+                "M16": 3040,
+                "M20": 3680,
+            },
+            "JD4": {
+                "M6": 960,
+                "M8": 1280,
+                "M10": 1520,
+                "M12": 1840,
+                "M16": 2320,
+                "M20": 2880,
+            },
+            "JD5": {
+                "M6": 800,
+                "M8": 960,
+                "M10": 1200,
+                "M12": 1440,
+                "M16": 1840,
+                "M20": 2240,
+            },
+            "JD6": {
+                "M6": 560,
+                "M8": 720,
+                "M10": 960,
+                "M12": 1120,
+                "M16": 1440,
+                "M20": 1760,
+            },
+        }
+
+    def get_k7_factor(self, bearing_length):
         """
-        Get the characteristic capacity for a single bolt.
+        Get the k7 (length of bearing) factor from Table 2.6.
 
         Args:
-            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
-            effective_thickness (int): Effective timber thickness in mm
-            bolt_diameter (str): Bolt diameter (e.g., 'M12')
-            load_direction (str): Direction of load ('parallel', 'perpendicular', or 'angle')
-            angle_degrees (float): Angle between load direction and grain direction in degrees
-                                  (only used if load_direction is 'angle')
+            bearing_length (float): Length of bearing in mm (for washers, this is the diameter or side length)
 
         Returns:
-            float: Characteristic capacity in N
+            float: k7 factor
         """
-        if load_direction == "parallel":
-            return self.coach_screwed_joint.get_characteristic_capacity_parallel(
-                joint_group, effective_thickness, bolt_diameter, self.is_seasoned
-            )
-        elif load_direction == "perpendicular":
-            return self.coach_screwed_joint.get_characteristic_capacity_perpendicular(
-                joint_group, effective_thickness, bolt_diameter, self.is_seasoned
-            )
-        elif load_direction == "angle":
-            return self.coach_screwed_joint.get_characteristic_capacity_angle(
-                joint_group,
-                effective_thickness,
-                bolt_diameter,
-                angle_degrees,
-                self.is_seasoned,
-            )
-        else:
-            raise ValueError(
-                f"Invalid load direction: {load_direction}. Must be 'parallel', 'perpendicular', or 'angle'"
-            )
+        if bearing_length <= 0:
+            raise ValueError("Bearing length must be positive")
+
+        if bearing_length <= 12:
+            return 1.75
+        elif bearing_length >= 150:
+            return 1.00
+
+        # Find the closest values in the table
+        lengths = sorted(self.k7_table.keys())
+        for i in range(len(lengths) - 1):
+            if bearing_length <= lengths[i + 1]:
+                # Linear interpolation between table values
+                l1, l2 = lengths[i], lengths[i + 1]
+                k1, k2 = self.k7_table[l1], self.k7_table[l2]
+                return k1 + (k2 - k1) * (bearing_length - l1) / (l2 - l1)
+
+        return 1.00  # Default for lengths > 150mm
 
     def get_effective_thickness(self, joint_configuration, member_thicknesses):
         """
         Determine the effective timber thickness (beff) based on joint configuration.
 
         Args:
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member', 'multiple_member')
+            joint_configuration (str): Type of joint configuration
             member_thicknesses (list): List of thicknesses for each member in mm
 
         Returns:
             float: Effective timber thickness in mm
         """
+        if not member_thicknesses:
+            raise ValueError("Member thicknesses list cannot be empty")
+
         if joint_configuration == "two_member":
-            # For two-member joints, effective thickness is the smaller of t1 and t2
             return min(member_thicknesses)
-        elif joint_configuration == "three_member":
-            # For three-member joints, effective thickness depends on the specific configuration
-            # This is a simplification - in reality, it would depend on the specific arrangement
-            return min(member_thicknesses)
+        elif joint_configuration == "three_member_A":
+            if len(member_thicknesses) < 1:
+                raise ValueError(
+                    "Three member Type A joints require at least one member thickness"
+                )
+            return member_thicknesses[0]
+        elif joint_configuration == "three_member_B":
+            if len(member_thicknesses) < 1:
+                raise ValueError(
+                    "Three member Type B joints require at least one member thickness"
+                )
+            return 2 * member_thicknesses[0]
         elif joint_configuration == "multiple_member":
-            # For multiple member joints, effective thickness depends on the specific configuration
-            # This is a simplification
             return min(member_thicknesses)
         else:
             raise ValueError(f"Invalid joint configuration: {joint_configuration}")
 
-    def calculate_system_capacity(
+    def get_characteristic_capacity_parallel(
+        self, joint_group, effective_thickness, bolt_diameter, is_seasoned=None
+    ):
+        """
+        Get the characteristic capacity for a single bolt loaded parallel to the grain.
+
+        Args:
+            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+            effective_thickness (int): Effective timber thickness in mm
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
+            is_seasoned (bool, optional): Whether the timber is seasoned. If None, uses the instance's is_seasoned.
+
+        Returns:
+            float: Characteristic capacity in N
+        """
+        # Use instance is_seasoned if not provided
+        if is_seasoned is None:
+            is_seasoned = self.is_seasoned
+
+        # Normalize bolt diameter format
+        if isinstance(bolt_diameter, (int, float)):
+            bolt_diameter = f"M{int(bolt_diameter)}"
+        elif isinstance(bolt_diameter, str) and not bolt_diameter.startswith("M"):
+            bolt_diameter = f"M{bolt_diameter}"
+
+        # Get the appropriate table
+        table = self.table_4_9C if is_seasoned else self.table_4_9B
+
+        # Validate inputs
+        if joint_group not in table:
+            valid_groups = list(table.keys())
+            raise ValueError(
+                f"Invalid joint group: {joint_group}. Valid groups are: {valid_groups}"
+            )
+
+        if bolt_diameter not in table[joint_group]:
+            valid_sizes = list(table[joint_group].keys())
+            raise ValueError(
+                f"Invalid bolt diameter: {bolt_diameter}. Valid sizes are: {valid_sizes}"
+            )
+
+        # Return the characteristic capacity
+        return table[joint_group][bolt_diameter]
+
+    def get_characteristic_capacity_perpendicular(
+        self, joint_group, effective_thickness, bolt_diameter, is_seasoned=None
+    ):
+        """
+        Get the characteristic capacity for a single bolt loaded perpendicular to the grain.
+
+        Args:
+            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+            effective_thickness (int): Effective timber thickness in mm
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
+            is_seasoned (bool, optional): Whether the timber is seasoned. If None, uses the instance's is_seasoned.
+
+        Returns:
+            float: Characteristic capacity in N
+        """
+        # Use instance is_seasoned if not provided
+        if is_seasoned is None:
+            is_seasoned = self.is_seasoned
+
+        # Normalize bolt diameter format
+        if isinstance(bolt_diameter, (int, float)):
+            bolt_diameter = f"M{int(bolt_diameter)}"
+        elif isinstance(bolt_diameter, str) and not bolt_diameter.startswith("M"):
+            bolt_diameter = f"M{bolt_diameter}"
+
+        # Get the appropriate table
+        table = self.table_4_10C if is_seasoned else self.table_4_10B
+
+        # Validate inputs
+        if joint_group not in table:
+            valid_groups = list(table.keys())
+            raise ValueError(
+                f"Invalid joint group: {joint_group}. Valid groups are: {valid_groups}"
+            )
+
+        if bolt_diameter not in table[joint_group]:
+            valid_sizes = list(table[joint_group].keys())
+            raise ValueError(
+                f"Invalid bolt diameter: {bolt_diameter}. Valid sizes are: {valid_sizes}"
+            )
+
+        # Return the characteristic capacity
+        return table[joint_group][bolt_diameter]
+
+    def get_characteristic_capacity_angle(
+        self,
+        joint_group,
+        effective_thickness,
+        bolt_diameter,
+        angle_degrees,
+        is_seasoned=None,
+    ):
+        """
+        Get the characteristic capacity for a single bolt loaded at an angle to the grain
+        using Hankinson's formula.
+
+        Args:
+            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+            effective_thickness (int): Effective timber thickness in mm
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
+            angle_degrees (float): Angle between load direction and grain direction in degrees
+            is_seasoned (bool, optional): Whether the timber is seasoned. If None, uses the instance's is_seasoned.
+
+        Returns:
+            float: Characteristic capacity in N
+        """
+        # Use instance is_seasoned if not provided
+        if is_seasoned is None:
+            is_seasoned = self.is_seasoned
+
+        # Get capacities parallel and perpendicular to grain
+        Q_parallel = self.get_characteristic_capacity_parallel(
+            joint_group, effective_thickness, bolt_diameter, is_seasoned
+        )
+        Q_perpendicular = self.get_characteristic_capacity_perpendicular(
+            joint_group, effective_thickness, bolt_diameter, is_seasoned
+        )
+
+        # Convert angle to radians
+        angle_radians = np.radians(angle_degrees)
+
+        # Apply Hankinson's formula (Equation 4.4(1))
+        numerator = Q_parallel * Q_perpendicular
+        denominator = Q_parallel * (np.sin(angle_radians) ** 2) + Q_perpendicular * (
+            np.cos(angle_radians) ** 2
+        )
+
+        return numerator / denominator
+
+    def get_system_capacity(
         self,
         joint_configuration,
-        member_thicknesses,
+        effective_thickness,
         bolt_diameter,
         joint_group,
-        load_direction,
         angle_degrees=0,
+        is_seasoned=False,
     ):
         """
         Calculate the system capacity for a bolted joint system.
 
         Args:
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member', 'multiple_member')
-            member_thicknesses (list): List of thicknesses for each member in mm
+            joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A',
+                                      'three_member_B', 'multiple_member')
+            effective_thickness (int): Effective timber thickness in mm
             bolt_diameter (str): Bolt diameter (e.g., 'M12')
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
-            load_direction (str): Direction of load ('parallel', 'perpendicular', or 'angle')
             angle_degrees (float): Angle between load direction and grain direction in degrees
-                                  (only used if load_direction is 'angle')
+            is_seasoned (bool): Whether the timber is seasoned
 
         Returns:
             float: System capacity in N
         """
-        # Determine effective thickness
-        effective_thickness = self.get_effective_thickness(
-            joint_configuration, member_thicknesses
-        )
+        # Get the characteristic capacity for a single bolt at the specified angle
+        if angle_degrees == 0:
+            # Parallel to grain
+            Q_k = self.get_characteristic_capacity_parallel(
+                joint_group, effective_thickness, bolt_diameter, is_seasoned
+            )
+        elif angle_degrees == 90:
+            # Perpendicular to grain
+            Q_k = self.get_characteristic_capacity_perpendicular(
+                joint_group, effective_thickness, bolt_diameter, is_seasoned
+            )
+        else:
+            # At an angle to grain
+            Q_k = self.get_characteristic_capacity_angle(
+                joint_group,
+                effective_thickness,
+                bolt_diameter,
+                angle_degrees,
+                is_seasoned,
+            )
 
-        # Get the characteristic capacity for a single bolt
-        Q_k = self.get_characteristic_capacity(
-            joint_group,
-            effective_thickness,
-            bolt_diameter,
-            load_direction,
-            angle_degrees,
-        )
-
-        # Calculate system capacity based on joint configuration according to Table 4.9(A) or 4.10(A)
+        # Calculate system capacity based on joint configuration
         if joint_configuration == "two_member":
-            return Q_k
-        elif joint_configuration == "three_member":
-            return 2 * Q_k
+            system_capacity = Q_k
+        elif (
+            joint_configuration == "three_member_A"
+            or joint_configuration == "three_member_B"
+        ):
+            system_capacity = 2 * Q_k
         elif joint_configuration == "multiple_member":
             # For multiple member joints, the system capacity is the sum of the basic loads
-            # This is a simplification - in reality, it would depend on the specific configuration
-            # and the number of interfaces
-            return (
+            system_capacity = (
                 Q_k  # This should be modified based on the actual number of interfaces
             )
         else:
             raise ValueError(f"Invalid joint configuration: {joint_configuration}")
 
-    def calculate_design_capacity(
+        return system_capacity
+
+    def calculate_joint_capacity(
         self,
         joint_configuration,
         member_thicknesses,
         bolt_diameter,
         joint_group,
-        load_direction,
-        n_bolts=1,
-        capacity_factor=0.8,
-        load_duration_factor=1.0,
-        angle_degrees=0,
+        load_angle=0,
+        is_seasoned=False,
     ):
         """
-        Calculate the design capacity for a bolted joint system.
+        Calculate the capacity of a bolted joint system.
 
         Args:
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member', 'multiple_member')
+            joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A',
+                                      'three_member_B', 'multiple_member')
             member_thicknesses (list): List of thicknesses for each member in mm
             bolt_diameter (str): Bolt diameter (e.g., 'M12')
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
-            load_direction (str): Direction of load ('parallel', 'perpendicular', or 'angle')
+            load_angle (float): Angle between load direction and grain direction in degrees
+            is_seasoned (bool): Whether the timber is seasoned
+
+        Returns:
+            float: Joint capacity in N
+        """
+        # Determine effective thickness based on joint configuration and member thicknesses
+        if joint_configuration == "two_member":
+            # For two-member joints, effective thickness is the smaller of t1 and t2
+            effective_thickness = min(member_thicknesses)
+        elif joint_configuration == "three_member_A":
+            # For three-member Type A joints, effective thickness is t1
+            effective_thickness = member_thicknesses[0]
+        elif joint_configuration == "three_member_B":
+            # For three-member Type B joints, effective thickness is 2*t1
+            effective_thickness = 2 * member_thicknesses[0]
+        elif joint_configuration == "multiple_member":
+            # For multiple member joints, effective thickness depends on the specific configuration
+            # This is a simplification
+            effective_thickness = min(member_thicknesses)
+        else:
+            raise ValueError(f"Invalid joint configuration: {joint_configuration}")
+
+        # Calculate system capacity
+        system_capacity = self.get_system_capacity(
+            joint_configuration,
+            effective_thickness,
+            bolt_diameter,
+            joint_group,
+            load_angle,
+            is_seasoned,
+        )
+
+        return system_capacity
+
+    def design_capacity_type1_joint_4_4_3_2(
+        self,
+        n_bolts,
+        bolt_diameter,
+        joint_group,
+        joint_configuration,
+        member_thicknesses,
+        angle_degrees=0,
+        has_metal_side_plates=False,
+        is_seasoned=False,
+    ):
+        """
+        Calculate the design capacity for Type 1 joints containing n bolts in shear to resist lateral loads.
+
+        Args:
             n_bolts (int): Number of bolts in the joint
-            capacity_factor (float): Capacity factor (φ)
-            load_duration_factor (float): Factor for duration of load (k1)
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
+            joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+            joint_configuration (str): Type of joint configuration
+            member_thicknesses (list): List of thicknesses for each member in mm
+            load_direction (str): Direction of load ('parallel', 'perpendicular', or 'angle')
             angle_degrees (float): Angle between load direction and grain direction in degrees
-                                  (only used if load_direction is 'angle')
+            has_metal_side_plates (bool): Whether the joint has metal side plates
+            n_rows (int): Number of rows of fasteners per interface
+            has_transverse_restraint (bool): Whether the joint has transverse restraint
+            k1 (float): Duration of load factor (default 1.14 for 5-second load)
+            k16 (float): Factor for bolts with metal side plates (default 2.0 if applicable, 1.0 otherwise)
+            k17 (float): Factor for multiple bolted joint
+            phi (float): Capacity factor (default 0.8)
+
+        Returns:
+            float: Design capacity (Nd,1) in N
+        """
+        # Set default values if not provided
+        phi = 0.8
+        k1 = 1.14  # For 5-second duration load
+        k16 = 2.0 if has_metal_side_plates else 1.0
+        k17 = self.TABLE_4_3_A
+
+        # Get effective thickness based on joint configuration
+        # Determine effective thickness based on joint configuration
+        if joint_configuration == "two_member":
+            # For two-member joints, effective thickness is the smaller of t1 and t2
+            effective_thickness = min(member_thicknesses)
+        elif joint_configuration == "three_member_A":
+            # For three-member Type A joints, effective thickness is t1
+            effective_thickness = member_thicknesses[0]
+        elif joint_configuration == "three_member_B":
+            # For three-member Type B joints, effective thickness is 2*t1
+            effective_thickness = 2 * member_thicknesses[0]
+        elif joint_configuration == "multiple_member":
+            # For multiple member joints, effective thickness depends on the specific configuration
+            effective_thickness = min(member_thicknesses)
+        else:
+            raise ValueError(f"Invalid joint configuration: {joint_configuration}")
+
+        # Use the CoachScrewedJoint's get_characteristic_capacity method for consistent calculation
+        if angle_degrees == 0:
+            # Parallel to grain
+            Qk = self.get_characteristic_capacity_parallel(
+                joint_group, effective_thickness, bolt_diameter, is_seasoned
+            )
+        elif angle_degrees == 90:
+            # Perpendicular to grain
+            Qk = self.get_characteristic_capacity_perpendicular(
+                joint_group, effective_thickness, bolt_diameter, is_seasoned
+            )
+        else:
+            # At an angle to grain
+            Qk = self.get_characteristic_capacity_angle(
+                joint_group,
+                effective_thickness,
+                bolt_diameter,
+                angle_degrees,
+                is_seasoned,
+            )
+
+        # Calculate design capacity according to equation 4.4(3)
+        N_d = phi * k1 * k16 * k17 * n_bolts * Qk
+
+        return N_d
+
+    def design_capacity_type2_joint_4_4_3_3(
+        self,
+        n_bolts,
+        bolt_diameter,
+        washer_diameter,
+        joint_group=None,
+        washer_area=None,
+    ):
+        """
+        Calculate the design capacity for Type 2 joints in which bolts are loaded in direct tension.
+
+        Args:
+            n_bolts (int): Number of bolts in the joint
+            bolt_diameter (str or int): Bolt diameter (e.g., 'M12' or 12)
+            washer_diameter (float): Diameter or side length of washer in mm
+            joint_group (str, optional): Joint group. If None, uses the instance's joint_group
+            washer_area (float, optional): Area of the washer in mm². If None, calculated from washer_diameter
 
         Returns:
             float: Design capacity in N
         """
-        # Get system capacity
-        system_capacity = self.calculate_system_capacity(
+        # Set default values
+        phi = 0.8
+        k1 = 1.14
+        k7 = self.get_k7_factor(washer_diameter)
+
+        # Use instance joint_group if not provided
+        if joint_group is None:
+            joint_group = self.joint_group
+            if joint_group is None:
+                raise ValueError(
+                    "Joint group must be provided either at initialization or as a function parameter"
+                )
+
+        # Get characteristic bearing capacity f'pj from Table C6
+        if joint_group not in self.TABLE_C6:
+            valid_groups = list(self.TABLE_C6.keys())
+            raise ValueError(
+                f"Invalid joint group: {joint_group}. Valid groups are: {valid_groups}"
+            )
+
+        f_p = self.TABLE_C6[joint_group]
+
+        # Normalize bolt diameter format
+        if isinstance(bolt_diameter, (int, float)):
+            bolt_diameter = f"M{int(bolt_diameter)}"
+        elif isinstance(bolt_diameter, str) and not bolt_diameter.startswith("M"):
+            bolt_diameter = f"M{bolt_diameter}"
+
+        # Get maximum tensile capacity from Table 4.11
+        if bolt_diameter not in self.max_tensile_capacity:
+            valid_sizes = list(self.max_tensile_capacity.keys())
+            raise ValueError(
+                f"Invalid bolt diameter: {bolt_diameter}. Valid sizes are: {valid_sizes}"
+            )
+
+        N_dt = self.max_tensile_capacity[bolt_diameter]
+
+        # Calculate design capacity according to equations 4.4(4) and 4.4(6)
+        N_d_eq4 = n_bolts * N_dt  # Equation 4.4(4)
+        N_d_eq6 = phi * k1 * k7 * f_p * washer_area  # Equation 4.4(6)
+
+        # Design capacity is the lesser of the two values
+        if N_d_eq4 <= N_d_eq6:
+            return N_d_eq4
+        else:
+            return N_d_eq6
+
+
+def create_joint_system(
+    joint_connection_type, joint_type=None, joint_group=None, is_seasoned=False
+):
+    """
+    Factory function to create the appropriate joint system based on connection type.
+
+    Args:
+        joint_connection_type (str): Type of connection - either "CoachScrew" or "Bolt"
+        joint_type (int): Type of joint (1 or 2)
+        joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+        is_seasoned (bool): Whether the timber is seasoned
+
+    Returns:
+        Either a CoachScrewedJoint or BoltedJointSystem instance
+
+    Raises:
+        ValueError: If joint_connection_type is not recognized
+    """
+    if joint_connection_type.lower() in (
+        "coachscrew",
+        "coach screw",
+        "coach-screw",
+        "coach",
+    ):
+        return CoachScrewedJoint(joint_type, joint_group, is_seasoned)
+    elif joint_connection_type.lower() in ("bolt", "bolted"):
+        return BoltedJointSystem(joint_type, joint_group, is_seasoned)
+    else:
+        valid_types = ["CoachScrew", "Bolt"]
+        raise ValueError(
+            f"Invalid joint connection type: {joint_connection_type}. Valid types are: {valid_types}"
+        )
+
+
+def calculate_joint_capacities(
+    joint_connection_type,
+    n_fasteners,
+    fastener_diameter,
+    joint_group,
+    is_side_grain=True,
+    has_metal_side_plates=False,
+    joint_configuration="two_member",
+    member_thicknesses=[45],
+    angle_degrees=0,
+    is_seasoned=False,
+    washer_diameter=None,
+    penetration_depth=None,
+    washer_area=None,
+    **kwargs,
+):
+    """
+    Calculate both tension (Nt) and shear (Ns) capacities for a joint using either coach screws or bolts.
+
+    Args:
+        joint_connection_type (str): Type of connection - either "coach_screw" or "bolt"
+        n_fasteners (int): Number of fasteners in the joint
+        fastener_diameter (str or int): Diameter of the fastener (e.g., 'M12' or 12)
+        joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
+        is_side_grain (bool): Whether the fasteners are in side grain (True) or end grain (False)
+        has_metal_side_plates (bool): Whether the joint has metal side plates
+        joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A', etc.)
+        member_thicknesses (list): List of thicknesses for each member in mm
+        angle_degrees (float): Angle between load direction and grain direction in degrees
+        is_seasoned (bool): Whether the timber is seasoned
+        washer_diameter (float): Diameter of the washer in mm (required for bolts in tension)
+        penetration_depth (float): Penetration depth for coach screws in mm (required for coach screws in tension)
+        **kwargs: Additional arguments to pass to the specific joint system methods
+
+    Returns:
+        tuple: (Nt, Ns) where:
+            - Nt is the design capacity for tension (N)
+            - Ns is the design capacity for shear (N)
+
+    Raises:
+        ValueError: If required parameters are missing or invalid
+    """
+    # Create appropriate joint systems for tension and shear
+    if joint_connection_type == "coach_screw":
+        # For coach screws
+        joint_tension = CoachScrewedJoint(
+            joint_type=2,  # Type 2 for tension/withdrawal capacity
+            joint_group=joint_group,
+            is_seasoned=is_seasoned,
+        )
+
+        joint_shear = CoachScrewedJoint(
+            joint_type=1,  # Type 1 for lateral/shear capacity
+            joint_group=joint_group,
+            is_seasoned=is_seasoned,
+        )
+
+        # Calculate tension capacity
+        if penetration_depth is None:
+            raise ValueError(
+                "Penetration depth is required for coach screws in tension"
+            )
+
+        Nt = joint_tension.design_capacity_type2_joint_4_5_3_2(
+            n_fasteners, fastener_diameter, penetration_depth, is_side_grain
+        )
+
+        # Calculate shear capacity
+        Ns = joint_shear.design_capacity_type1_joint_4_5_3_1(
+            n_fasteners,
+            fastener_diameter,
+            is_side_grain,
+            has_metal_side_plates,
             joint_configuration,
             member_thicknesses,
-            bolt_diameter,
             joint_group,
-            load_direction,
             angle_degrees,
+            is_seasoned,
         )
 
-        # Calculate design capacity
-        design_capacity = (
-            capacity_factor * load_duration_factor * n_bolts * system_capacity
+    elif joint_connection_type == "bolt":
+        # For bolts
+        joint_system = BoltedJointSystem(
+            joint_type=None,  # Will be set per operation
+            joint_group=joint_group,
+            is_seasoned=is_seasoned,
         )
 
-        return design_capacity
+        # For tension capacity
+        if washer_diameter is None:
+            raise ValueError("Washer diameter is required for bolts in tension")
+
+        joint_system.joint_type = 2  # Set to Type 2 for tension
+        Nt = joint_system.design_capacity_type2_joint_4_4_3_3(
+            n_fasteners, fastener_diameter, washer_diameter, joint_group, washer_area
+        )
+
+        # For shear capacity
+        joint_system.joint_type = 1  # Set to Type 1 for shear
+        Ns = joint_system.design_capacity_type1_joint_4_4_3_2(
+            n_fasteners,
+            fastener_diameter,
+            joint_group,
+            joint_configuration,
+            member_thicknesses,
+            angle_degrees=angle_degrees,
+            has_metal_side_plates=has_metal_side_plates,
+            is_seasoned=is_seasoned,
+        )
+    else:
+        valid_types = ["coach_screw", "bolt"]
+        raise ValueError(
+            f"Invalid joint connection type: {joint_connection_type}. Valid types are: {valid_types}"
+        )
+
+    return Nt, Ns
