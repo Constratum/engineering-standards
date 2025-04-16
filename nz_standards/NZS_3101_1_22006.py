@@ -26,69 +26,6 @@ class AnchorProperties:
     anchor_type: str  # Type of anchor: "headed_stud", "headed_bolt", or "hooked_bolt"
     shear_prep: bool
 
-    # def __post_init__(self):
-    #     """Convert and validate input parameters"""
-
-    #     # Helper function to handle tuple conversion
-    #     def convert_tuple(value, convert_type):
-    #         if isinstance(value, tuple):
-    #             return convert_type(value[0])
-    #         return convert_type(value)
-
-    #     # Convert required numeric inputs
-    #     self.diameter = convert_tuple(self.diameter, float)
-    #     self.head_diameter = convert_tuple(self.head_diameter, float)
-    #     self.effective_embedment_depth = convert_tuple(
-    #         self.effective_embedment_depth, float
-    #     )
-    #     self.edge_distance = convert_tuple(self.edge_distance, float)
-    #     self.eccentricity = convert_tuple(self.eccentricity, float)
-    #     self.number_of_anchors = convert_tuple(self.number_of_anchors, int)
-    #     self.ultimate_tensile_strength = convert_tuple(
-    #         self.ultimate_tensile_strength, float
-    #     )
-    #     self.concrete_strength = convert_tuple(self.concrete_strength, float)
-
-    #     # Convert optional numeric inputs
-    #     if self.edge_distance_perp is not None:
-    #         self.edge_distance_perp = convert_tuple(self.edge_distance_perp, float)
-    #     if self.spacing is not None:
-    #         self.spacing = convert_tuple(self.spacing, float)
-    #     if self.length_hook is not None:
-    #         self.length_hook = convert_tuple(self.length_hook, float)
-
-    #     # Convert boolean inputs
-    #     self.is_cracked_concrete = convert_tuple(self.is_cracked_concrete, bool)
-    #     self.shear_prep = convert_tuple(self.shear_prep, bool)
-
-    #     # Validate inputs
-    #     if self.diameter <= 0:
-    #         raise ValueError("diameter must be positive")
-    #     if self.head_diameter <= self.diameter:
-    #         raise ValueError("head_diameter must be greater than shaft diameter")
-    #     if self.effective_embedment_depth <= 0:
-    #         raise ValueError("effective_embedment_depth must be positive")
-    #     if self.edge_distance <= 0:
-    #         raise ValueError("edge_distance must be positive")
-    #     if self.number_of_anchors <= 0:
-    #         raise ValueError("number_of_anchors must be positive")
-    #     if self.ultimate_tensile_strength <= 0:
-    #         raise ValueError("ultimate_tensile_strength must be positive")
-    #     if self.concrete_strength <= 0:
-    #         raise ValueError("concrete_strength must be positive")
-
-    #     # Validate anchor type
-    #     valid_types = ["headed_stud", "headed_bolt", "hooked_bolt"]
-    #     if self.anchor_type not in valid_types:
-    #         raise ValueError(f"anchor_type must be one of {valid_types}")
-
-    #     # Validate hook length for hooked bolts
-    #     if self.anchor_type == "hooked_bolt":
-    #         if not self.length_hook:
-    #             raise ValueError("length_hook must be provided for hooked bolts")
-    #         if not (3 * self.diameter <= self.length_hook <= 4.5 * self.diameter):
-    #             raise ValueError("hook length must be between 3do and 4.5do")
-
 
 class AnchorCapacity_Chapter_17:
     """Calculate anchor capacities according to NZS 3101:Part 1:2006"""
@@ -1483,13 +1420,6 @@ class PostInstalledScrewCapacity:
                 f"Warning: Corner effect factor (Xvs) using e1={self.props.edge_distance}, e2={self.props.edge_distance_2} applied to a group of {self.props.number_of_anchors} anchors. Ensure this is intended."
             )
 
-    # REMOVE _get_phi_N_uc
-    # def _get_phi_N_uc(self) -> float: ...
-
-    # REMOVE _get_X_nc
-    # def _get_X_nc(self) -> float: ...
-
-    # Keep _get_X_ne, _get_X_nae_or_X_nai, _get_phi_N_us
     def _get_X_ne(self) -> float:
         """Interpolate Edge distance effect factor (X_ne) from Table 2c."""
         return _interpolate_table(
@@ -1544,18 +1474,6 @@ class PostInstalledScrewCapacity:
         # Note: This doesn't include potential modification factors if needed
         # based on the full standard or specific conditions (like #).
         return phi_V_uc  # Result in kN
-
-    # REMOVE check_capacity method
-    # def check_capacity(self, applied_tension: float) -> tuple[bool, float]: ...
-
-    # --- ADD Shear Capacity Calculation Methods ---
-
-    # def _get_phi_V_uc_base(self) -> float:
-    #     """Interpolate base concrete edge shear capacity (phi_V_uc @ 32 MPa) from Table 4a."""
-    #     # Table 4a requires h >= 3.5 * db, warning issued in validation
-    #     return _interpolate_2d(
-    #         TABLE_4A_PHI_V_UC_BASE, self.props.anchor_size, self.props.edge_distance
-    #     )
 
     def _get_X_vc(self) -> float:
         """Interpolate concrete compressive strength effect factor (X_vc) from Table 4b."""
@@ -1684,15 +1602,7 @@ class PostInstalledScrewCapacity:
         return phi_V_ur  # Result in kN
 
 
-# Keep Example Usage (Optional)
-# props = PostInstalledScrewProperties(...)
-# ...
-
-
 # --- ADD DISPATCH FUNCTION ---
-# def calculate_anchor_capacity(
-#     properties: Union[AnchorProperties, PostInstalledScrewProperties],
-# ) -> tuple[float, float]:
 def calculate_anchor_capacity(
     thickness_concrete,
     diameter,
@@ -1761,16 +1671,3 @@ def calculate_anchor_capacity(
         tension_capacity_n = calculator._calc_anchor_tension_strength_17_5_7()
         shear_capacity_n = calculator._calc_anchor_shear_strength_17_5_8()
         return tension_capacity_n, shear_capacity_n
-
-    # if isinstance(properties, PostInstalledScrewProperties):
-    #     calculator = PostInstalledScrewCapacity(properties)
-    #     # Convert results from kN (used in screw tables) to N for consistency
-    #     tension_capacity_n = calculator.calculate_phi_N_ur() * 1000
-    #     shear_capacity_n = calculator.calculate_phi_V_ur() * 1000
-    #     return tension_capacity_n, shear_capacity_n
-    # elif isinstance(properties, AnchorProperties):
-    #     calculator = AnchorCapacity_Chapter_17(properties)
-    #     # Chapter 17 methods already return N
-    #     tension_capacity_n = calculator._calc_anchor_tension_strength_17_5_7()
-    #     shear_capacity_n = calculator._calc_anchor_shear_strength_17_5_8()
-    #     return tension_capacity_n, shear_capacity_n
