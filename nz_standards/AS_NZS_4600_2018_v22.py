@@ -5,53 +5,245 @@ import pandas as pd
 
 data_1_5_2 = {
     "Applicable Standard": [
-        "AS/NZS 1163", "AS/NZS 1163", "AS/NZS 1163", 
-        
-        "AS 1397", "AS 1397", "AS 1397", "AS 1397", "AS 1397", "AS 1397", "AS 1397","AS 1397",
-         
-        "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", 
-        "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", 
-        "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594", "AS/NZS 1594",
-         
-        "AS/NZS 1595", "AS/NZS 1595", "AS/NZS 1595", "AS/NZS 1595", "AS/NZS 1595",
-         
-        "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", 
-        "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", 
-        "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", 
-        "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678",
-        "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678", "AS/NZS 3678",
-        "AS/NZS 3678"
-        
+        "AS/NZS 1163",
+        "AS/NZS 1163",
+        "AS/NZS 1163",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS 1397",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1594",
+        "AS/NZS 1595",
+        "AS/NZS 1595",
+        "AS/NZS 1595",
+        "AS/NZS 1595",
+        "AS/NZS 1595",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
+        "AS/NZS 3678",
     ],
     "Grade": [
-        "C250 and C250L0", "C350 and C350L0", "C450 and C450L0", "G250", "G300", "G350", "G450", "G500", "G550‡ (t ≥ 0.9 mm)",
-        "G550‡ (0.9 mm > t ≥ 0.6 mm)", "G550‡ (t < 0.6 mm)", "HA1", "HA3", "HA4N", "HA200", "HA250, HU250", "HA250/1",
-        "HA300, HU300", "HA300/1, HU300/1", "HW350", "HW350", "HA400", "XF300", "XF400", "XF500", "CA220", "CA260", "CW300", "CA350",
-        "CA500", "200 (t ≤ 8 mm)", "200 (8 mm < t ≤ 12 mm)", "250, 250L15 (t ≤ 8 mm)", "250, 250L15 (8 mm < t ≤ 12 mm)",
-        "250, 250L15 (12 mm < t ≤ 20 mm)", "250, 250L15 (20 mm < t ≤ 25 mm)", "300, 300L15 (t ≤ 8 mm)", "300, 300L15 (8 mm < t ≤ 12 mm)",
-        "300, 300L15 (12 mm < t ≤ 20 mm)", "300, 300L15 (20 mm < t ≤ 25 mm)", "350, 350L15 (t ≤ 8 mm)", "350, 350L15 (8 mm < t ≤ 12 mm)",
-        "350, 350L15 (12 mm < t ≤ 20 mm)", "350, 350L15 (20 mm < t ≤ 25 mm)", "400, 400L15 (t ≤ 8 mm)", "400, 400L15 (8 mm < t ≤ 12 mm)",
-        "400, 400L15 (12 mm < t ≤ 20 mm)", "400, 400L15 (20 mm < t ≤ 25 mm)", "450, 450L15 (t ≤ 8 mm)", "450, 450L15 (8 mm < t ≤ 12 mm)",
-        "450, 450L15 (12 mm < t ≤ 20 mm)", "450, 450L15 (20 mm < t ≤ 25 mm)", "WR350, WR350/L0 (t ≤ 8 mm)", "WR350, WR350/L0 (8 mm < t ≤ 12 mm)",
-        "WR350, WR350/L0 (12 mm < t ≤ 20 mm)", "WR350, WR350/L0 (20 mm < t ≤ 25 mm)"
+        "C250 and C250L0",
+        "C350 and C350L0",
+        "C450 and C450L0",
+        "G250",
+        "G300",
+        "G350",
+        "G450",
+        "G500",
+        "G550‡ (t ≥ 0.9 mm)",
+        "G550‡ (0.9 mm > t ≥ 0.6 mm)",
+        "G550‡ (t < 0.6 mm)",
+        "HA1",
+        "HA3",
+        "HA4N",
+        "HA200",
+        "HA250, HU250",
+        "HA250/1",
+        "HA300, HU300",
+        "HA300/1, HU300/1",
+        "HW350",
+        "HW350",
+        "HA400",
+        "XF300",
+        "XF400",
+        "XF500",
+        "CA220",
+        "CA260",
+        "CW300",
+        "CA350",
+        "CA500",
+        "200 (t ≤ 8 mm)",
+        "200 (8 mm < t ≤ 12 mm)",
+        "250, 250L15 (t ≤ 8 mm)",
+        "250, 250L15 (8 mm < t ≤ 12 mm)",
+        "250, 250L15 (12 mm < t ≤ 20 mm)",
+        "250, 250L15 (20 mm < t ≤ 25 mm)",
+        "300, 300L15 (t ≤ 8 mm)",
+        "300, 300L15 (8 mm < t ≤ 12 mm)",
+        "300, 300L15 (12 mm < t ≤ 20 mm)",
+        "300, 300L15 (20 mm < t ≤ 25 mm)",
+        "350, 350L15 (t ≤ 8 mm)",
+        "350, 350L15 (8 mm < t ≤ 12 mm)",
+        "350, 350L15 (12 mm < t ≤ 20 mm)",
+        "350, 350L15 (20 mm < t ≤ 25 mm)",
+        "400, 400L15 (t ≤ 8 mm)",
+        "400, 400L15 (8 mm < t ≤ 12 mm)",
+        "400, 400L15 (12 mm < t ≤ 20 mm)",
+        "400, 400L15 (20 mm < t ≤ 25 mm)",
+        "450, 450L15 (t ≤ 8 mm)",
+        "450, 450L15 (8 mm < t ≤ 12 mm)",
+        "450, 450L15 (12 mm < t ≤ 20 mm)",
+        "450, 450L15 (20 mm < t ≤ 25 mm)",
+        "WR350, WR350/L0 (t ≤ 8 mm)",
+        "WR350, WR350/L0 (8 mm < t ≤ 12 mm)",
+        "WR350, WR350/L0 (12 mm < t ≤ 20 mm)",
+        "WR350, WR350/L0 (20 mm < t ≤ 25 mm)",
     ],
     "Yield stress (fy) MPa": [
-        250, 350, 450, 250, 300, 350, 450, 500, 550, 495, 413, 200, 200, 170, 200, 250, 250, 300, 300, 350, 340, 380, 300, 380,
-        480, 210, 250, 300, 350, 500, 200, 200, 280, 260, 250, 250, 320, 310, 300, 280, 360, 360, 350, 340, 400, 400, 380, 360, 450,
-        450, 450, 420, 340, 340, 340, 340
+        250,
+        350,
+        450,
+        250,
+        300,
+        350,
+        450,
+        500,
+        550,
+        495,
+        413,
+        200,
+        200,
+        170,
+        200,
+        250,
+        250,
+        300,
+        300,
+        350,
+        340,
+        380,
+        300,
+        380,
+        480,
+        210,
+        250,
+        300,
+        350,
+        500,
+        200,
+        200,
+        280,
+        260,
+        250,
+        250,
+        320,
+        310,
+        300,
+        280,
+        360,
+        360,
+        350,
+        340,
+        400,
+        400,
+        380,
+        360,
+        450,
+        450,
+        450,
+        420,
+        340,
+        340,
+        340,
+        340,
     ],
     "Tensile strength (fu) MPa": [
-        320, 430, 500, 320, 340, 420, 480, 520, 550, 495, 413, 300, 300, 280, 300, 350, 350, 400, 430, 430, 450, 460, 440, 460, 570,
-        340, 350, 450, 430, 510, 300, 300, 410, 410, 410, 410, 430, 430, 430, 430, 450, 450, 450, 450, 480, 480, 480, 480, 520,
-        520, 520, 500, 450, 450, 450, 450
-    ]
+        320,
+        430,
+        500,
+        320,
+        340,
+        420,
+        480,
+        520,
+        550,
+        495,
+        413,
+        300,
+        300,
+        280,
+        300,
+        350,
+        350,
+        400,
+        430,
+        430,
+        450,
+        460,
+        440,
+        460,
+        570,
+        340,
+        350,
+        450,
+        430,
+        510,
+        300,
+        300,
+        410,
+        410,
+        410,
+        410,
+        430,
+        430,
+        430,
+        430,
+        450,
+        450,
+        450,
+        450,
+        480,
+        480,
+        480,
+        480,
+        520,
+        520,
+        520,
+        500,
+        450,
+        450,
+        450,
+        450,
+    ],
 }
 
 # Create DataFrame
 table_1_5_2 = pd.DataFrame(data_1_5_2)
 
+
 ## Section 3: Axial Tension
-def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
+def tension_section_capacity_3_2_1(fy, Ag, fu=None, An=None):
     phi_t = 0.8
     Nt_g = phi_t * Ag * fy
     if An != None and fu != None:
@@ -63,16 +255,16 @@ def tension_section_capacity_3_2_1(fy, Ag, fu= None, An = None):
 
     return Nt
 
+
 ## Section 5: Connection
 ### Section 5.3: Bolted Connections
 def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
     """
     Calculate the modified net shear area for bolted connections in cold-formed steel structures.
-        
+
     Returns:
     float: Modified net shear area.
     """
-    
 
     # Calculating net area reduction due to bolt holes
     # Assuming staggered holes impact according to sf (stagger factor)
@@ -80,11 +272,12 @@ def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
 
     return net_area_reduction
 
+
 ### Section 5.3.2: Tearout
 def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
     """
     Calculate the design shear force considering tearout for a connected part.
-    
+
     Parameters:
     t : float
         Thickness of the connected part (in mm or appropriate unit).
@@ -94,7 +287,7 @@ def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
         Ultimate tensile strength of the material (in MPa or appropriate unit).
     fy : float
         Yield strength of the material (in MPa or appropriate unit).
-        
+
     Returns:
     Vr_star : float
         The design shear force considering tearout (in kN or appropriate unit).
@@ -104,14 +297,15 @@ def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
         phi = 0.70
     else:
         phi = 0.60
-    
+
     # Calculate the nominal shear capacity (Vr)
     Vf = t * e * fu_bolt
-    
+
     # Calculate the design shear force considering tearout (Vr_star)
     Vf_tearout = phi * Vf
-    
+
     return Vf_tearout
+
 
 # Data for Table 5.3.4.2(A)
 data_table_5_3_4_2_a = {
@@ -122,31 +316,33 @@ data_table_5_3_4_2_a = {
         "Single shear and outside sheets of double shear connection using short-slotted holes perpendicular to the applied load without washers under both head and nut, or with only one washer",
         "Inside sheet of double shear connection with or without washers",
         "Inside sheet of double shear connection using oversized or short slotted holes parallel to the applied load with or without washers",
-        "Inside sheet of double shear connection using short slotted holes perpendicular to the applied load with or without washers"
+        "Inside sheet of double shear connection using short slotted holes perpendicular to the applied load with or without washers",
     ],
-    "alpha": [1.00, 0.75, 0.70, 0.55, 1.33, 1.10, 0.90]
+    "alpha": [1.00, 0.75, 0.70, 0.55, 1.33, 1.10, 0.90],
 }
 # Create DataFrame for Table 5.3.4.2(A)
 table_5_3_4_2_a = pd.DataFrame(data_table_5_3_4_2_a)
 
+
 #### Table 5_3_4_2_B: Bearing Factor (C)
 def table_5_3_4_2_b(t, d):
     """
-    t = Thickness of the connected part (in mm or appropriate unit) 
+    t = Thickness of the connected part (in mm or appropriate unit)
     d = Fastener diameter (in mm or appropriate unit)
     """
-    if d/t <10:
+    if d / t < 10:
         C = 3
-    elif d/t >22:
+    elif d / t > 22:
         C = 1.8
     else:
-        C = 4 - 0.1*d/t
+        C = 4 - 0.1 * d / t
     return C
+
 
 def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
     """
     Calculate the nominal bearing capacity for a bolted connection.
-    
+
     Parameters:
     alpha : float
         Modification factor for the type of bearing connection.
@@ -158,16 +354,19 @@ def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
         Base metal thickness (in mm or appropriate unit).
     fu : float
         Tensile strength of the sheet (in MPa or appropriate unit).
-        
+
     Returns:
     Vb : float
         The nominal bearing capacity (in kN or appropriate unit).
     """
-    alpha = table_5_3_4_2_a.loc[table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"].values[0]
+    alpha = table_5_3_4_2_a.loc[
+        table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"
+    ].values[0]
     C = table_5_3_4_2_b(t, d_bolt)
     phi = 0.60  # Capacity reduction factor for bearing capacity without considering bolt hole deformation
     Vb = alpha * C * d_bolt * t * fu_bolt * phi
     return Vb
+
 
 def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     """
@@ -191,7 +390,7 @@ def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     """
     # Capacity reduction factor (φ)
     phi = 0.8
-    
+
     if bolt_grade == "4.6":
         f_uf = 400
     else:
@@ -200,12 +399,13 @@ def bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao):
     # Calculate the nominal shear capacity (V_rv)
     V_rv = 0.62 * f_uf * (n_n * Ac + n_x * Ao) * phi
 
-    return V_rv 
+    return V_rv
+
 
 def bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension):
-    
+
     phi = 0.9
-    
+
     if bolt_grade == "4.6":
         f_uf = 400
     else:
@@ -213,16 +413,20 @@ def bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension):
     Nft = phi * f_uf * As_tension
     return Nft
 
-def bolt_combined_shear_tension_5_3_5_3(Nu, Vu, bolt_grade, As_tension, n_n, Ac, n_x, Ao):
+
+def bolt_combined_shear_tension_5_3_5_3(
+    Nu, Vu, bolt_grade, As_tension, n_n, Ac, n_x, Ao
+):
     Nft = bolt_tension_capacity_5_3_5_2(bolt_grade, As_tension)
     Vfv = bolt_shear_capacity_5_3_5_1(bolt_grade, n_n, Ac, n_x, Ao)
-    
-    unity = (Nu / Nft)**2 + (Vu / Vfv)**2
+
+    unity = (Nu / Nft) ** 2 + (Vu / Vfv) ** 2
     if unity <= 1:
         compliance = True
     else:
         compliance = False
     return unity, compliance
+
 
 ## Section 5: Connections
 ### Section 5.4: Screwed Connections
@@ -238,6 +442,7 @@ def calculate_shear_capacity_screwed_connection_5_4_2_1(
     Vw = min(Nt, Vw, Vfv)
 
     return Vw
+
 
 def calculate_tension_in_connected_part_5_4_2_3(
     d_f, s_f, f_u, a_n=None, single_screw=True
@@ -697,6 +902,11 @@ def calc_Mo_D_2_1_1_2_b(Ag, ro1, beta_y, fox, foz, lips_tension):
     return Mo
 
 
+def calc_Mo_D_2_1_1_3(E, cb, d, Iyc, length):
+    Mo = (np.pi**2 * E * cb * d * Iyc) / (2 * length**2)
+    return Mo
+
+
 def bending_global_buckling_without_holes_7_2_2_2_2(My, Mo):
     if Mo < 0.56 * My:
         Mbe = Mo
@@ -791,7 +1001,8 @@ def bending_capacity_7_2_2_2(Mbd, Mbl, Mbe):
     """
     Mb = min(Mbd, Mbl, Mbe)
     return Mb
-    
+
+
 def combined_axial_compression_bending_7_2_4(Nc, Mbx, Mby, na, mbx, mby):
     phi_b = 0.9
     phi_c = 0.85
