@@ -136,15 +136,20 @@ def get_horizontal_design_loading(occupance_type, specific_use_type, barrier_typ
             filtered_data["barrier_type"].apply(lambda x: barrier_type in x)
         ]
 
-        # If we found a match, return the value
+        # If we found a match, return the dictionary of values and units
         if not matching_rows.empty:
-            return matching_rows.iloc[0]["Horizontal_design_loading"]["value"]
+            row_data = matching_rows.iloc[0]
+            return {
+                "horizontal_line_design_loading": row_data["Horizontal_design_loading"],
+                "point_design_loading": row_data["Point_design_loading"],
+                "infill_face_design_loading": row_data["Infill_face_design_loading"],
+                "infill_point_design_loading": row_data["Infill_point_design_loading"],
+            }
 
         # If no exact match, try to find a more general match
         # For example, if specific_use_type is "Stairs" but no match found,
         # try "Stairs/Walkways/Landings"
         if specific_use_type == "Stairs" or specific_use_type == "Walkways/Landings":
-            alternative_use = "Stairs/Walkways/Landings"
             alt_filtered = barrier_data[
                 (barrier_data["occupance_type"] == occupance_type)
                 & (barrier_data["specific_use_type"].str.contains(specific_use_type))
@@ -153,26 +158,53 @@ def get_horizontal_design_loading(occupance_type, specific_use_type, barrier_typ
                 alt_filtered["barrier_type"].apply(lambda x: barrier_type in x)
             ]
             if not alt_matching.empty:
-                return alt_matching.iloc[0]["Horizontal_design_loading"]["value"]
+                row_data = alt_matching.iloc[0]
+                return {
+                    "horizontal_line_design_loading": row_data[
+                        "Horizontal_design_loading"
+                    ],
+                    "point_design_loading": row_data["Point_design_loading"],
+                    "infill_face_design_loading": row_data[
+                        "Infill_face_design_loading"
+                    ],
+                    "infill_point_design_loading": row_data[
+                        "Infill_point_design_loading"
+                    ],
+                }
 
-        # If still no match, use the most conservative value for the occupancy type
-        conservative_value = (
-            barrier_data[barrier_data["occupance_type"] == occupance_type][
+        # If still no match, use conservative values for the occupancy type
+        conservative_row = barrier_data[
+            barrier_data["occupance_type"] == occupance_type
+        ].iloc[
+            0
+        ]  # Assuming at least one entry for the occupancy type exists
+        conservative_values = {
+            "horizontal_line_design_loading": conservative_row[
                 "Horizontal_design_loading"
-            ]
-            .apply(lambda x: x["value"])
-            .max()
-        )
+            ],
+            "point_design_loading": conservative_row["Point_design_loading"],
+            "infill_face_design_loading": conservative_row[
+                "Infill_face_design_loading"
+            ],
+            "infill_point_design_loading": conservative_row[
+                "Infill_point_design_loading"
+            ],
+        }
 
         print(
-            f"No exact match found for {occupance_type}, {specific_use_type}, {barrier_type}. Using conservative value: {conservative_value}"
+            f"No exact match found for {occupance_type}, {specific_use_type}, {barrier_type}. Using conservative values: {conservative_values}"
         )
-        return conservative_value
+        return conservative_values
 
     except Exception as e:
         print(f"Error finding horizontal design loading: {e}")
-        # Return a conservative default value
-        return 0.75  # Conservative default in kN/m
+        # Return conservative default values in case of an error, including units
+        return {
+            "horizontal_line_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "point_design_loading": {"value": 0.6, "unit": "kN"},
+            "infill_face_design_loading": {"value": 1.5, "unit": "kPa"},
+            "infill_point_design_loading": {"value": 1.5, "unit": "kN"},
+        }
 
 
 def get_minimum_overall_barrier_height(
