@@ -8,8 +8,11 @@ barrier_data = pd.DataFrame(
             "specific_use_type": "Pool",
             "barrier_type": ["Pool fence"],
             "Building_code_clause": "F9",
-            "Horizontal_design_loading": {"value": 0.33, "unit": "kN"},
+            "Horizontal_design_loading": {"value": 0.33, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.2, "unit": "m"},
+            "Infill_face_design_loading": {"value": 0.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.25, "unit": "kN"},
         },
         {
             "occupance_type": "Domestic",
@@ -17,7 +20,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.35, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 0.9, "unit": "m"},
+            "Infill_face_design_loading": {"value": 0.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.25, "unit": "kN"},
         },
         {
             "occupance_type": "Domestic",
@@ -25,7 +31,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.35, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.0, "unit": "m"},
+            "Infill_face_design_loading": {"value": 0.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.25, "unit": "kN"},
         },
         {
             "occupance_type": "Domestic",
@@ -33,10 +42,13 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Retaining wall", "Balustrade", "Boundary fence"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {
                 "Single dwelling": {"value": 1.0, "unit": "m"},
                 "Multi dwelling": {"value": 1.1, "unit": "m"},
             },
+            "Infill_face_design_loading": {"value": 0.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.25, "unit": "kN"},
         },
         # Commercial/Industrial occupancy
         {
@@ -45,7 +57,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade", "Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.35, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.0, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.5, "unit": "kN"},
         },
         {
             "occupance_type": "Commercial/Industrial",
@@ -53,7 +68,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade", "Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.35, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.0, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.5, "unit": "kN"},
         },
         {
             "occupance_type": "Commercial/Industrial",
@@ -61,7 +79,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade", "Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.0, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 0.5, "unit": "kN"},
         },
         # Public occupancy
         {
@@ -70,7 +91,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade", "Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 1.5, "unit": "kN"},
         },
         {
             "occupance_type": "Public",
@@ -78,7 +102,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade", "Boundary fence", "Retaining wall"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 1.5, "unit": "kN"},
         },
         {
             "occupance_type": "Public",
@@ -86,7 +113,10 @@ barrier_data = pd.DataFrame(
             "barrier_type": ["Balustrade"],
             "Building_code_clause": "F4",
             "Horizontal_design_loading": {"value": 0.75, "unit": "kN/m"},
+            "Point_design_loading": {"value": 0.6, "unit": "kN"},
             "Minimum_overall_barrier_height": {"value": 1.1, "unit": "m"},
+            "Infill_face_design_loading": {"value": 1.5, "unit": "kPa"},
+            "Infill_point_design_loading": {"value": 1.5, "unit": "kN"},
         },
     ]
 )
