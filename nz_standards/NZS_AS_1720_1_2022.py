@@ -837,10 +837,7 @@ class CoachScrewedJoint:
         # Calculate system capacity based on joint configuration
         if joint_configuration == "two_member":
             system_capacity = Q_k
-        elif (
-            joint_configuration == "three_member_A"
-            or joint_configuration == "three_member_B"
-        ):
+        elif joint_configuration == "three_member":
             system_capacity = 2 * Q_k
         elif joint_configuration == "multiple_member":
             # For multiple member joints, the system capacity is the sum of the basic loads
@@ -865,8 +862,8 @@ class CoachScrewedJoint:
         Calculate the capacity of a bolted joint system.
 
         Args:
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A',
-                                      'three_member_B', 'multiple_member')
+            joint_configuration (str): Type of joint configuration ('two_member', 'three_member',
+                                      'multiple_member')
             member_thicknesses (list): List of thicknesses for each member in mm
             bolt_diameter (str): Bolt diameter (e.g., 'M12')
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
@@ -880,12 +877,9 @@ class CoachScrewedJoint:
         if joint_configuration == "two_member":
             # For two-member joints, effective thickness is the smaller of t1 and t2
             effective_thickness = min(member_thicknesses)
-        elif joint_configuration == "three_member_A":
-            # For three-member Type A joints, effective thickness is t1
+        elif joint_configuration == "three_member":
+            # For three-member joints, effective thickness is t1
             effective_thickness = member_thicknesses[0]
-        elif joint_configuration == "three_member_B":
-            # For three-member Type B joints, effective thickness is 2*t1
-            effective_thickness = 2 * member_thicknesses[0]
         elif joint_configuration == "multiple_member":
             # For multiple member joints, effective thickness depends on the specific configuration
             # This is a simplification
@@ -925,7 +919,7 @@ class CoachScrewedJoint:
             screw_diameter (int or str): Diameter of the coach screw in mm or as string (e.g., "M12")
             is_side_grain (bool): Whether the coach screws are in side grain (True) or end grain (False)
             has_metal_side_plates (bool): Whether the load is applied through metal side plates
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A', etc.)
+            joint_configuration (str): Type of joint configuration ('two_member', 'three_member', etc.)
             member_thicknesses (list): List of thicknesses for each member in mm
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
             angle_degrees (float): Angle between load direction and grain direction in degrees
@@ -946,12 +940,9 @@ class CoachScrewedJoint:
         if joint_configuration == "two_member":
             # For two-member joints, effective thickness is the smaller of t1 and t2
             effective_thickness = min(member_thicknesses)
-        elif joint_configuration == "three_member_A":
-            # For three-member Type A joints, effective thickness is t1
-            effective_thickness = member_thicknesses[0]
-        elif joint_configuration == "three_member_B":
-            # For three-member Type B joints, effective thickness is 2*t1
-            effective_thickness = 2 * member_thicknesses[0]
+        elif joint_configuration == "three_member":
+            # For three-member joints, effective thickness is t1
+            effective_thickness = member_thicknesses[1]
         elif joint_configuration == "multiple_member":
             # For multiple member joints, effective thickness depends on the specific configuration
             effective_thickness = min(member_thicknesses)
@@ -989,10 +980,7 @@ class CoachScrewedJoint:
         # Calculate system capacity based on joint configuration
         if joint_configuration == "two_member":
             system_capacity = Qk
-        elif (
-            joint_configuration == "three_member_A"
-            or joint_configuration == "three_member_B"
-        ):
+        elif joint_configuration == "three_member":
             system_capacity = 2 * Qk
         elif joint_configuration == "multiple_member":
             # For multiple member joints, the system capacity is the sum of the basic loads
@@ -1443,18 +1431,12 @@ class BoltedJointSystem:
 
         if joint_configuration == "two_member":
             return min(member_thicknesses)
-        elif joint_configuration == "three_member_A":
+        elif joint_configuration == "three_member":
             if len(member_thicknesses) < 1:
                 raise ValueError(
-                    "Three member Type A joints require at least one member thickness"
+                    "Three member joints require at least one member thickness"
                 )
             return member_thicknesses[0]
-        elif joint_configuration == "three_member_B":
-            if len(member_thicknesses) < 1:
-                raise ValueError(
-                    "Three member Type B joints require at least one member thickness"
-                )
-            return 2 * member_thicknesses[0]
         elif joint_configuration == "multiple_member":
             return min(member_thicknesses)
         else:
@@ -1641,10 +1623,7 @@ class BoltedJointSystem:
         # Calculate system capacity based on joint configuration
         if joint_configuration == "two_member":
             system_capacity = Q_k
-        elif (
-            joint_configuration == "three_member_A"
-            or joint_configuration == "three_member_B"
-        ):
+        elif joint_configuration == "three_member":
             system_capacity = 2 * Q_k
         elif joint_configuration == "multiple_member":
             # For multiple member joints, the system capacity is the sum of the basic loads
@@ -1669,8 +1648,8 @@ class BoltedJointSystem:
         Calculate the capacity of a bolted joint system.
 
         Args:
-            joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A',
-                                      'three_member_B', 'multiple_member')
+            joint_configuration (str): Type of joint configuration ('two_member', 'three_member',
+                                      'multiple_member')
             member_thicknesses (list): List of thicknesses for each member in mm
             bolt_diameter (str): Bolt diameter (e.g., 'M12')
             joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
@@ -1684,12 +1663,9 @@ class BoltedJointSystem:
         if joint_configuration == "two_member":
             # For two-member joints, effective thickness is the smaller of t1 and t2
             effective_thickness = min(member_thicknesses)
-        elif joint_configuration == "three_member_A":
-            # For three-member Type A joints, effective thickness is t1
+        elif joint_configuration == "three_member":
+            # For three-member joints, effective thickness is t1
             effective_thickness = member_thicknesses[0]
-        elif joint_configuration == "three_member_B":
-            # For three-member Type B joints, effective thickness is 2*t1
-            effective_thickness = 2 * member_thicknesses[0]
         elif joint_configuration == "multiple_member":
             # For multiple member joints, effective thickness depends on the specific configuration
             # This is a simplification
@@ -1753,12 +1729,9 @@ class BoltedJointSystem:
         if joint_configuration == "two_member":
             # For two-member joints, effective thickness is the smaller of t1 and t2
             effective_thickness = min(member_thicknesses)
-        elif joint_configuration == "three_member_A":
-            # For three-member Type A joints, effective thickness is t1
+        elif joint_configuration == "three_member":
+            # For three-member joints, effective thickness is t1
             effective_thickness = member_thicknesses[0]
-        elif joint_configuration == "three_member_B":
-            # For three-member Type B joints, effective thickness is 2*t1
-            effective_thickness = 2 * member_thicknesses[0]
         elif joint_configuration == "multiple_member":
             # For multiple member joints, effective thickness depends on the specific configuration
             effective_thickness = min(member_thicknesses)
@@ -1920,7 +1893,7 @@ def calculate_joint_capacities(
         joint_group (str): Joint group (J1-J6 for unseasoned, JD1-JD6 for seasoned)
         is_side_grain (bool): Whether the fasteners are in side grain (True) or end grain (False)
         has_metal_side_plates (bool): Whether the joint has metal side plates
-        joint_configuration (str): Type of joint configuration ('two_member', 'three_member_A', etc.)
+        joint_configuration (str): Type of joint configuration ('two_member', 'three_member', etc.)
         member_thicknesses (list): List of thicknesses for each member in mm
         angle_degrees (float): Angle between load direction and grain direction in degrees
         is_seasoned (bool): Whether the timber is seasoned
