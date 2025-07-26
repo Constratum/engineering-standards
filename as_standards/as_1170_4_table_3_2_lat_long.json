@@ -1,0 +1,604 @@
+[
+  {
+    "Location": "Adelaide",
+    "Z": 0.1,
+    "lat": -34.9281805,
+    "lon": 138.5999312,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Albany",
+    "Z": 0.09,
+    "lat": -35.0247822,
+    "lon": 117.883608,
+    "precision": "city"
+  },
+  {
+    "Location": "Albury/Wodonga",
+    "Z": 0.09,
+    "lat": -36.0481537,
+    "lon": 146.9695699,
+    "precision": "recreation_ground"
+  },
+  {
+    "Location": "Alice Springs",
+    "Z": 0.09,
+    "lat": -23.6983884,
+    "lon": 133.8812885,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Ballarat",
+    "Z": 0.09,
+    "lat": -37.5623013,
+    "lon": 143.8605645,
+    "precision": "city"
+  },
+  {
+    "Location": "Bathurst",
+    "Z": 0.09,
+    "lat": -33.4166378,
+    "lon": 149.5804943,
+    "precision": "city"
+  },
+  {
+    "Location": "Bendigo",
+    "Z": 0.09,
+    "lat": -36.7590183,
+    "lon": 144.2826718,
+    "precision": "city"
+  },
+  {
+    "Location": "Brisbane",
+    "Z": 0.09,
+    "lat": -27.4689623,
+    "lon": 153.0235009,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Broome",
+    "Z": 0.12,
+    "lat": -17.9566909,
+    "lon": 122.2240181,
+    "precision": "city"
+  },
+  {
+    "Location": "Bundaberg",
+    "Z": 0.11,
+    "lat": -24.8653253,
+    "lon": 152.3516785,
+    "precision": "city"
+  },
+  {
+    "Location": "Burnie",
+    "Z": 0.1,
+    "lat": -41.0523688,
+    "lon": 145.9064073,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Cairns",
+    "Z": 0.09,
+    "lat": -16.9206657,
+    "lon": 145.7721854,
+    "precision": "city"
+  },
+  {
+    "Location": "Camden",
+    "Z": 0.09,
+    "lat": -34.016087,
+    "lon": 150.7198849,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Canberra",
+    "Z": 0.09,
+    "lat": -35.2975906,
+    "lon": 149.1012676,
+    "precision": "city"
+  },
+  {
+    "Location": "Carnarvon",
+    "Z": 0.09,
+    "lat": -24.8817225,
+    "lon": 113.6703104,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Coffs Harbour",
+    "Z": 0.09,
+    "lat": -30.2985996,
+    "lon": 153.1094116,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Cooma",
+    "Z": 0.09,
+    "lat": -36.23563,
+    "lon": 149.1264221,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Dampier",
+    "Z": 0.12,
+    "lat": -20.6624798,
+    "lon": 116.7119013,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Darwin",
+    "Z": 0.09,
+    "lat": -12.46044,
+    "lon": 130.8410469,
+    "precision": "city"
+  },
+  {
+    "Location": "Derby",
+    "Z": 0.09,
+    "lat": -17.3031912,
+    "lon": 123.6287226,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Dubbo",
+    "Z": 0.09,
+    "lat": -32.2478964,
+    "lon": 148.6026502,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Esperance",
+    "Z": 0.09,
+    "lat": -33.858228,
+    "lon": 121.8931606,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Geelong",
+    "Z": 0.1,
+    "lat": -38.1493248,
+    "lon": 144.3598241,
+    "precision": "city"
+  },
+  {
+    "Location": "Geraldton",
+    "Z": 0.09,
+    "lat": -28.77035,
+    "lon": 114.6147159,
+    "precision": "city"
+  },
+  {
+    "Location": "Gladstone",
+    "Z": 0.1,
+    "lat": -23.8431724,
+    "lon": 151.256132,
+    "precision": "city"
+  },
+  {
+    "Location": "Gold Coast",
+    "Z": 0.09,
+    "lat": -28.0023731,
+    "lon": 153.4145987,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Gosford",
+    "Z": 0.09,
+    "lat": -33.4240979,
+    "lon": 151.3411475,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Grafton",
+    "Z": 0.09,
+    "lat": -29.6816773,
+    "lon": 152.9336357,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Gippsland",
+    "Z": 0.1,
+    "lat": -37.8744827,
+    "lon": 146.9111788,
+    "precision": "region"
+  },
+  {
+    "Location": "Goulburn",
+    "Z": 0.09,
+    "lat": -34.7523871,
+    "lon": 149.7198009,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Hobart",
+    "Z": 0.1,
+    "lat": -42.8825088,
+    "lon": 147.3281233,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Karratha",
+    "Z": 0.12,
+    "lat": -20.7370067,
+    "lon": 116.8478592,
+    "precision": "city"
+  },
+  {
+    "Location": "Katoomba",
+    "Z": 0.09,
+    "lat": -33.713759,
+    "lon": 150.3121633,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Latrobe Valley",
+    "Z": 0.1,
+    "lat": -38.2117266,
+    "lon": 146.4725527,
+    "precision": "aerodrome"
+  },
+  {
+    "Location": "Launceston",
+    "Z": 0.1,
+    "lat": -41.4340813,
+    "lon": 147.1373496,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Lismore",
+    "Z": 0.09,
+    "lat": -28.8077608,
+    "lon": 153.2791883,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Lorne",
+    "Z": 0.1,
+    "lat": -38.5411691,
+    "lon": 143.9748166,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Mackay",
+    "Z": 0.09,
+    "lat": -21.141956,
+    "lon": 149.1865149,
+    "precision": "city"
+  },
+  {
+    "Location": "Maitland",
+    "Z": 0.1,
+    "lat": -32.7316683,
+    "lon": 151.5511123,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Melbourne",
+    "Z": 0.08,
+    "lat": -37.8142454,
+    "lon": 144.9631732,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Mittagong",
+    "Z": 0.09,
+    "lat": -34.4500664,
+    "lon": 150.4473469,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Morisset",
+    "Z": 0.1,
+    "lat": -33.1090883,
+    "lon": 151.4879121,
+    "precision": "station"
+  },
+  {
+    "Location": "Newcastle",
+    "Z": 0.11,
+    "lat": -32.9192953,
+    "lon": 151.7795348,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Noosa",
+    "Z": 0.09,
+    "lat": -26.3181415,
+    "lon": 152.9314093,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Orange",
+    "Z": 0.09,
+    "lat": -33.2820463,
+    "lon": 149.0971567,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Perth",
+    "Z": 0.09,
+    "lat": -31.9558967,
+    "lon": 115.8605784,
+    "precision": "city"
+  },
+  {
+    "Location": "Port Augusta",
+    "Z": 0.11,
+    "lat": -32.4908819,
+    "lon": 137.7639874,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Port Lincoln",
+    "Z": 0.1,
+    "lat": -34.7211905,
+    "lon": 135.8592218,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Port Hedland",
+    "Z": 0.12,
+    "lat": -20.3111814,
+    "lon": 118.5801181,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Port Macquarie",
+    "Z": 0.06,
+    "lat": -31.4299499,
+    "lon": 152.9103525,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Port Pirie",
+    "Z": 0.1,
+    "lat": -33.1791249,
+    "lon": 138.0058614,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Robe",
+    "Z": 0.1,
+    "lat": -37.1861992,
+    "lon": 139.9955285,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Rockhampton",
+    "Z": 0.09,
+    "lat": -23.3782137,
+    "lon": 150.5134227,
+    "precision": "city"
+  },
+  {
+    "Location": "Shepparton",
+    "Z": 0.09,
+    "lat": -36.3831633,
+    "lon": 145.3988874,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Sydney",
+    "Z": 0.09,
+    "lat": -33.8698439,
+    "lon": 151.2082848,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Tamworth",
+    "Z": 0.09,
+    "lat": -31.0900743,
+    "lon": 150.9290159,
+    "precision": "city"
+  },
+  {
+    "Location": "Taree",
+    "Z": 0.09,
+    "lat": -31.912864,
+    "lon": 152.4608481,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Tennant Creek",
+    "Z": 0.13,
+    "lat": -19.6481652,
+    "lon": 134.1899847,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Toowoomba",
+    "Z": 0.09,
+    "lat": -27.5610193,
+    "lon": 151.953351,
+    "precision": "city"
+  },
+  {
+    "Location": "Townsville",
+    "Z": 0.09,
+    "lat": -19.2569391,
+    "lon": 146.8239537,
+    "precision": "city"
+  },
+  {
+    "Location": "Tweed Heads",
+    "Z": 0.09,
+    "lat": -28.1786639,
+    "lon": 153.5369986,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Uluru",
+    "Z": 0.09,
+    "lat": -25.344857,
+    "lon": 131.0325171,
+    "precision": "peak"
+  },
+  {
+    "Location": "Wagga Wagga",
+    "Z": 0.09,
+    "lat": -35.115,
+    "lon": 147.3677778,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wangaratta",
+    "Z": 0.09,
+    "lat": -36.356434,
+    "lon": 146.3228311,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Whyalla",
+    "Z": 0.09,
+    "lat": -33.0382085,
+    "lon": 137.5843572,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wollongong",
+    "Z": 0.09,
+    "lat": -34.4243941,
+    "lon": 150.89385,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Woomera",
+    "Z": 0.09,
+    "lat": -31.1999142,
+    "lon": 136.8253532,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wyndham",
+    "Z": 0.09,
+    "lat": -15.4867977,
+    "lon": 128.1236196,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wyong",
+    "Z": 0.1,
+    "lat": -33.2825132,
+    "lon": 151.4256691,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Ballidu",
+    "Z": 0.15,
+    "lat": -30.5944383,
+    "lon": 116.7723858,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Corrigin",
+    "Z": 0.14,
+    "lat": -32.3330288,
+    "lon": 117.8760602,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Cunderdin",
+    "Z": 0.22,
+    "lat": -31.6511264,
+    "lon": 117.2432285,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Dowerin",
+    "Z": 0.2,
+    "lat": -31.1157355,
+    "lon": 117.0881015,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Goomalling",
+    "Z": 0.16,
+    "lat": -31.237057,
+    "lon": 116.787039,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Kellerberrin",
+    "Z": 0.14,
+    "lat": -31.6330922,
+    "lon": 117.723327,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Meckering",
+    "Z": 0.2,
+    "lat": -31.6294415,
+    "lon": 117.0100818,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Northam",
+    "Z": 0.14,
+    "lat": -31.6535192,
+    "lon": 116.6726927,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wongan Hills",
+    "Z": 0.15,
+    "lat": -30.8916507,
+    "lon": 116.718912,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Wickepin",
+    "Z": 0.15,
+    "lat": -32.820927,
+    "lon": 117.6528542,
+    "precision": "administrative"
+  },
+  {
+    "Location": "York",
+    "Z": 0.14,
+    "lat": -31.8889034,
+    "lon": 116.7691483,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Christmas Island",
+    "Z": 0.15,
+    "lat": -10.4837768,
+    "lon": 105.64723,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Cocos Islands",
+    "Z": 0.09,
+    "lat": -12.0728315,
+    "lon": 96.8409375,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Heard Island",
+    "Z": 0.1,
+    "lat": -53.0830706,
+    "lon": 73.5325035,
+    "precision": "island"
+  },
+  {
+    "Location": "Lord Howe Island",
+    "Z": 0.09,
+    "lat": -31.5540166,
+    "lon": 159.0856256,
+    "precision": "island"
+  },
+  {
+    "Location": "Macquarie Island",
+    "Z": 0.6,
+    "lat": -54.6318143,
+    "lon": 158.8617576,
+    "precision": "protected_area"
+  },
+  {
+    "Location": "Norfolk Island",
+    "Z": 0.09,
+    "lat": -29.0328038,
+    "lon": 167.9483137,
+    "precision": "administrative"
+  }
+]
