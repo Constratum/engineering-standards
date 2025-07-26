@@ -1,0 +1,1034 @@
+[
+  {
+    "Location": "Akaroa",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -43.8043169,
+    "lon": 172.9678327,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Alexandra",
+    "Z": 0.21,
+    "D": 20,
+    "lat": -45.2550839,
+    "lon": 169.3921819,
+    "precision": "town"
+  },
+  {
+    "Location": "Arrowtown",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -44.9405627,
+    "lon": 168.8350761,
+    "precision": "town"
+  },
+  {
+    "Location": "Arthurs Pass",
+    "Z": 0.6,
+    "D": 12,
+    "lat": -42.9411595,
+    "lon": 171.562051,
+    "precision": "landing_site"
+  },
+  {
+    "Location": "Ashburton",
+    "Z": 0.2,
+    "D": 20,
+    "lat": -43.9024396,
+    "lon": 171.7503327,
+    "precision": "town"
+  },
+  {
+    "Location": "Auckland",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -36.852095,
+    "lon": 174.7631803,
+    "precision": "city"
+  },
+  {
+    "Location": "Balclutha",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -46.2377982,
+    "lon": 169.7398641,
+    "precision": "town"
+  },
+  {
+    "Location": "Blenheim",
+    "Z": 0.33,
+    "D": 0,
+    "lat": -41.5118691,
+    "lon": 173.9545856,
+    "precision": "town"
+  },
+  {
+    "Location": "Bluff",
+    "Z": 0.15,
+    "D": 20,
+    "lat": -46.59882,
+    "lon": 168.3433685,
+    "precision": "town"
+  },
+  {
+    "Location": "Bulls",
+    "Z": 0.31,
+    "D": 20,
+    "lat": -40.1745387,
+    "lon": 175.3848953,
+    "precision": "town"
+  },
+  {
+    "Location": "Cambridge",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -37.8917889,
+    "lon": 175.4691069,
+    "precision": "town"
+  },
+  {
+    "Location": "Cheviot",
+    "Z": 0.4,
+    "D": 20,
+    "lat": -42.8116534,
+    "lon": 173.2735027,
+    "precision": "village"
+  },
+  {
+    "Location": "Christchurch",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -43.530955,
+    "lon": 172.6364343,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Cromwell",
+    "Z": 0.24,
+    "D": 20,
+    "lat": -45.0371308,
+    "lon": 169.1972881,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Dannevirke",
+    "Z": 0.42,
+    "D": 10,
+    "lat": -40.2073897,
+    "lon": 176.0982442,
+    "precision": "town"
+  },
+  {
+    "Location": "Darfield",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -43.4882301,
+    "lon": 172.1087152,
+    "precision": "town"
+  },
+  {
+    "Location": "Dargaville",
+    "Z": 0.1,
+    "D": 20,
+    "lat": -35.9412143,
+    "lon": 173.8685702,
+    "precision": "town"
+  },
+  {
+    "Location": "Dunedin",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -45.8740984,
+    "lon": 170.5035755,
+    "precision": "city"
+  },
+  {
+    "Location": "Eastbourne - Point Howard",
+    "Z": 0.4,
+    "D": 4,
+    "lat": null,
+    "lon": null,
+    "precision": null
+  },
+  {
+    "Location": "Fairlie",
+    "Z": 0.24,
+    "D": 20,
+    "lat": -44.097582,
+    "lon": 170.8289409,
+    "precision": "village"
+  },
+  {
+    "Location": "Fielding",
+    "Z": 0.37,
+    "D": 20,
+    "lat": -36.893631,
+    "lon": 174.8835609,
+    "precision": "residential"
+  },
+  {
+    "Location": "Fox Glacier",
+    "Z": 0.44,
+    "D": 2,
+    "lat": -43.5170284,
+    "lon": 170.1386966,
+    "precision": "glacier"
+  },
+  {
+    "Location": "Foxton/Foxton Beach",
+    "Z": 0.36,
+    "D": 20,
+    "lat": -40.4613776,
+    "lon": 175.2225541,
+    "precision": "town"
+  },
+  {
+    "Location": "Franz Josef",
+    "Z": 0.44,
+    "D": 2,
+    "lat": -43.3889668,
+    "lon": 170.1819048,
+    "precision": "village"
+  },
+  {
+    "Location": "Geraldine",
+    "Z": 0.19,
+    "D": 20,
+    "lat": -44.0921039,
+    "lon": 171.2425898,
+    "precision": "town"
+  },
+  {
+    "Location": "Gisborne",
+    "Z": 0.36,
+    "D": 20,
+    "lat": -38.661326,
+    "lon": 178.0206487,
+    "precision": "city"
+  },
+  {
+    "Location": "Gore",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -46.0984482,
+    "lon": 168.9447811,
+    "precision": "town"
+  },
+  {
+    "Location": "Greymouth",
+    "Z": 0.37,
+    "D": 20,
+    "lat": -42.4499469,
+    "lon": 171.2079875,
+    "precision": "town"
+  },
+  {
+    "Location": "Hamilton",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -37.7878809,
+    "lon": 175.281788,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Hanmer Springs",
+    "Z": 0.55,
+    "D": 2,
+    "lat": -42.5217947,
+    "lon": 172.8302995,
+    "precision": "town"
+  },
+  {
+    "Location": "Harihari",
+    "Z": 0.46,
+    "D": 4,
+    "lat": -43.1479196,
+    "lon": 170.5581948,
+    "precision": "village"
+  },
+  {
+    "Location": "Hastings",
+    "Z": 0.39,
+    "D": 20,
+    "lat": -39.6417678,
+    "lon": 176.8430781,
+    "precision": "city"
+  },
+  {
+    "Location": "Hawera",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -39.5893462,
+    "lon": 174.2837207,
+    "precision": "town"
+  },
+  {
+    "Location": "Hokitika",
+    "Z": 0.45,
+    "D": 20,
+    "lat": -42.7178871,
+    "lon": 170.9646469,
+    "precision": "town"
+  },
+  {
+    "Location": "Huntly",
+    "Z": 0.15,
+    "D": 20,
+    "lat": -37.5583996,
+    "lon": 175.1588322,
+    "precision": "town"
+  },
+  {
+    "Location": "Hutt Valley - south of Taita Gorge",
+    "Z": 0.4,
+    "D": 0,
+    "lat": null,
+    "lon": null,
+    "precision": null
+  },
+  {
+    "Location": "Inglewood",
+    "Z": 0.17,
+    "D": 20,
+    "lat": -39.1562038,
+    "lon": 174.2076017,
+    "precision": "town"
+  },
+  {
+    "Location": "Invercargill",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -46.4118465,
+    "lon": 168.3470632,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Kaikohe",
+    "Z": 0.1,
+    "D": 20,
+    "lat": -35.4069776,
+    "lon": 173.8048386,
+    "precision": "town"
+  },
+  {
+    "Location": "Kaikoura",
+    "Z": 0.42,
+    "D": 12,
+    "lat": -42.4005999,
+    "lon": 173.6811428,
+    "precision": "town"
+  },
+  {
+    "Location": "Kaitaia",
+    "Z": 0.1,
+    "D": 20,
+    "lat": -35.1140609,
+    "lon": 173.264022,
+    "precision": "town"
+  },
+  {
+    "Location": "Kawerau",
+    "Z": 0.29,
+    "D": 20,
+    "lat": -38.0857434,
+    "lon": 176.7033298,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Levin",
+    "Z": 0.4,
+    "D": 20,
+    "lat": -40.6218161,
+    "lon": 175.2865854,
+    "precision": "town"
+  },
+  {
+    "Location": "Manukau City",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -36.9912848,
+    "lon": 174.8810127,
+    "precision": "mall"
+  },
+  {
+    "Location": "Mangakino",
+    "Z": 0.21,
+    "D": 20,
+    "lat": -38.3712616,
+    "lon": 175.7681491,
+    "precision": "village"
+  },
+  {
+    "Location": "Marton",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -40.0722219,
+    "lon": 175.3791977,
+    "precision": "town"
+  },
+  {
+    "Location": "Masterton",
+    "Z": 0.42,
+    "D": 6,
+    "lat": -40.9495524,
+    "lon": 175.6594413,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Matamata",
+    "Z": 0.19,
+    "D": 20,
+    "lat": -37.8095635,
+    "lon": 175.7732759,
+    "precision": "town"
+  },
+  {
+    "Location": "Mataura",
+    "Z": 0.17,
+    "D": 20,
+    "lat": -46.192734,
+    "lon": 168.8642685,
+    "precision": "town"
+  },
+  {
+    "Location": "Milford Sound",
+    "Z": 0.54,
+    "D": 20,
+    "lat": -44.6190189,
+    "lon": 167.8687603,
+    "precision": "bay"
+  },
+  {
+    "Location": "Morrinsville",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -37.6581506,
+    "lon": 175.5281399,
+    "precision": "town"
+  },
+  {
+    "Location": "Mosgiel",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -45.8749828,
+    "lon": 170.347348,
+    "precision": "town"
+  },
+  {
+    "Location": "Motueka",
+    "Z": 0.26,
+    "D": 20,
+    "lat": -41.112493,
+    "lon": 173.0094875,
+    "precision": "town"
+  },
+  {
+    "Location": "Mount Maunganui",
+    "Z": 0.2,
+    "D": 20,
+    "lat": -37.6380218,
+    "lon": 176.1838841,
+    "precision": "town"
+  },
+  {
+    "Location": "Mt Cook",
+    "Z": 0.38,
+    "D": 20,
+    "lat": -43.5950017,
+    "lon": 170.1421677,
+    "precision": "peak"
+  },
+  {
+    "Location": "Murchison",
+    "Z": 0.34,
+    "D": 20,
+    "lat": -41.7995251,
+    "lon": 172.3286812,
+    "precision": "village"
+  },
+  {
+    "Location": "Murupara",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -38.4563728,
+    "lon": 176.7060277,
+    "precision": "town"
+  },
+  {
+    "Location": "Napier",
+    "Z": 0.38,
+    "D": 20,
+    "lat": -39.4902099,
+    "lon": 176.917839,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Nelson",
+    "Z": 0.27,
+    "D": 20,
+    "lat": -41.2710849,
+    "lon": 173.2836756,
+    "precision": "administrative"
+  },
+  {
+    "Location": "New Plymouth",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -39.0579941,
+    "lon": 174.0806474,
+    "precision": "city"
+  },
+  {
+    "Location": "Ngaruawahia",
+    "Z": 0.15,
+    "D": 20,
+    "lat": -37.6662658,
+    "lon": 175.1500534,
+    "precision": "town"
+  },
+  {
+    "Location": "Oamaru",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -45.0999833,
+    "lon": 170.9697933,
+    "precision": "town"
+  },
+  {
+    "Location": "Oban",
+    "Z": 0.14,
+    "D": 20,
+    "lat": -46.8979908,
+    "lon": 168.1283778,
+    "precision": "village"
+  },
+  {
+    "Location": "Ohakune",
+    "Z": 0.27,
+    "D": 20,
+    "lat": -39.4169455,
+    "lon": 175.3996126,
+    "precision": "town"
+  },
+  {
+    "Location": "Opotiki",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -38.0042441,
+    "lon": 177.2871265,
+    "precision": "town"
+  },
+  {
+    "Location": "Opunake",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -39.4546624,
+    "lon": 173.8601616,
+    "precision": "town"
+  },
+  {
+    "Location": "Otaki",
+    "Z": 0.4,
+    "D": 20,
+    "lat": -40.7585374,
+    "lon": 175.1470152,
+    "precision": "town"
+  },
+  {
+    "Location": "Otira",
+    "Z": 0.6,
+    "D": 3,
+    "lat": -42.8293483,
+    "lon": 171.5613766,
+    "precision": "hamlet"
+  },
+  {
+    "Location": "Otorohanga",
+    "Z": 0.17,
+    "D": 20,
+    "lat": -38.186037,
+    "lon": 175.2112083,
+    "precision": "town"
+  },
+  {
+    "Location": "Paeroa",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -37.3804671,
+    "lon": 175.6704263,
+    "precision": "town"
+  },
+  {
+    "Location": "Pahiatua",
+    "Z": 0.42,
+    "D": 8,
+    "lat": -40.4533965,
+    "lon": 175.8406827,
+    "precision": "town"
+  },
+  {
+    "Location": "Paihia/Russell",
+    "Z": 0.1,
+    "D": 20,
+    "lat": -35.3121068,
+    "lon": 174.1104703,
+    "precision": "primary"
+  },
+  {
+    "Location": "Palmerston",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -45.4842441,
+    "lon": 170.715319,
+    "precision": "village"
+  },
+  {
+    "Location": "Palmerston North",
+    "Z": 0.38,
+    "D": 8,
+    "lat": -40.356317,
+    "lon": 175.6112388,
+    "precision": "administrative"
+  },
+  {
+    "Location": "Paraparaumu",
+    "Z": 0.4,
+    "D": 14,
+    "lat": -40.9144636,
+    "lon": 175.0061963,
+    "precision": "town"
+  },
+  {
+    "Location": "Patea",
+    "Z": 0.19,
+    "D": 20,
+    "lat": -39.7568612,
+    "lon": 174.4751722,
+    "precision": "town"
+  },
+  {
+    "Location": "Picton",
+    "Z": 0.3,
+    "D": 16,
+    "lat": -41.290916,
+    "lon": 174.006908,
+    "precision": "town"
+  },
+  {
+    "Location": "Porirua",
+    "Z": 0.4,
+    "D": 8,
+    "lat": -41.1354217,
+    "lon": 174.8397824,
+    "precision": "city"
+  },
+  {
+    "Location": "Pukekohe",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -37.2006384,
+    "lon": 174.9036875,
+    "precision": "town"
+  },
+  {
+    "Location": "Putaruru",
+    "Z": 0.21,
+    "D": 20,
+    "lat": -38.0511675,
+    "lon": 175.7789554,
+    "precision": "town"
+  },
+  {
+    "Location": "Queenstown",
+    "Z": 0.32,
+    "D": 20,
+    "lat": -45.0321923,
+    "lon": 168.661,
+    "precision": "town"
+  },
+  {
+    "Location": "Raetihi",
+    "Z": 0.26,
+    "D": 20,
+    "lat": -39.4264953,
+    "lon": 175.2828804,
+    "precision": "town"
+  },
+  {
+    "Location": "Rangiora",
+    "Z": 0.33,
+    "D": 20,
+    "lat": -43.303171,
+    "lon": 172.5961483,
+    "precision": "town"
+  },
+  {
+    "Location": "Reefton",
+    "Z": 0.37,
+    "D": 20,
+    "lat": -42.1159384,
+    "lon": 171.8634561,
+    "precision": "town"
+  },
+  {
+    "Location": "Riverton",
+    "Z": 0.2,
+    "D": 20,
+    "lat": -46.3509977,
+    "lon": 168.0202689,
+    "precision": "town"
+  },
+  {
+    "Location": "Rotorua",
+    "Z": 0.24,
+    "D": 20,
+    "lat": -38.1381493,
+    "lon": 176.252922,
+    "precision": "city"
+  },
+  {
+    "Location": "Ruatoria",
+    "Z": 0.33,
+    "D": 20,
+    "lat": -37.8919955,
+    "lon": 178.3187514,
+    "precision": "village"
+  },
+  {
+    "Location": "Seddon",
+    "Z": 0.4,
+    "D": 6,
+    "lat": -41.6711969,
+    "lon": 174.0733696,
+    "precision": "village"
+  },
+  {
+    "Location": "Springs Junction",
+    "Z": 0.45,
+    "D": 3,
+    "lat": -42.3347563,
+    "lon": 172.1817907,
+    "precision": "hamlet"
+  },
+  {
+    "Location": "St Arnaud",
+    "Z": 0.36,
+    "D": 2,
+    "lat": -41.8013578,
+    "lon": 172.8477856,
+    "precision": "village"
+  },
+  {
+    "Location": "Stratford",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -39.3396858,
+    "lon": 174.2840888,
+    "precision": "town"
+  },
+  {
+    "Location": "Taihape",
+    "Z": 0.33,
+    "D": 20,
+    "lat": -39.6766915,
+    "lon": 175.7983062,
+    "precision": "town"
+  },
+  {
+    "Location": "Takaka",
+    "Z": 0.23,
+    "D": 20,
+    "lat": -40.8574983,
+    "lon": 172.8062424,
+    "precision": "town"
+  },
+  {
+    "Location": "Taumarunui",
+    "Z": 0.21,
+    "D": 20,
+    "lat": -38.8813562,
+    "lon": 175.2662649,
+    "precision": "town"
+  },
+  {
+    "Location": "Taupo",
+    "Z": 0.28,
+    "D": 20,
+    "lat": -38.6866197,
+    "lon": 176.0694773,
+    "precision": "town"
+  },
+  {
+    "Location": "Tauranga",
+    "Z": 0.2,
+    "D": 20,
+    "lat": -37.6859006,
+    "lon": 176.167505,
+    "precision": "city"
+  },
+  {
+    "Location": "Te Anau",
+    "Z": 0.36,
+    "D": 20,
+    "lat": -45.41449,
+    "lon": 167.717489,
+    "precision": "town"
+  },
+  {
+    "Location": "Te Aroha",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -37.543149,
+    "lon": 175.7123669,
+    "precision": "town"
+  },
+  {
+    "Location": "Te Awamutu",
+    "Z": 0.17,
+    "D": 20,
+    "lat": -38.0101564,
+    "lon": 175.3257827,
+    "precision": "town"
+  },
+  {
+    "Location": "Te Kuiti",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -38.3341925,
+    "lon": 175.1657117,
+    "precision": "town"
+  },
+  {
+    "Location": "Te Puke",
+    "Z": 0.22,
+    "D": 20,
+    "lat": -37.7853294,
+    "lon": 176.3270238,
+    "precision": "town"
+  },
+  {
+    "Location": "Temuka",
+    "Z": 0.17,
+    "D": 20,
+    "lat": -44.2439593,
+    "lon": 171.2797349,
+    "precision": "town"
+  },
+  {
+    "Location": "Thames",
+    "Z": 0.16,
+    "D": 20,
+    "lat": -37.137983,
+    "lon": 175.5418037,
+    "precision": "town"
+  },
+  {
+    "Location": "Timaru",
+    "Z": 0.15,
+    "D": 20,
+    "lat": -44.3930254,
+    "lon": 171.2509786,
+    "precision": "town"
+  },
+  {
+    "Location": "Tokoroa",
+    "Z": 0.21,
+    "D": 20,
+    "lat": -38.2168677,
+    "lon": 175.8705389,
+    "precision": "town"
+  },
+  {
+    "Location": "Turangi",
+    "Z": 0.27,
+    "D": 20,
+    "lat": -38.9887347,
+    "lon": 175.8089539,
+    "precision": "town"
+  },
+  {
+    "Location": "Twizel",
+    "Z": 0.27,
+    "D": 20,
+    "lat": -44.257483,
+    "lon": 170.0994145,
+    "precision": "town"
+  },
+  {
+    "Location": "Upper Hutt",
+    "Z": 0.42,
+    "D": 2,
+    "lat": -41.1240674,
+    "lon": 175.0699589,
+    "precision": "city"
+  },
+  {
+    "Location": "Waihi",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -37.391462,
+    "lon": 175.8403538,
+    "precision": "town"
+  },
+  {
+    "Location": "Waikanae",
+    "Z": 0.4,
+    "D": 15,
+    "lat": -40.8758432,
+    "lon": 175.0643045,
+    "precision": "town"
+  },
+  {
+    "Location": "Waimate",
+    "Z": 0.14,
+    "D": 20,
+    "lat": -44.7338811,
+    "lon": 171.042339,
+    "precision": "town"
+  },
+  {
+    "Location": "Wainuiomata",
+    "Z": 0.4,
+    "D": 5,
+    "lat": -41.3236408,
+    "lon": 174.9171017,
+    "precision": "river"
+  },
+  {
+    "Location": "Waiouru",
+    "Z": 0.29,
+    "D": 20,
+    "lat": -39.4772125,
+    "lon": 175.6697752,
+    "precision": "village"
+  },
+  {
+    "Location": "Waipawa",
+    "Z": 0.41,
+    "D": 20,
+    "lat": -39.9417436,
+    "lon": 176.589286,
+    "precision": "town"
+  },
+  {
+    "Location": "Waipukurau",
+    "Z": 0.41,
+    "D": 20,
+    "lat": -39.9956,
+    "lon": 176.5567117,
+    "precision": "town"
+  },
+  {
+    "Location": "Wairoa",
+    "Z": 0.37,
+    "D": 20,
+    "lat": -39.03939,
+    "lon": 177.4271389,
+    "precision": "town"
+  },
+  {
+    "Location": "Waitara",
+    "Z": 0.18,
+    "D": 20,
+    "lat": -39.0028236,
+    "lon": 174.2364324,
+    "precision": "town"
+  },
+  {
+    "Location": "Waiuku",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -37.2491946,
+    "lon": 174.7303353,
+    "precision": "town"
+  },
+  {
+    "Location": "Wanaka",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -44.6941691,
+    "lon": 169.1364637,
+    "precision": "town"
+  },
+  {
+    "Location": "Wanganui",
+    "Z": 0.25,
+    "D": 20,
+    "lat": -39.9324904,
+    "lon": 175.0519306,
+    "precision": "city"
+  },
+  {
+    "Location": "Ward",
+    "Z": 0.4,
+    "D": 4,
+    "lat": -41.8264213,
+    "lon": 174.1379945,
+    "precision": "village"
+  },
+  {
+    "Location": "Warkworth",
+    "Z": 0.13,
+    "D": 20,
+    "lat": -36.3984914,
+    "lon": 174.6642316,
+    "precision": "town"
+  },
+  {
+    "Location": "Wellington",
+    "Z": 0.4,
+    "D": 0,
+    "lat": -41.2887953,
+    "lon": 174.7772114,
+    "precision": "city"
+  },
+  {
+    "Location": "Wellington CBD",
+    "Z": 0.4,
+    "D": 2,
+    "lat": -41.2821003,
+    "lon": 174.7759494,
+    "precision": "suburb"
+  },
+  {
+    "Location": "Westport",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -41.754183,
+    "lon": 171.6035684,
+    "precision": "town"
+  },
+  {
+    "Location": "Whakatane",
+    "Z": 0.3,
+    "D": 20,
+    "lat": -37.9519223,
+    "lon": 176.9945977,
+    "precision": "town"
+  },
+  {
+    "Location": "Whangarei",
+    "Z": 0.1,
+    "D": 20,
+    "lat": -35.7275268,
+    "lon": 174.3194202,
+    "precision": "city"
+  },
+  {
+    "Location": "Winton",
+    "Z": 0.2,
+    "D": 20,
+    "lat": -46.141439,
+    "lon": 168.3239863,
+    "precision": "town"
+  },
+  {
+    "Location": "Woodville",
+    "Z": 0.41,
+    "D": 2,
+    "lat": -40.3370786,
+    "lon": 175.8667991,
+    "precision": "town"
+  }
+]
