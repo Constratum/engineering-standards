@@ -11,7 +11,7 @@ Original file is located at
 This method references the following standard:
 NZS 1170.5:2004 (incorporating Amendment Nos 1), for New Zealand structures.
 
-Created by *Matt Bishop* on *28 August 2021* 
+Created by *Matt Bishop* on *28 August 2021*
 
 Copyright (c) BVT Consulting Ltd 2022
 
@@ -256,11 +256,14 @@ table3_1_1 = pd.DataFrame(
     ],
 )
 
-def seismic_weight_6_2_6(G,Psi_c,Q):
+
+def seismic_weight_6_2_6(G, Psi_c, Q):
 
     W_i = G + Psi_c * Q
 
     return W_i
+
+
 # table3_1_1.plot(table=True,figsize=(15, 10))
 
 # @title spectral_shape_factor(Subsoil_Type,T,spectral_method) { run: "auto", vertical-output: true }
@@ -1261,6 +1264,72 @@ def horizontal_design_action(CT, T, Sp, mu, Subsoil_Type, Z, Ru):
 
 CdT_ULS = horizontal_design_action(CT, T, Sp_ULS, mu_ULS, Subsoil_Type, Z, R)
 print(CdT_ULS)
+
+
+def calculating_horizontal_shear_base_6_2(CdT, Wt):
+    Vt = CdT * Wt
+    return float(Vt)
+
+
+def calculating_eq_static_horizontal_load(V, phi_E, Q, G, h1, hi, nLevels):
+    """
+    Calculate equivalent static horizontal force distribution according to NZS 1170.5 Clause 6.2.1.3
+
+    The equivalent static horizontal force, Fi, at each level, i, shall be obtained from Equation 6.2(2):
+    Fi = Ft + 0.92V * (Wi*hi) / Σ(Wi*hi)
+
+    where Ft = 0.08V at the top level and zero elsewhere.
+
+    Args:
+        V (float): Total base shear (kN)
+        level_data (pd.DataFrame): DataFrame with columns:
+            - 'Level': Level number (1 = bottom, n = top)
+            - 'Wi (kN)': Seismic weight at level i (kN)
+            - 'hi (m)': Height above base to level i (m)
+
+    Returns:
+        pd.DataFrame: Updated DataFrame with additional columns:
+            - 'Wi*hi': Product of weight and height
+            - 'Ft (kN)': Top level force (0.08V at top, 0 elsewhere)
+            - 'Fi (kN)': Horizontal force at each level
+    """
+    import pandas as pd
+
+    def calculating_level_data(phi_E, Q, G, h1, hi, nLevels):
+        levels = list(range(nLevels, 0, -1))
+
+        heights = [hi + h1 if i == 1 else hi * i for i in levels]
+
+        Wi_value = phi_E * Q + G
+
+        Wi_list = [Wi_value] * nLevels
+        df = pd.DataFrame({"Level": levels, "hi": heights, "Wi": Wi_list})
+
+        return df
+
+    level_data = calculating_level_data(phi_E, Q, G, h1, hi, nLevels)
+
+    # Create a copy to avoid modifying the original dataframe
+    result_df = level_data.copy()
+
+    # Calculate Wi*hi for each level
+    result_df["Wi*hi"] = result_df["Wi"] * result_df["hi"]
+
+    # Calculate sum of Wi*hi for all levels
+    sigma_wihi = result_df["Wi*hi"].sum()
+
+    # Find the top level (highest level number)
+    top_level = result_df["Level"].max()
+
+    # Calculate Ft (top level force)
+    result_df["Ft"] = result_df["Level"].apply(
+        lambda x: 0.08 * V if x == top_level else 0.0
+    )
+    # Calculate Fi for each level using Equation 6.2(2)
+    result_df["Fi"] = result_df["Ft"] + 0.92 * V * (result_df["Wi*hi"] / sigma_wihi)
+
+    return result_df
+
 
 """#8 Parts
 

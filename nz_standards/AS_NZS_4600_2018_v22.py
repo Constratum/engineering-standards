@@ -1003,6 +1003,249 @@ def bending_capacity_7_2_2_2(Mbd, Mbl, Mbe):
     return Mb
 
 
+## Design of members subject to shear
+def shear_capacity_without_transverse_web_stiffeners_7_2_3_2(
+    fy: float,
+    h: float,
+    t: float,
+    Vcr: float,
+):
+    """
+    Clause 7.2.3.2: Beams without transverse web stiffeners.
+
+    Computes the nominal shear capacity Vv for a beam web without transverse stiffeners.
+
+    Parameters:
+    fy : float
+        Design yield stress of the web material.
+    h : float
+        Depth of flat portion of web measured along plane of web.
+    t : float
+        Web thickness.
+    Vcr : float
+        Elastic shear buckling force of the web (from rational analysis or Appendix D3).
+
+    Returns:
+    tuple[float, float, float]
+        (Vv, lambda_v, Vy) where:
+        - Vv is the nominal shear capacity
+        - lambda_v is the web shear slenderness
+        - Vy is the web yield shear force (0.6 * Aw * fy)
+    """
+    Aw = h * t
+    Vy = 0.6 * Aw * fy
+
+    if Vcr <= 0:
+        raise ValueError("Vcr must be positive for shear capacity calculation.")
+
+    lambda_v = np.sqrt(Vy / Vcr)
+
+    if lambda_v <= 0.815:
+        Vv = Vy
+    elif lambda_v <= 1.227:
+        Vv = 0.815 * np.sqrt(Vy * Vcr)
+    else:
+        Vv = Vcr
+
+    return Vv, lambda_v, Vy
+
+
+def combined_bending_and_shear_7_2_3_5(
+    M_star: float,
+    V_star: float,
+    Ms: float,
+    Vv: float,
+    *,
+    with_transverse_web_stiffeners: bool = False,
+    Mb: float | None = None,
+    phi_b: float = 0.9,
+    phi_v: float = 0.9,
+):
+    """
+    Clause 7.2.3.5: Combined bending and shear.
+
+    - For beams with unstiffened webs:
+      (M*/(phi_b*Ms))^2 + (V*/(phi_v*Vv))^2 <= 1.0
+
+    - For beams with transverse web stiffeners:
+      M* <= phi_b*Mb and V* <= phi_v*Vv
+      If (M*/(phi_b*Ms)) > 0.5 and (V*/(phi_v*Vv)) > 0.7 then
+      0.6*(M*/(phi_b*Ms)) + (V*/(phi_v*Vv)) <= 1.3
+
+    Returns (compliance, unity), where `unity` is the governing normalized ratio
+    (<= 1.0 when compliant). For the 1.3 limit, unity is normalized by 1.3.
+    """
+
+    if not with_transverse_web_stiffeners:
+        unity = (M_star / (phi_b * Ms)) ** 2 + (V_star / (phi_v * Vv)) ** 2
+        compliance = unity <= 1.0
+        return compliance, unity
+
+    # Stiffened webs path
+    if Mb is None:
+        raise ValueError(
+            "Mb must be provided when with_transverse_web_stiffeners=True."
+        )
+
+    moment_ratio = M_star / (phi_b * Mb)
+    shear_ratio = V_star / (phi_v * Vv)
+
+    basic_ok = (moment_ratio <= 1.0) and (shear_ratio <= 1.0)
+
+    # Additional interaction check when both thresholds are exceeded
+    ms_ratio_for_interaction = M_star / (phi_b * Ms)
+    needs_interaction = (ms_ratio_for_interaction > 0.5) and (shear_ratio > 0.7)
+
+    if needs_interaction:
+        interaction = 0.6 * ms_ratio_for_interaction + shear_ratio
+        interaction_unity = interaction / 1.3
+        compliance = basic_ok and (interaction_unity <= 1.0)
+        governing_unity = max(moment_ratio, shear_ratio, interaction_unity)
+    else:
+        compliance = basic_ok
+        governing_unity = max(moment_ratio, shear_ratio)
+
+    return compliance, governing_unity
+
+
+## Appendix D3: Members in shear — elastic shear buckling force Vcr
+def table_D3_kn(
+    section_type: str,
+    bf: float,
+    d1: float,
+    tf: float | None = None,
+    tw: float | None = None,
+):
+    """
+    Table D3 coefficient k_a (noted as k_n in the table) for open and hollow flange beams.
+
+    Parameters:
+    section_type : str
+        One of: 'LC' (lipped channel), 'HFC' (hollow flange channel),
+        'THFB' (triangular hollow flange beam), 'RHFB' (rectangular hollow flange beam).
+    bf : float
+        Flange width.
+    d1 : float
+        Flat portion depth of web.
+    tf : float | None
+        Flange thickness (required for 'RHFB').
+    tw : float | None
+        Web thickness (required for 'RHFB').
+
+    Returns:
+    float
+        Coefficient k_a.
+    """
+    ratio_bf_d1 = bf / d1
+
+    st = section_type.upper()
+    if st in {"LC", "HFC", "THFB"}:
+        if ratio_bf_d1 < 0.3:
+            raise ValueError("bf/d1 must be >= 0.3 for LC/HFC/THFB per Table D3.")
+        if st == "LC":
+            return 0.23
+        if st == "HFC":
+            return 0.87
+        if st == "THFB":
+            return 0.90
+
+    if st == "RHFB":
+        if ratio_bf_d1 < 0.4:
+            raise ValueError("bf/d1 must be >= 0.4 for RHFB per Table D3.")
+        if tf is None or tw is None:
+            raise ValueError("tf and tw must be provided for RHFB.")
+        tf_tw = tf / tw
+        if tf_tw < 0.5:
+            raise ValueError("tf/tw must be >= 0.5 for RHFB per Table D3.")
+        if tf_tw < 1.6:
+            return 0.82 * tf_tw - 0.41
+        return 0.90
+
+    raise ValueError("Unsupported section_type. Use 'LC', 'HFC', 'THFB', or 'RHFB'.")
+
+
+def elastic_shear_buckling_force_D3(
+    E: float,
+    nu: float,
+    d1: float,
+    t: float,
+    *,
+    web_condition: str = "unreinforced",
+    a: float | None = None,
+    section_type: str | None = None,
+    bf: float | None = None,
+    tf: float | None = None,
+    tw: float | None = None,
+):
+    """
+    Calculate the elastic shear buckling force of the web Vcr per Appendix D3.
+
+    Vcr = (pi^2 * E * Aw * kv) / (12 * (1 - nu^2) * (d1/t)^2)
+
+    Parameters:
+    E : float
+        Modulus of elasticity of steel.
+    nu : float
+        Poisson's ratio of steel.
+    d1 : float
+        Depth of flat portion of web along the plane of the web.
+    t : float
+        Web thickness.
+    web_condition : str
+        One of: 'unreinforced', 'stiffened', 'flange_restrained'.
+    a : float | None
+        Shear panel length / clear distance between transverse stiffeners.
+        Required for 'stiffened' and 'flange_restrained'.
+    section_type, bf, tf, tw :
+        Parameters for Table D3 k_a when web_condition == 'flange_restrained'.
+
+    Returns:
+    tuple[float, float]
+        (Vcr, kv)
+    """
+
+    Aw = d1 * t
+
+    cond = web_condition.lower()
+    if cond == "unreinforced":
+        kv = 5.34
+    elif cond == "stiffened":
+        if a is None:
+            raise ValueError("Parameter 'a' must be provided for stiffened webs.")
+        ratio = a / d1
+        if ratio < 1.0:
+            kv = 4.00 + 5.34 / (ratio**2)
+        else:
+            kv = 5.34 + 4.00 / (ratio**2)
+    elif cond == "flange_restrained":
+        if a is None:
+            raise ValueError(
+                "Parameter 'a' must be provided for flange-restrained webs."
+            )
+        if section_type is None or bf is None:
+            raise ValueError(
+                "section_type and bf must be provided for flange-restrained webs."
+            )
+        ratio = a / d1
+        # k_s
+        if ratio < 1.0:
+            ks = 4.0 + 5.34 / (ratio**2)
+            kst = 5.34 / (ratio**2) + 2.31 / ratio - 3.44 + 8.39 * ratio
+        else:
+            ks = 5.34 + 4.0 / (ratio**2)
+            kst = 8.98 + 5.61 / (ratio**2) - 1.99 / ratio
+
+        ka = table_D3_kn(section_type, bf, d1, tf=tf, tw=tw)
+        kv = ks + ka * (kst - ks)
+    else:
+        raise ValueError(
+            "web_condition must be 'unreinforced', 'stiffened', or 'flange_restrained'."
+        )
+
+    Vcr = (np.pi**2 * E * Aw * kv) / (12.0 * (1.0 - nu**2) * (d1 / t) ** 2)
+    return Vcr, kv
+
+
 def combined_axial_compression_bending_7_2_4(Nc, Mbx, Mby, na, mbx, mby):
     phi_b = 0.9
     phi_c = 0.85
