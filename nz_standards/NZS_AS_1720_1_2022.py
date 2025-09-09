@@ -1983,3 +1983,326 @@ def calculate_joint_capacities(
         )
 
     return Nt, Ns
+
+
+# Section 8: LVL (Laminated Veneer Lumber) Design Values
+class LVLDesignValues:
+    """
+    Class for LVL (Laminated Veneer Lumber) design values according to
+    NZS AS 1720.1:2022 standard, Table ZZ8.1.
+
+    This class provides characteristic values for design of Structural LVL
+    used 'on-edge' with moisture content 15% or less.
+    """
+
+    def __init__(self):
+        """Initialize the LVL design values class with Table ZZ8.1 data."""
+        self.create_lvl_table()
+
+    def create_lvl_table(self):
+        """
+        Create Table ZZ8.1 - Characteristic values for design - Structural LVL
+        used 'on-edge' (moisture content 15% or less).
+        """
+        # Table ZZ8.1 data
+        lvl_data = {
+            "LVL_grade": ["LVL16", "LVL13", "LVL11", "LVL10", "LVL8"],
+            "Design_density_kg_m3": [660, 620, 590, 580, 550],
+            "Characteristic_density_kg_m3": [480, 480, 480, 480, 480],
+            "Bending_f_b_MPa": [50, 45, 38, 35, 30],
+            "Shear_in_beams_f_s_MPa": [4.5, 4.0, 3.5, 3.5, 3.5],
+            "Bearing_perpendicular_f_p_MPa": [10, 10, 10, 10, 10],
+            "Tension_parallel_to_grain_f_t_MPa": [25, 25, 16, 15, 15],
+            "Compression_parallel_to_grain_f_c_MPa": [45, 38, 32, 30, 30],
+            "Short_duration_modulus_of_elasticity_E_MPa": [
+                16000,
+                13200,
+                11000,
+                10000,
+                8000,
+            ],
+            "Short_duration_modulus_of_rigidity_G_MPa": [800, 660, 550, 500, 400],
+        }
+
+        # Create DataFrame
+        self.df_lvl = pd.DataFrame(lvl_data)
+        self.df_lvl.set_index("LVL_grade", inplace=True)
+
+        # Create notes dictionary for additional information
+        self.notes = {
+            "tension_perpendicular": "Tension perpendicular to the grain shall be taken as f_tp = 0.5 MPa",
+            "characteristic_density_usage": "The characteristic density is to be used for the dead load calculations using the detailed method",
+            "beam_depth_adjustment": "For beams with a depth exceeding 95 mm, multiply the value for bending (f_b) in Table 8.1 in AS 1720.1 by (95/d)^0.167, where d is the depth of the beam",
+            "bearing_perpendicular_note": "The bearing strength perpendicular to the grain has been determined in accordance with AS/NZS 4063.1 clause 2.8 and includes stress-spreading and hanging-edge effects. Care should be taken in the application of the length of bearing factor, k_7, to this value if there is no guidance from the manufacturer. Should the perpendicular-to-grain strength without the effects of stress spreading and hanging edge be required, refer to the manufacturer's data or Franke and Quenneville (2010)",
+            "tension_members_150mm": "For tension members with a width of 150 mm or less, Table 8.1 shall be used, with no adjustment required",
+            "tension_members_larger": "For tension members with the larger cross-sectional dimension exceeding 150 mm, multiply the value for tension (f_t) in Table ZZ8.1 by (150/d)^0.167, where d is the larger cross-sectional dimension of the tension member",
+        }
+
+    def get_lvl_properties(self, lvl_grade):
+        """
+        Get all properties for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade (e.g., 'LVL16', 'LVL13', etc.)
+
+        Returns:
+            dict: Dictionary containing all properties for the specified grade
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        properties = self.df_lvl.loc[lvl_grade].to_dict()
+        return properties
+
+    def get_design_density(self, lvl_grade):
+        """
+        Get design density for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Design density in kg/m³
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Design_density_kg_m3"]
+
+    def get_characteristic_density(self, lvl_grade):
+        """
+        Get characteristic density for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Characteristic density in kg/m³
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Characteristic_density_kg_m3"]
+
+    def get_bending_strength(self, lvl_grade, beam_depth=None):
+        """
+        Get bending strength for a specific LVL grade with optional depth adjustment.
+
+        Args:
+            lvl_grade (str): LVL grade
+            beam_depth (float, optional): Beam depth in mm. If > 95mm, applies depth adjustment factor
+
+        Returns:
+            float: Bending strength (f'b) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        f_b = self.df_lvl.loc[lvl_grade, "Bending_f_b_MPa"]
+
+        # Apply depth adjustment if beam depth > 95mm
+        if beam_depth is not None and beam_depth > 95:
+            adjustment_factor = (95 / beam_depth) ** 0.167
+            f_b = f_b * adjustment_factor
+
+        return f_b
+
+    def get_shear_strength(self, lvl_grade):
+        """
+        Get shear strength in beams for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Shear strength (f's) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Shear_in_beams_f_s_MPa"]
+
+    def get_bearing_perpendicular_strength(self, lvl_grade):
+        """
+        Get bearing strength perpendicular to grain for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Bearing strength perpendicular to grain (f'p) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Bearing_perpendicular_f_p_MPa"]
+
+    def get_tension_parallel_strength(self, lvl_grade, member_dimension=None):
+        """
+        Get tension strength parallel to grain for a specific LVL grade with optional size adjustment.
+
+        Args:
+            lvl_grade (str): LVL grade
+            member_dimension (float, optional): Larger cross-sectional dimension in mm.
+                                              If > 150mm, applies size adjustment factor
+
+        Returns:
+            float: Tension strength parallel to grain (f't) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        f_t = self.df_lvl.loc[lvl_grade, "Tension_parallel_to_grain_f_t_MPa"]
+
+        # Apply size adjustment if member dimension > 150mm
+        if member_dimension is not None and member_dimension > 150:
+            adjustment_factor = (150 / member_dimension) ** 0.167
+            f_t = f_t * adjustment_factor
+
+        return f_t
+
+    def get_tension_perpendicular_strength(self):
+        """
+        Get tension strength perpendicular to grain (constant for all LVL grades).
+
+        Returns:
+            float: Tension strength perpendicular to grain (f'tp) in MPa
+        """
+        return 0.5  # As per note a in the table
+
+    def get_compression_parallel_strength(self, lvl_grade):
+        """
+        Get compression strength parallel to grain for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Compression strength parallel to grain (f'c) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Compression_parallel_to_grain_f_c_MPa"]
+
+    def get_modulus_of_elasticity(self, lvl_grade):
+        """
+        Get short-duration average modulus of elasticity for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Modulus of elasticity (E) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Short_duration_modulus_of_elasticity_E_MPa"]
+
+    def get_modulus_of_rigidity(self, lvl_grade):
+        """
+        Get short-duration average modulus of rigidity for beams for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            float: Modulus of rigidity (G) in MPa
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        return self.df_lvl.loc[lvl_grade, "Short_duration_modulus_of_rigidity_G_MPa"]
+
+    def get_available_grades(self):
+        """
+        Get list of available LVL grades.
+
+        Returns:
+            list: List of available LVL grades
+        """
+        return list(self.df_lvl.index)
+
+    def get_table_notes(self):
+        """
+        Get the notes associated with Table ZZ8.1.
+
+        Returns:
+            dict: Dictionary containing all table notes
+        """
+        return self.notes
+
+    def display_lvl_table(self):
+        """
+        Display the complete LVL table.
+
+        Returns:
+            pd.DataFrame: The complete LVL properties table
+        """
+        return self.df_lvl
+
+    def get_lvl_properties_summary(self, lvl_grade):
+        """
+        Get a formatted summary of all properties for a specific LVL grade.
+
+        Args:
+            lvl_grade (str): LVL grade
+
+        Returns:
+            str: Formatted string with all properties
+        """
+        if lvl_grade not in self.df_lvl.index:
+            valid_grades = list(self.df_lvl.index)
+            raise ValueError(
+                f"Invalid LVL grade: {lvl_grade}. Valid grades are: {valid_grades}"
+            )
+
+        properties = self.get_lvl_properties(lvl_grade)
+
+        summary = f"""
+            LVL Grade: {lvl_grade}
+            ===================
+            Design Density: {properties['Design_density_kg_m3']} kg/m³
+            Characteristic Density: {properties['Characteristic_density_kg_m3']} kg/m³
+            Bending Strength (f'b): {properties['Bending_f_b_MPa']} MPa
+            Shear Strength (f's): {properties['Shear_in_beams_f_s_MPa']} MPa
+            Bearing Perpendicular (f'p): {properties['Bearing_perpendicular_f_p_MPa']} MPa
+            Tension Parallel (f't): {properties['Tension_parallel_to_grain_f_t_MPa']} MPa
+            Tension Perpendicular (f'tp): 0.5 MPa
+            Compression Parallel (f'c): {properties['Compression_parallel_to_grain_f_c_MPa']} MPa
+            Modulus of Elasticity (E): {properties['Short_duration_modulus_of_elasticity_E_MPa']} MPa
+            Modulus of Rigidity (G): {properties['Short_duration_modulus_of_rigidity_G_MPa']} MPa
+        """
+
+        return summary.strip()
