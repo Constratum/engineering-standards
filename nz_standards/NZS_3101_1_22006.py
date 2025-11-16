@@ -395,6 +395,402 @@ class AnchorCapacity_Chapter_17:
         return compliance, unity
 
 
+# ============================================================================
+# PUNCHING SHEAR FOR SLABS - Section 12.7 (Two-way action)
+# ============================================================================
+
+
+class SlabPunchingShearCapacity_12_7:
+    """Calculate punching shear capacity for slabs according to NZS 3101:Part 1:2006 Section 12.7"""
+
+    def __init__(
+        self,
+        thickness_slab: float,
+        concrete_strength: float,
+        length_base_plate: float,
+        width_base_plate: float,
+        position_load_area: str,
+    ):
+        """
+        Initialize punching shear calculator with slab properties.
+
+        Args:
+            thickness_slab: Effective depth of slab (d) in mm
+            concrete_strength: Specified compressive strength of concrete (f'c) in MPa
+            length_base_plate: Length of loaded area in mm
+            width_base_plate: Width of loaded area in mm
+            position_load_area: Position of load: "interior", "edge", or "corner"
+        """
+        self.thickness_slab = thickness_slab
+        self.concrete_strength = concrete_strength
+        self.length_base_plate = length_base_plate
+        self.width_base_plate = width_base_plate
+        self.position_load_area = position_load_area
+        self._validate_inputs()
+
+    def _validate_inputs(self):
+        """Validate input properties"""
+        valid_positions = ["interior", "edge", "corner"]
+        if self.position_load_area not in valid_positions:
+            raise ValueError(
+                f"Invalid position_load_area: {self.position_load_area}. Must be one of {valid_positions}."
+            )
+
+        if self.thickness_slab <= 0:
+            raise ValueError("Slab thickness must be positive")
+
+        if self.concrete_strength <= 0:
+            raise ValueError("Concrete strength must be positive")
+
+        if self.length_base_plate <= 0 or self.width_base_plate <= 0:
+            raise ValueError("Base plate dimensions must be positive")
+
+    def _calculate_loaded_radius(self) -> float:
+        """Calculate equivalent loaded radius based on position - Section 12.7.1(b)"""
+        area = self.length_base_plate * self.width_base_plate
+
+        if self.position_load_area == "interior":
+            # For interior column: circular area equal to loaded area
+            loaded_radius = np.sqrt(area / np.pi)
+        elif self.position_load_area == "edge":
+            # For edge column: semicircular projection
+            loaded_radius = np.sqrt((2 * area) / np.pi)
+        elif self.position_load_area == "corner":
+            # For corner column: quarter-circular projection
+            loaded_radius = np.sqrt((4 * area) / np.pi)
+        else:
+            raise ValueError(f"Invalid position: {self.position_load_area}")
+
+        return loaded_radius
+
+    def _get_alpha_s(self) -> float:
+        """Get alpha_s factor accounting for column position - Section 12.7.3.2"""
+        alpha_s_values = {"interior": 20, "edge": 15, "corner": 10}
+        return alpha_s_values[self.position_load_area]
+
+    def _calculate_perimeter_critical_section(self) -> float:
+        """Calculate perimeter of critical section bo at d/2 from face of support - Section 12.7.1(b)"""
+        loaded_radius = self._calculate_loaded_radius()
+        d = self.thickness_slab
+
+        # Critical section is at d/2 from face of loaded area
+        # For simplified calculation with equivalent radius
+        if self.position_load_area == "interior":
+            # Full perimeter around loaded area
+            bo = 2 * np.pi * (loaded_radius + d / 2)
+        elif self.position_load_area == "edge":
+            # Half perimeter (semicircle) plus two radial lines
+            bo = np.pi * (loaded_radius + d / 2) + 2 * d
+        elif self.position_load_area == "corner":
+            # Quarter perimeter (quarter circle) plus two radial lines
+            bo = (np.pi / 2) * (loaded_radius + d / 2) + 2 * d
+        else:
+            raise ValueError(f"Invalid position: {self.position_load_area}")
+
+        return bo
+
+    def _get_k_ds(self) -> float:
+        """Calculate size effect factor k_ds for punching shear - Section 12.7.3.2
+
+        k_ds = sqrt(200/d) with limits 0.5 <= k_ds <= 1.0
+        where d is the average effective depth in mm
+        """
+        d = self.thickness_slab
+        k_ds = np.sqrt(200 / d)
+
+        # Apply limits
+        k_ds = max(0.5, min(1.0, k_ds))
+
+        return k_ds
+
+    def _calculate_vc_a(self) -> float:
+        """Calculate nominal shear stress vc using Equation 12-6
+
+        vc = (1/6) * k_ds * (1 + 2/beta_c) * sqrt(f'c)
+
+        where beta_c is the ratio of long side to short side of loaded area
+        """
+        k_ds = self._get_k_ds()
+        fc = self.concrete_strength
+
+        # Calculate beta_c (ratio of long side to short side)
+        long_side = max(self.length_base_plate, self.width_base_plate)
+        short_side = min(self.length_base_plate, self.width_base_plate)
+        beta_c = long_side / short_side if short_side > 0 else 1.0
+
+        # Equation 12-6
+        vc_a = (1 / 6) * k_ds * (1 + 2 / beta_c) * np.sqrt(fc)
+
+        return vc_a  # MPa
+
+    def _calculate_vc_b(self) -> float:
+        """Calculate nominal shear stress vc using Equation 12-7
+
+        vc = (1/6) * k_ds * (alpha_s * d / bo + 1) * sqrt(f'c)
+
+        where alpha_s = 20 for interior, 15 for edge, 10 for corner
+        """
+        k_ds = self._get_k_ds()
+        fc = self.concrete_strength
+        alpha_s = self._get_alpha_s()
+        d = self.thickness_slab
+        bo = self._calculate_perimeter_critical_section()
+
+        # Equation 12-7
+        vc_b = (1 / 6) * k_ds * (alpha_s * d / bo + 1) * np.sqrt(fc)
+
+        return vc_b  # MPa
+
+    def _calculate_vc_c(self) -> float:
+        """Calculate nominal shear stress vc using Equation 12-8
+
+        vc = (1/3) * k_ds * sqrt(f'c)
+        """
+        k_ds = self._get_k_ds()
+        fc = self.concrete_strength
+
+        # Equation 12-8
+        vc_c = (1 / 3) * k_ds * np.sqrt(fc)
+
+        return vc_c  # MPa
+
+    def calculate_vc(self) -> float:
+        """Calculate nominal shear stress vc - Section 12.7.3.2
+
+        vc is the smallest of three equations (12-6, 12-7, 12-8)
+
+        Returns:
+            vc in MPa
+        """
+        vc_a = self._calculate_vc_a()
+        vc_b = self._calculate_vc_b()
+        vc_c = self._calculate_vc_c()
+
+        vc = min(vc_a, vc_b, vc_c)
+
+        return vc  # MPa
+
+    def calculate_vc_max(self) -> float:
+        """Calculate maximum nominal shear stress - Section 12.7.3.4
+
+        The maximum nominal shear stress shall not exceed 0.5 * sqrt(f'c)
+
+        Returns:
+            vc_max in MPa
+        """
+        fc = self.concrete_strength
+        vc_max = 0.5 * np.sqrt(fc)
+
+        return vc_max  # MPa
+
+    def calculate_Vc(self) -> float:
+        """Calculate nominal shear strength Vc in Newtons - Section 12.7.3.1
+
+        Vc = vc * bo * d
+
+        Returns:
+            Vc in N
+        """
+        vc = self.calculate_vc()
+        bo = self._calculate_perimeter_critical_section()
+        d = self.thickness_slab
+
+        Vc = vc * bo * d  # MPa * mm * mm = N
+
+        return Vc  # N
+
+    def calculate_design_Vc(self) -> float:
+        """Calculate design shear strength phi*Vc in Newtons
+
+        Returns:
+            phi*Vc in N (with phi = 0.75 for shear)
+        """
+        phi = 0.75
+        Vc = self.calculate_Vc()
+        return phi * Vc  # N
+
+
+# ============================================================================
+# SLAB UPLIFT RESISTANCE - Cracking Moment and Edge Distance Check
+# ============================================================================
+
+
+class SlabUpliftResistance:
+    """Calculate slab uplift resistance based on cracking moment and edge distances"""
+
+    def __init__(
+        self,
+        thickness_slab: float,
+        concrete_strength: float,
+        concrete_density: float,
+        edge_distance_top_m: float,
+        edge_distance_bot_m: float,
+        edge_distance_lhs_m: float,
+        edge_distance_rhs_m: float,
+        strength_reduction_factor: float = 0.75,
+    ):
+        """
+        Initialize slab uplift resistance calculator.
+
+        Args:
+            thickness_slab: Thickness of slab in mm
+            concrete_strength: Specified compressive strength of concrete (f'c) in MPa
+            concrete_density: Concrete density in kg/m³
+            edge_distance_top_m: Top edge distance in meters
+            edge_distance_bot_m: Bottom edge distance in meters
+            edge_distance_lhs_m: Left-hand side edge distance in meters
+            edge_distance_rhs_m: Right-hand side edge distance in meters
+            strength_reduction_factor: Strength reduction factor (default 0.75)
+        """
+        self.thickness_slab = thickness_slab  # mm
+        self.concrete_strength = concrete_strength  # MPa
+        self.concrete_density = concrete_density  # kg/m³
+        self.edge_distance_top_m = edge_distance_top_m
+        self.edge_distance_bot_m = edge_distance_bot_m
+        self.edge_distance_lhs_m = edge_distance_lhs_m
+        self.edge_distance_rhs_m = edge_distance_rhs_m
+        self.strength_reduction_factor = strength_reduction_factor
+        self.g = 9.81  # m/s²
+
+    def calculate_weight_of_slab_per_width(self) -> float:
+        """Calculate weight of slab per unit width (N/m)
+
+        Returns:
+            Weight per unit width in N/m
+        """
+        thickness_m = self.thickness_slab / 1000  # Convert mm to m
+        weight_per_width = thickness_m * self.concrete_density * self.g
+        return weight_per_width  # N/m
+
+    def calculate_moment_of_inertia(self) -> float:
+        """Calculate moment of inertia per unit width (mm⁴)
+
+        I = b*t³/12 where b = 1000 mm (1 meter width)
+
+        Returns:
+            Moment of inertia in mm⁴
+        """
+        b = 1000  # Unit width: 1 meter = 1000 mm
+        Ix = (b * self.thickness_slab**3) / 12
+        return Ix  # mm⁴
+
+    def calculate_modulus_of_rupture(self) -> float:
+        """Calculate modulus of rupture (MPa)
+
+        fr = 0.6 * λ * sqrt(f'c)
+        where λ = 1.0 for normal density concrete (NZS3101, Cl 5.2.4, 5.2.5)
+
+        Returns:
+            Modulus of rupture in MPa
+        """
+        lambda_factor = 1.0  # Normal density concrete
+        fr = 0.6 * lambda_factor * np.sqrt(self.concrete_strength)
+        return fr  # MPa
+
+    def calculate_cracking_moment(self) -> float:
+        """Calculate cracking moment (N·m)
+
+        Mcr = (fr * I) / y
+        where y is distance from neutral axis to extreme tension fiber
+
+        Returns:
+            Cracking moment in N·m
+        """
+        fr = self.calculate_modulus_of_rupture()  # MPa
+        I = self.calculate_moment_of_inertia()  # mm³
+        y = self.thickness_slab / 2  # mm (distance to extreme fiber)
+
+        # Mcr = fr * I / y
+        # MPa * mm³ / mm = N·mm = N·m / 1000
+        Mcr = (fr * I) / y  # N·mm
+        Mcr_Nm = Mcr / 1000  # Convert N·mm to N·m
+
+        return Mcr_Nm  # N·m
+
+    def calculate_cracking_length(self) -> float:
+        """Calculate cracking length (m)
+
+        Lcr = sqrt(2 * Mcr / w) * φ
+        where w is weight per unit width
+
+        Returns:
+            Cracking length in meters
+        """
+        Mcr = self.calculate_cracking_moment()  # N·m
+        w = self.calculate_weight_of_slab_per_width()  # N/m
+
+        if w <= 0:
+            raise ValueError("Weight per unit width must be positive")
+
+        Lcr = np.sqrt(2 * Mcr / w) * self.strength_reduction_factor
+        return Lcr  # m
+
+    def check_edge_distances(self) -> dict:
+        """Check all edge distances against cracking length
+
+        Returns:
+            Dictionary with edge check results
+        """
+        Lcr = self.calculate_cracking_length()
+
+        edges_dict = {
+            "Top": self.edge_distance_top_m,
+            "Bottom": self.edge_distance_bot_m,
+            "LHS": self.edge_distance_lhs_m,
+            "RHS": self.edge_distance_rhs_m,
+        }
+
+        edge_check_results = {}
+        all_edges_ok = True
+
+        for edge_name, edge_distance in edges_dict.items():
+            ratio = edge_distance / Lcr if Lcr > 0 else float("inf")
+            is_compliant = edge_distance <= Lcr
+
+            edge_check_results[f"Edge_{edge_name}"] = {
+                "distance_m": edge_distance,
+                "cracking_length_m": Lcr,
+                "ratio": ratio,
+                "compliant": is_compliant,
+                "status": "PASS" if is_compliant else "FAIL",
+            }
+
+            if not is_compliant:
+                all_edges_ok = False
+
+        # Add overall check
+        edge_check_results["overall"] = {
+            "all_edges_compliant": all_edges_ok,
+            "message": (
+                "All edge distances are within cracking length"
+                if all_edges_ok
+                else "Some edge distances exceed cracking length"
+            ),
+        }
+
+        return edge_check_results
+
+    def calculate_resisting_slab_weight(self) -> float:
+        """Calculate resisting slab weight (N)
+
+        W = ρ * g * t * (Top + Bot) * (LHS + RHS)
+
+        Returns:
+            Resisting slab weight in N
+        """
+        thickness_m = self.thickness_slab / 1000  # Convert mm to m
+
+        resisting_weight = (
+            self.concrete_density
+            * self.g
+            * thickness_m
+            * (self.edge_distance_top_m + self.edge_distance_bot_m)
+            * (self.edge_distance_lhs_m + self.edge_distance_rhs_m)
+        )
+
+        return resisting_weight  # N
+
+
 # --- Data for Post-Installed Screws based on provided tables ---
 
 # REMOVE OLD TABLE 2A and 2B
