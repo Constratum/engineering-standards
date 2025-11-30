@@ -646,7 +646,6 @@ def foc_without_holes_D1_1_1_2(r_x, r_y, x_o, y_o, le_x, le_y, le_z, E, Ag, J, I
         (fox + foz) - (np.sqrt((fox + foz) ** 2 - (4 * beta * fox * foz)))
     )
     foc = min(foxz, foy)
-    print("ro1", ro1)
     return fox, foy, foz, foxz, foc
 
 
