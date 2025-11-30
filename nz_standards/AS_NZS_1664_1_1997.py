@@ -557,7 +557,6 @@ def compression_extreme_fibre_bent_strong_axis_3_4_12(alloy_temper, product, Lb,
     S2 = 1.2 * Cc
 
     Lb_ry = Lb / ry
-    print("Lb_ry: ", Lb_ry, "S1: ", S1, "S2: ", S2)
     # Calculate compression capacity
     if Lb_ry < S1:
         # Case (a)
@@ -706,7 +705,6 @@ def compression_extreme_fibre_bent_weak_axis_3_4_21(alloy_temper, product, b, t)
 
     b_t = b / t
 
-    print("b/t: ", b_t, "S1: ", S1, "S2: ", S2)
     # Calculate compression capacity
     if b_t < S1:
         # Case (a)
