@@ -566,9 +566,6 @@ def Section_4_2and3_load_combination_factors(
     return load_factor
 
 
-print(
-    f"Load factor for selected action is: {Section_4_2and3_load_combination_factors(action, load_case_general, load_case_specific)}"
-)
 
 """#7.2.1 ULS stability confirmation method
 
