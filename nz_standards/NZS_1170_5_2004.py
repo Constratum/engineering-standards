@@ -1270,7 +1270,6 @@ def calculating_horizontal_shear_base_6_2(CdT, Wt):
     Vt = CdT * Wt
     return float(Vt)
 
-
 def calculating_eq_static_horizontal_load(V, phi_E, Q, G, h1, hi, nLevels):
     """
     Calculate equivalent static horizontal force distribution according to NZS 1170.5 Clause 6.2.1.3
@@ -1282,23 +1281,32 @@ def calculating_eq_static_horizontal_load(V, phi_E, Q, G, h1, hi, nLevels):
 
     Args:
         V (float): Total base shear (kN)
-        level_data (pd.DataFrame): DataFrame with columns:
-            - 'Level': Level number (1 = bottom, n = top)
-            - 'Wi (kN)': Seismic weight at level i (kN)
-            - 'hi (m)': Height above base to level i (m)
+        phi_E (float): Seismic mass factor
+        Q (float): Imposed load (pallet load)
+        G (float): Dead load at each level
+        h1 (float): Height of first level from ground (m)
+        hi (float): Height of subsequent levels (m)
+        nLevels (int): Number of levels
 
     Returns:
-        pd.DataFrame: Updated DataFrame with additional columns:
+        pd.DataFrame: DataFrame with columns:
+            - 'Level': Level number
+            - 'hi': Height above base to level i (m)
+            - 'Wi': Seismic weight at level i
             - 'Wi*hi': Product of weight and height
-            - 'Ft (kN)': Top level force (0.08V at top, 0 elsewhere)
-            - 'Fi (kN)': Horizontal force at each level
+            - 'Ft': Top level force (0.08V at top, 0 elsewhere)
+            - 'Fi': Horizontal force at each level
     """
     import pandas as pd
 
     def calculating_level_data(phi_E, Q, G, h1, hi, nLevels):
         levels = list(range(nLevels, 0, -1))
 
-        heights = [hi + h1 if i == 1 else hi * i for i in levels]
+        # CORRECTED: Height from ground for each level
+        # Level 1: h1
+        # Level 2: h1 + hi
+        # Level n: h1 + (n-1) * hi
+        heights = [h1 + (i - 1) * hi for i in levels]
 
         Wi_value = phi_E * Q + G
 
