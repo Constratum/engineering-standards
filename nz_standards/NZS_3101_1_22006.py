@@ -43,23 +43,23 @@ class AnchorCapacity_Chapter_17:
 
     def _calc_anchor_tension_strength_17_5_7(self) -> float:
         """Calculate anchor tension strength"""
-
-        if (
-            self.anchor.edge_distance >= 0.4 * self.anchor.effective_embedment_depth
-            or self.anchor.anchor_type not in ["headed_stud", "headed_bolt"]
-        ):
-            Nn = min(
-                self.steel_strength_tensio_17_5_7_1(),
-                self.concrete_breakout_tension_17_5_7_2(),
-                self.tension_pullout_strength_17_5_7_3(),
-            )
-        else:
-            Nn = min(
-                self.steel_strength_tensio_17_5_7_1(),
-                self.concrete_breakout_tension_17_5_7_2(),
-                self.tension_pullout_strength_17_5_7_3(),
-                self.side_face_blowout_strength_17_5_7_4(),
-            )
+        Nn = steel_strength_tensio_17_5_7_1()
+        # if (
+        #     self.anchor.edge_distance >= 0.4 * self.anchor.effective_embedment_depth
+        #     or self.anchor.anchor_type not in ["headed_stud", "headed_bolt"]
+        # ):
+        #     Nn = min(
+        #         self.steel_strength_tensio_17_5_7_1(),
+        #         self.concrete_breakout_tension_17_5_7_2(),
+        #         self.tension_pullout_strength_17_5_7_3(),
+        #     )
+        # else:
+        #     Nn = min(
+        #         self.steel_strength_tensio_17_5_7_1(),
+        #         self.concrete_breakout_tension_17_5_7_2(),
+        #         self.tension_pullout_strength_17_5_7_3(),
+        #         self.side_face_blowout_strength_17_5_7_4(),
+        #     )
 
         return Nn
 
