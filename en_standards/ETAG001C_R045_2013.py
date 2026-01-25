@@ -83,41 +83,60 @@ EOTA_TR045_SEISMIC_FACTORS = {
 # Values must be obtained from official ETA documents issued by EOTA
 # 
 # Structure: {Product: {Diameter: {Embedment: {concrete_grade: {values}}}}}
+#
+# IMPORTANT: Values sourced from ETA-20/0867 and Hilti PROFIS Engineering reports
+# Reference: 25041863-01A - PS1 Racking - Tatua Co-Operative Dairy Company
 
 ETA_DATABASE = {
     'HUS4-H': {
         # Source: ETA-20/0867 - Hilti HUS4-H Screw Anchor
         # Valid until: 11/02/2025 (check EOTA website for updates)
-        12: {  # Diameter 12 mm
+        # Values verified against Hilti PROFIS Engineering 3.1.14 output
+        12: {  # Diameter 12 mm (d_nom = 12 mm)
             79.9: {  # h_ef = 79.9 mm (effective embedment depth)
                 'C20/25': {
-                    'N0_Rk_s': 15.5,   # kN - Characteristic steel tension resistance
-                    'N0_Rk_p': 12.1,   # kN - Characteristic pullout resistance (cracked)
-                    'V0_Rk_s': 25.0,   # kN - Characteristic steel shear resistance
+                    # Characteristic resistances from ETA-20/0867
+                    'N0_Rk_s': 79.0,    # kN - Steel tension (from Hilti report: 79.000 kN)
+                    'N0_Rk_p': 11.4,    # kN - Pullout, cracked (from Hilti: 11.400 kN)
+                    'V0_Rk_s': 23.7,    # kN - Steel shear (from Hilti: 23.700 kN)
+                    # Critical distances for concrete cone (ETAG 001 Annex C)
+                    's_cr_N': 239.7,    # mm - Critical spacing s_cr,N = 3.0 * h_ef
+                    'c_cr_N': 119.9,    # mm - Critical edge distance c_cr,N = 1.5 * h_ef
+                    # Shear parameters
+                    'l_f': 79.9,        # mm - Effective length for shear (= h_ef for screw anchors)
                 },
                 'C25/30': {
-                    'N0_Rk_s': 15.5,   # kN - Steel capacity independent of concrete
-                    'N0_Rk_p': 13.5,   # kN - Pullout increases with concrete strength
-                    'V0_Rk_s': 25.0,   # kN - Steel capacity independent of concrete
+                    'N0_Rk_s': 79.0,    # kN - Steel capacity independent of concrete
+                    'N0_Rk_p': 12.7,    # kN - Pullout increases with concrete strength
+                    'V0_Rk_s': 23.7,    # kN - Steel capacity independent of concrete
+                    's_cr_N': 239.7,    # mm
+                    'c_cr_N': 119.9,    # mm
+                    'l_f': 79.9,        # mm
                 },
             },
-            122: {  # h_ef = 122 mm
+            122: {  # h_ef = 122 mm (for h_nom = 130mm anchor with 8mm plate)
                 'C20/25': {
-                    'N0_Rk_s': 15.5,   # kN
-                    'N0_Rk_p': 18.6,   # kN - Higher embedment → higher pullout
-                    'V0_Rk_s': 25.0,   # kN
+                    'N0_Rk_s': 79.0,    # kN - Steel tension (same for all embedments)
+                    'N0_Rk_p': 17.4,    # kN - Pullout, higher embedment → higher pullout
+                    'V0_Rk_s': 23.7,    # kN - Steel shear
+                    's_cr_N': 366.0,    # mm - s_cr,N = 3.0 * h_ef
+                    'c_cr_N': 183.0,    # mm - c_cr,N = 1.5 * h_ef
+                    'l_f': 100.0,       # mm - Effective length (limited by anchor design)
                 },
                 'C25/30': {
-                    'N0_Rk_s': 15.5,   # kN
-                    'N0_Rk_p': 20.8,   # kN
-                    'V0_Rk_s': 25.0,   # kN
+                    'N0_Rk_s': 79.0,    # kN
+                    'N0_Rk_p': 19.4,    # kN
+                    'V0_Rk_s': 23.7,    # kN
+                    's_cr_N': 366.0,    # mm
+                    'c_cr_N': 183.0,    # mm
+                    'l_f': 100.0,       # mm
                 },
             },
         },
     },
     # Add more products as needed:
-    # 'HIT-HY': { ... },
-    # 'HSL-3': { ... },
+    # 'HIT-HY 200': { ... },
+    # 'HSL-4': { ... },
 }
 
 
@@ -139,9 +158,11 @@ class AnchorProperties_ETAG:
         diameter: Nominal anchor diameter d_nom [mm]
         embedment_depth: Effective embedment depth h_ef [mm]
         edge_distance: Distance to nearest concrete edge c [mm]
+        edge_distance_c2: Perpendicular edge distance c2 [mm] (for edge shear)
     
     Concrete Properties (ETAG 001 Annex C, Section 1.2):
         concrete_strength: Characteristic cylinder compressive strength f_ck [MPa]
+        concrete_strength_cube: Characteristic cube compressive strength f_ck,cube [MPa]
         concrete_thickness: Member thickness h [mm]
         is_cracked_concrete: True if concrete is cracked per ETAG 001 Section 4.1
     
@@ -150,24 +171,40 @@ class AnchorProperties_ETAG:
         N0_Rk_p: Characteristic pullout resistance [kN]
         V0_Rk_s: Characteristic steel shear resistance [kN]
     
+    Critical Distances from ETA (ETAG 001 Annex C):
+        s_cr_N: Critical spacing for concrete cone s_cr,N [mm]
+        c_cr_N: Critical edge distance for concrete cone c_cr,N [mm]
+        l_f: Effective length for shear l_f [mm]
+    
     Group Properties:
         number_of_anchors: Number of anchors in the group (1, 2, or 4)
         spacing: Spacing between anchors for 2-anchor configuration [mm]
         spacing_x: Spacing in X direction for 4-anchor configuration [mm]
         spacing_y: Spacing in Y direction for 4-anchor configuration [mm]
     
+    Load Eccentricity (ETAG 001 Annex C, Eq 5.2e):
+        e_N_x: Eccentricity of tension load in X direction [mm]
+        e_N_y: Eccentricity of tension load in Y direction [mm]
+        e_V: Eccentricity of shear load [mm]
+    
+    Gap/Clearance Factor (EOTA TR 045, Eq 5.8):
+        alpha_gap: Gap factor for hole clearance (1.0 for no gap, 0.5 for clearance hole)
+    
     Seismic Design (EOTA TR 045, Section 5.2):
         seismic_design: True to apply EOTA TR 045 seismic reduction factors
         is_undercut_anchor: True for undercut anchors per EOTA TR 045 Table 5.4 Note 2
+    
+    Reinforcement (ETAG 001 Annex C):
+        has_edge_reinforcement: True if edge reinforcement present per Section 5.2.3.4
     """
     
     # Geometric Properties (ETAG 001 Annex C, Section 2.3)
     diameter: float                      # d_nom [mm]
     embedment_depth: float               # h_ef [mm]
-    edge_distance: float                 # c [mm]
+    edge_distance: float                 # c1 [mm] - edge distance in shear direction
     
     # Concrete Properties (ETAG 001 Annex C, Section 1.2)
-    concrete_strength: float             # f_ck [MPa]
+    concrete_strength: float             # f_ck [MPa] - cylinder strength
     concrete_thickness: float            # h [mm]
     is_cracked_concrete: bool            # Per ETAG 001 Annex C, Section 4.1
     
@@ -176,15 +213,46 @@ class AnchorProperties_ETAG:
     N0_Rk_p: float                       # Pullout capacity [kN]
     V0_Rk_s: float                       # Steel shear capacity [kN]
     
+    # Critical distances from ETA (ETAG 001 Annex C)
+    s_cr_N: float                        # Critical spacing for tension s_cr,N [mm]
+    c_cr_N: float                        # Critical edge distance for tension c_cr,N [mm]
+    l_f: float                           # Effective length for shear l_f [mm]
+    
     # Group properties - FLEXIBLE for 1, 2, or 4 anchors
     number_of_anchors: int = 1           # n: Number of anchors
     spacing: Optional[float] = None      # s: Spacing for 2 anchors [mm]
     spacing_x: Optional[float] = None    # s_x: Spacing in X for 4 anchors [mm]
     spacing_y: Optional[float] = None    # s_y: Spacing in Y for 4 anchors [mm]
     
+    # Additional edge distance (for perpendicular direction)
+    edge_distance_c2: Optional[float] = None  # c2 [mm] - perpendicular edge distance
+    
+    # Concrete cube strength (if not provided, calculated from f_ck)
+    concrete_strength_cube: Optional[float] = None  # f_ck,cube [MPa]
+    
+    # Load eccentricity (ETAG 001 Annex C, Eq 5.2e)
+    e_N_x: float = 0.0                   # Eccentricity of tension in X [mm]
+    e_N_y: float = 0.0                   # Eccentricity of tension in Y [mm]
+    e_V: float = 0.0                     # Eccentricity of shear load [mm]
+    
+    # Gap/Clearance factor (EOTA TR 045, Eq 5.8)
+    # 1.0 = anchor installed without clearance (ideal)
+    # 0.5 = anchor with standard clearance hole (per ETAG 001 Table 4.1)
+    alpha_gap: float = 1.0               # Gap factor α_gap
+    
     # Seismic design (per EOTA TR 045, Section 5.2)
     seismic_design: bool = False         # True for seismic per EOTA TR 045
     is_undercut_anchor: bool = False     # Per EOTA TR 045, Table 5.4, Note 2
+    
+    # Reinforcement condition (ETAG 001 Annex C, Section 5.2.3.4)
+    has_edge_reinforcement: bool = False # True if edge reinforcement present
+    
+    def __post_init__(self):
+        """Calculate derived values after initialization."""
+        # Calculate cube strength from cylinder strength if not provided
+        # f_ck,cube ≈ f_ck / 0.8 (approximate relationship)
+        if self.concrete_strength_cube is None:
+            self.concrete_strength_cube = self.concrete_strength / 0.8
 
 
 # ============================================================================
@@ -301,32 +369,41 @@ class MetalAnchorCapacity_ETAG001_TR045:
         Steel Failure in Tension
         
         Standard: ETAG 001 Annex C, Section 5.2.2.2
-        Equation: N_Rd,s = N_Rk,s / γ_Ms
+        Standard: EOTA TR 045, Eq (5.8)
+        
+        Equation: N_Rk,s,seis = α_gap · α_seis · N⁰_Rk,s
+                  N_Rd,s = N_Rk,s,seis / γ_Ms
         
         For seismic: EOTA TR 045, Table 5.4, Row 1, apply α_seis
         
         Returns:
             Dict with:
-                N_Rk_s: Characteristic resistance [kN]
+                N0_Rk_s: Basic characteristic resistance [kN]
+                N_Rk_s_seis: Characteristic resistance with factors [kN]
                 N_Rd_s: Design resistance [kN]
+                alpha_gap: Gap/clearance factor
                 alpha_seis: Seismic reduction factor
                 gamma_Ms: Partial safety factor
         """
-        # ETAG 001 Annex C, Section 5.2.2.2 - Characteristic resistance from ETA
-        N_Rk_s = self.anchor.N0_Rk_s
+        # ETAG 001 Annex C, Section 5.2.2.2 - Basic characteristic resistance from ETA
+        N0_Rk_s = self.anchor.N0_Rk_s
         
-        # EOTA TR 045, Table 5.4, Row 1 - Apply seismic reduction if applicable
-        N_Rk_s_seis = self.alpha_seis_steel_tension * N_Rk_s
+        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
+        # N_Rk,s,seis = α_gap · α_seis · N⁰_Rk,s
+        alpha_gap = self.anchor.alpha_gap
+        N_Rk_s_seis = alpha_gap * self.alpha_seis_steel_tension * N0_Rk_s
         
         # ETAG 001 Annex C, Section 3.2.2.2 - Apply partial safety factor
         N_Rd_s = N_Rk_s_seis / self.gamma_Ms
         
         return {
-            'N_Rk_s': N_Rk_s,
+            'N0_Rk_s': N0_Rk_s,
+            'N_Rk_s_seis': N_Rk_s_seis,
             'N_Rd_s': N_Rd_s,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_steel_tension,
             'gamma_Ms': self.gamma_Ms,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.2.2'
+            'standard_reference': 'ETAG 001 Annex C Section 5.2.2.2, EOTA TR 045 Eq (5.8)'
         }
     
     def pullout_failure_ETAG_5_2_2_3(self) -> Dict:
@@ -334,85 +411,238 @@ class MetalAnchorCapacity_ETAG001_TR045:
         Pull-out Failure
         
         Standard: ETAG 001 Annex C, Section 5.2.2.3
-        Equation: N_Rd,p = N_Rk,p / γ_Mp
+        Standard: EOTA TR 045, Eq (5.8)
+        
+        Equation: N_Rk,p,seis = α_gap · α_seis · N⁰_Rk,p
+                  N_Rd,p = ψ_c,seis · N_Rk,p,seis / γ_Mp
+        
+        where ψ_c,seis = 1.0 (cracked concrete factor for seismic, per ETA)
         
         For seismic: EOTA TR 045, Table 5.4, Row 2, apply α_seis
         
         Returns:
             Dict with:
-                N_Rk_p: Characteristic resistance [kN]
+                N0_Rk_p: Basic characteristic resistance [kN]
+                N_Rk_p_seis: Characteristic resistance with factors [kN]
                 N_Rd_p: Design resistance [kN]
+                alpha_gap: Gap/clearance factor
                 alpha_seis: Seismic reduction factor
+                psi_c_seis: Cracked concrete factor
                 gamma_Mp: Partial safety factor
         """
-        # ETAG 001 Annex C, Section 5.2.2.3 - Characteristic resistance from ETA
-        N_Rk_p = self.anchor.N0_Rk_p
+        # ETAG 001 Annex C, Section 5.2.2.3 - Basic characteristic resistance from ETA
+        N0_Rk_p = self.anchor.N0_Rk_p
         
-        # EOTA TR 045, Table 5.4, Row 2 - Apply seismic reduction
-        N_Rk_p_seis = self.alpha_seis_pullout * N_Rk_p
+        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
+        # N_Rk,p,seis = α_gap · α_seis · N⁰_Rk,p
+        alpha_gap = self.anchor.alpha_gap
+        N_Rk_p_seis = alpha_gap * self.alpha_seis_pullout * N0_Rk_p
+        
+        # ψ_c,seis factor (typically 1.0 for cracked concrete per ETA)
+        psi_c_seis = 1.0
         
         # ETAG 001 Annex C, Section 3.2.2.1 - Apply partial safety factor
-        N_Rd_p = N_Rk_p_seis / self.gamma_Mp
+        # N_Rd,p = ψ_c,seis · N_Rk,p,seis / γ_Mp
+        N_Rd_p = psi_c_seis * N_Rk_p_seis / self.gamma_Mp
         
         return {
-            'N_Rk_p': N_Rk_p,
+            'N0_Rk_p': N0_Rk_p,
+            'N_Rk_p_seis': N_Rk_p_seis,
             'N_Rd_p': N_Rd_p,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_pullout,
+            'psi_c_seis': psi_c_seis,
             'gamma_Mp': self.gamma_Mp,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.2.3'
+            'standard_reference': 'ETAG 001 Annex C Section 5.2.2.3, EOTA TR 045 Eq (5.8)'
         }
     
     def concrete_cone_failure_ETAG_5_2_2_4(self) -> Dict:
         """
         Concrete Cone Failure
         
-        Standard: ETAG 001 Annex C, Section 5.2.2.4
+        Standard: ETAG 001 Annex C, Section 5.2.2.4, Equation (5.2)
+        Standard: EOTA TR 045, Eq (5.8)
         
-        Basic equation structure (simplified):
-        - N0_Rk,c = k1 · √f_ck · h_ef^1.5
-        - Modified by edge effects, spacing, reinforcement, etc.
+        Full equation per ETAG 001 Annex C, Eq (5.2):
+        N_Rk,c,seis = α_gap · α_seis · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ_s,N · ψ_re,N · ψ_ec1,N · ψ_ec2,N
+        
+        Where:
+        - N⁰_Rk,c = k1 · √f_ck,cube · h_ef^1.5  [Eq 5.2a] (Note: uses cube strength!)
+        - A⁰_c,N = s_cr,N · s_cr,N = (3·h_ef)²  [Eq 5.2b]
+        - ψ_s,N = 0.7 + 0.3·(c/c_cr,N) ≤ 1.0   [Eq 5.2c]
+        - ψ_re,N = 0.5 + h_ef/200 ≤ 1.0         [Eq 5.2d]
+        - ψ_ec,N = 1/(1 + 2·e_N/s_cr,N) ≤ 1.0   [Eq 5.2e]
         
         For seismic: EOTA TR 045, Table 5.4, Row 4, apply α_seis
         
-        Note: This is a simplified implementation. Full ETAG 001 equations include
-        additional modification factors for edge distance, spacing, and eccentricity.
-        
         Returns:
-            Dict with:
-                N0_Rk_c: Basic characteristic resistance [kN]
-                N_Rk_c: Characteristic resistance with seismic [kN]
-                N_Rd_c: Design resistance [kN]
-                k1: Concrete constant
-                alpha_seis: Seismic reduction factor
-                gamma_Mc: Partial safety factor
+            Dict with all intermediate values and final design resistance
         """
         # ETAG 001 Annex C, Section 5.2.2.4 - Select coefficient based on cracking
         k1 = (ETAG_001_CONCRETE_CONSTANTS['k1_tension_cracked'] 
               if self.anchor.is_cracked_concrete 
               else ETAG_001_CONCRETE_CONSTANTS['k1_tension_uncracked'])
         
-        f_ck = self.anchor.concrete_strength
+        # Material and geometry parameters
+        f_ck_cube = self.anchor.concrete_strength_cube  # Use cube strength per Eq 5.2a
         h_ef = self.anchor.embedment_depth
+        c = self.anchor.edge_distance
+        s_cr_N = self.anchor.s_cr_N
+        c_cr_N = self.anchor.c_cr_N
+        alpha_gap = self.anchor.alpha_gap
         
-        # Basic characteristic capacity (simplified form)
-        # Full equation in ETAG 001 includes A_c,N / A0_c,N and other factors
-        N0_Rk_c = k1 * np.sqrt(f_ck) * (h_ef ** 1.5) / 1000  # kN
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.2a) - Basic characteristic resistance
+        # N⁰_Rk,c = k1 · √f_ck,cube · h_ef^1.5
+        # ====================================================================
+        N0_Rk_c = k1 * np.sqrt(f_ck_cube) * (h_ef ** 1.5) / 1000  # kN
         
-        # EOTA TR 045, Table 5.4, Row 4 - Apply seismic reduction
-        N_Rk_c = self.alpha_seis_concrete * N0_Rk_c
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.2b) - Reference projected area
+        # A⁰_c,N = s_cr,N · s_cr,N
+        # ====================================================================
+        A0_c_N = s_cr_N * s_cr_N  # mm²
+        
+        # ====================================================================
+        # Calculate actual projected area A_c,N
+        # For single anchor far from edges: A_c,N = A⁰_c,N
+        # For anchor near edge: A_c,N is reduced
+        # For anchor groups: A_c,N considers overlap
+        # ====================================================================
+        A_c_N = self._calculate_projected_area_tension()
+        
+        # Area ratio
+        area_ratio = A_c_N / A0_c_N
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.2c) - Edge distance factor
+        # ψ_s,N = 0.7 + 0.3 · (c / c_cr,N) ≤ 1.0
+        # ====================================================================
+        c_min = min(c, c_cr_N)  # Use minimum edge distance
+        psi_s_N = min(0.7 + 0.3 * (c_min / c_cr_N), 1.0)
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.2d) - Shell spalling factor
+        # ψ_re,N = 0.5 + h_ef/200 ≤ 1.0
+        # ====================================================================
+        psi_re_N = min(0.5 + h_ef / 200.0, 1.0)
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.2e) - Eccentricity factors
+        # ψ_ec1,N = 1 / (1 + 2·e_N,x / s_cr,N) ≤ 1.0
+        # ψ_ec2,N = 1 / (1 + 2·e_N,y / s_cr,N) ≤ 1.0
+        # ====================================================================
+        e_N_x = self.anchor.e_N_x
+        e_N_y = self.anchor.e_N_y
+        
+        psi_ec1_N = min(1.0 / (1.0 + 2.0 * abs(e_N_x) / s_cr_N), 1.0) if s_cr_N > 0 else 1.0
+        psi_ec2_N = min(1.0 / (1.0 + 2.0 * abs(e_N_y) / s_cr_N), 1.0) if s_cr_N > 0 else 1.0
+        
+        # ====================================================================
+        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
+        # N_Rk,c,seis = α_gap · α_seis · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ_s,N · ψ_re,N · ψ_ec1,N · ψ_ec2,N
+        # ====================================================================
+        N_Rk_c_seis = (alpha_gap * self.alpha_seis_concrete * N0_Rk_c * 
+                      area_ratio * psi_s_N * psi_re_N * psi_ec1_N * psi_ec2_N)
         
         # ETAG 001 Annex C, Section 3.2.2.1 - Apply partial safety factor
-        N_Rd_c = N_Rk_c / self.gamma_Mc
+        N_Rd_c = N_Rk_c_seis / self.gamma_Mc
         
         return {
             'N0_Rk_c': N0_Rk_c,
-            'N_Rk_c': N_Rk_c,
+            'N_Rk_c_seis': N_Rk_c_seis,
             'N_Rd_c': N_Rd_c,
             'k1': k1,
+            'f_ck_cube': f_ck_cube,
+            'h_ef': h_ef,
+            'A_c_N': A_c_N,
+            'A0_c_N': A0_c_N,
+            'area_ratio': area_ratio,
+            's_cr_N': s_cr_N,
+            'c_cr_N': c_cr_N,
+            'psi_s_N': psi_s_N,
+            'psi_re_N': psi_re_N,
+            'psi_ec1_N': psi_ec1_N,
+            'psi_ec2_N': psi_ec2_N,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_concrete,
             'gamma_Mc': self.gamma_Mc,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.2.4'
+            'standard_reference': 'ETAG 001 Annex C Eq (5.2), EOTA TR 045 Eq (5.8)'
         }
+    
+    def _calculate_projected_area_tension(self) -> float:
+        """
+        Calculate actual projected area A_c,N for concrete cone failure
+        
+        Per ETAG 001 Annex C, the projected area depends on:
+        - Number of anchors
+        - Spacing between anchors
+        - Edge distances
+        - Member thickness
+        
+        Returns:
+            A_c_N: Actual projected area [mm²]
+        """
+        h_ef = self.anchor.embedment_depth
+        s_cr_N = self.anchor.s_cr_N
+        c_cr_N = self.anchor.c_cr_N
+        c1 = self.anchor.edge_distance
+        h = self.anchor.concrete_thickness
+        n = self.anchor.number_of_anchors
+        
+        # Limit edge distance to critical value
+        c1_eff = min(c1, c_cr_N)
+        
+        # Calculate effective member thickness influence
+        # h_eff = min(h, c_cr_N) for single anchor
+        h_eff = min(h, 1.5 * h_ef) if h > 0 else 1.5 * h_ef
+        
+        if n == 1:
+            # Single anchor - rectangular projected area
+            # Width = min(c1, c_cr,N) + s_cr,N/2 for edge, or s_cr,N for internal
+            if c1 >= c_cr_N:
+                # Internal anchor (far from edge)
+                A_c_N = s_cr_N * s_cr_N
+            else:
+                # Near edge - reduced area
+                width = c1_eff + s_cr_N / 2.0
+                height = s_cr_N
+                A_c_N = width * height
+                
+        elif n == 2:
+            # Two-anchor group
+            s = self.anchor.spacing if self.anchor.spacing is not None else s_cr_N
+            s_eff = min(s, s_cr_N)
+            
+            if c1 >= c_cr_N:
+                # Internal (far from edge)
+                width = s_cr_N + s_eff
+                height = s_cr_N
+            else:
+                # Near edge
+                width = c1_eff + s_cr_N / 2.0
+                height = s_cr_N + s_eff
+            A_c_N = width * height
+            
+        elif n == 4:
+            # Four-anchor group (rectangular pattern)
+            s_x = self.anchor.spacing_x if self.anchor.spacing_x is not None else s_cr_N
+            s_y = self.anchor.spacing_y if self.anchor.spacing_y is not None else s_cr_N
+            s_x_eff = min(s_x, s_cr_N)
+            s_y_eff = min(s_y, s_cr_N)
+            
+            if c1 >= c_cr_N:
+                width = s_cr_N + s_x_eff
+                height = s_cr_N + s_y_eff
+            else:
+                width = c1_eff + s_cr_N / 2.0 + s_x_eff
+                height = s_cr_N + s_y_eff
+            A_c_N = width * height
+        else:
+            # Default to reference area
+            A_c_N = s_cr_N * s_cr_N
+            
+        return A_c_N
     
     def calculate_tension_capacity_ETAG_5_2_2(self) -> Dict:
         """
@@ -473,127 +703,318 @@ class MetalAnchorCapacity_ETAG001_TR045:
     
     def steel_failure_shear_ETAG_5_2_3_2(self) -> Dict:
         """
-        Steel Failure in Shear
+        Steel Failure in Shear (without lever arm)
         
         Standard: ETAG 001 Annex C, Section 5.2.3.2
-        Equation: V_Rd,s = V_Rk,s / γ_Ms
+        Standard: EOTA TR 045, Eq (5.8)
+        
+        Equation: V_Rk,s,seis = α_gap · α_seis · V⁰_Rk,s
+                  V_Rd,s = V_Rk,s,seis / γ_Ms
+        
+        IMPORTANT: α_gap has significant effect for shear!
+        - α_gap = 1.0 for anchors without hole clearance
+        - α_gap = 0.5 for anchors with standard clearance hole (per ETAG Table 4.1)
         
         For seismic: EOTA TR 045, Table 5.4, Row 6, apply α_seis
         
         Returns:
             Dict with:
-                V_Rk_s: Characteristic resistance [kN]
+                V0_Rk_s: Basic characteristic resistance [kN]
+                V_Rk_s_seis: Characteristic resistance with factors [kN]
                 V_Rd_s: Design resistance [kN]
+                alpha_gap: Gap/clearance factor
                 alpha_seis: Seismic reduction factor
                 gamma_Ms: Partial safety factor
         """
-        # ETAG 001 Annex C, Section 5.2.3.2 - Characteristic resistance from ETA
-        V_Rk_s = self.anchor.V0_Rk_s
+        # ETAG 001 Annex C, Section 5.2.3.2 - Basic characteristic resistance from ETA
+        V0_Rk_s = self.anchor.V0_Rk_s
         
-        # EOTA TR 045, Table 5.4, Row 6 - Apply seismic reduction
-        V_Rk_s_seis = self.alpha_seis_steel_shear * V_Rk_s
+        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
+        # V_Rk,s,seis = α_gap · α_seis · V⁰_Rk,s
+        # NOTE: α_gap is CRITICAL for shear - reduces capacity by 50% for clearance holes!
+        alpha_gap = self.anchor.alpha_gap
+        V_Rk_s_seis = alpha_gap * self.alpha_seis_steel_shear * V0_Rk_s
         
         # ETAG 001 Annex C, Section 3.2.2.2 - Apply partial safety factor
         V_Rd_s = V_Rk_s_seis / self.gamma_Ms
         
         return {
-            'V_Rk_s': V_Rk_s,
+            'V0_Rk_s': V0_Rk_s,
+            'V_Rk_s_seis': V_Rk_s_seis,
             'V_Rd_s': V_Rd_s,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_steel_shear,
             'gamma_Ms': self.gamma_Ms,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.3.2'
+            'standard_reference': 'ETAG 001 Annex C Section 5.2.3.2, EOTA TR 045 Eq (5.8)'
         }
     
     def concrete_pryout_failure_ETAG_5_2_3_3(self) -> Dict:
         """
         Concrete Pry-out Failure
         
-        Standard: ETAG 001 Annex C, Section 5.2.3.3
-        Equation: V_Rk,cp = k · N_Rk,c
+        Standard: ETAG 001 Annex C, Section 5.2.3.3, Equation (5.6)
+        Standard: EOTA TR 045, Eq (5.8)
         
-        where k is a coefficient (typically 1.0 to 2.0) and N_Rk,c is the
-        characteristic resistance for concrete cone failure in tension.
+        Equation: V_Rk,cp,seis = k · α_gap · α_seis · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ_s,N · ψ_re,N · ψ_ec1,N · ψ_ec2,N
+                  V_Rd,cp = V_Rk,cp,seis / γ_Mc
+        
+        where k = 2.0 for h_ef ≥ 60mm, k = 1.0 for h_ef < 60mm
         
         For seismic: EOTA TR 045, Table 5.4, Row 8, apply α_seis for pryout
         
         Returns:
-            Dict with:
-                V_Rk_cp: Characteristic resistance [kN]
-                V_Rd_cp: Design resistance [kN]
-                k_pryout: Pryout coefficient
-                alpha_seis: Seismic reduction factor
-                gamma_Mc: Partial safety factor
+            Dict with all intermediate values and final design resistance
         """
         # ETAG 001 Annex C, Section 5.2.3.3 - Pryout coefficient
-        k_pryout = ETAG_001_CONCRETE_CONSTANTS['k_pryout']
+        # k = 2.0 for h_ef ≥ 60mm, k = 1.0 for h_ef < 60mm
+        h_ef = self.anchor.embedment_depth
+        k_pryout = 2.0 if h_ef >= 60.0 else 1.0
         
-        # Get concrete cone capacity (already includes seismic reduction for concrete)
+        # Get concrete cone calculation results (includes all ψ factors)
         concrete_tension = self.concrete_cone_failure_ETAG_5_2_2_4()
-        N_Rd_c = concrete_tension['N_Rd_c']
         
-        # ETAG 001 Annex C, Section 5.2.3.3 - Pryout is related to concrete cone
-        # Apply pryout-specific seismic factor from EOTA TR 045, Table 5.4, Row 8
-        V_Rd_cp = k_pryout * N_Rd_c * (self.alpha_seis_pryout / self.alpha_seis_concrete)
+        # ETAG 001 Annex C, Section 5.2.3.3 - Pryout uses N_Rk,c with pryout-specific seismic factor
+        # V_Rk,cp,seis = k · α_gap · α_seis,pryout · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ factors
+        # Note: We need to recalculate with pryout α_seis instead of concrete α_seis
+        
+        alpha_gap = self.anchor.alpha_gap
+        N0_Rk_c = concrete_tension['N0_Rk_c']
+        area_ratio = concrete_tension['area_ratio']
+        psi_s_N = concrete_tension['psi_s_N']
+        psi_re_N = concrete_tension['psi_re_N']
+        psi_ec1_N = concrete_tension['psi_ec1_N']
+        psi_ec2_N = concrete_tension['psi_ec2_N']
+        
+        # Calculate pryout with correct seismic factor
+        V_Rk_cp_seis = (k_pryout * alpha_gap * self.alpha_seis_pryout * N0_Rk_c *
+                       area_ratio * psi_s_N * psi_re_N * psi_ec1_N * psi_ec2_N)
+        
+        # ETAG 001 Annex C - Apply partial safety factor
+        V_Rd_cp = V_Rk_cp_seis / self.gamma_Mc
         
         return {
+            'V0_Rk_cp': k_pryout * N0_Rk_c,
+            'V_Rk_cp_seis': V_Rk_cp_seis,
             'V_Rd_cp': V_Rd_cp,
             'k_pryout': k_pryout,
+            'N0_Rk_c': N0_Rk_c,
+            'area_ratio': area_ratio,
+            'psi_s_N': psi_s_N,
+            'psi_re_N': psi_re_N,
+            'psi_ec1_N': psi_ec1_N,
+            'psi_ec2_N': psi_ec2_N,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_pryout,
             'gamma_Mc': self.gamma_Mc,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.3.3'
+            'standard_reference': 'ETAG 001 Annex C Eq (5.6), EOTA TR 045 Eq (5.8)'
         }
     
     def concrete_edge_failure_ETAG_5_2_3_4(self) -> Dict:
         """
         Concrete Edge Failure
         
-        Standard: ETAG 001 Annex C, Section 5.2.3.4
+        Standard: ETAG 001 Annex C, Section 5.2.3.4, Equation (5.7)
+        Standard: EOTA TR 045, Eq (5.8)
         
-        Basic equation structure (simplified):
-        - V0_Rk,c = k1 · √f_ck · c^1.5
-        - Modified by load direction, edge effects, spacing, etc.
+        Full equation per ETAG 001 Annex C, Eq (5.7):
+        V_Rk,c,seis = α_gap · α_seis · V⁰_Rk,c · (A_c,V/A⁰_c,V) · ψ_s,V · ψ_h,V · ψ_α,V · ψ_ec,V · ψ_re,V
+        
+        Where:
+        - V⁰_Rk,c = k1 · d_nom^β · l_f^α · √f_ck,cube · c1^1.5  [Eq 5.7a]
+        - α = 0.1 · (l_f/c1)^0.5                                 [Eq 5.7b]
+        - β = 0.1 · (d_nom/c1)^0.2                               [Eq 5.7c]
+        - A⁰_c,V = 4.5 · c1²                                     [Eq 5.7d]
+        - ψ_s,V = 0.7 + 0.3 · (c2/(1.5·c1)) ≤ 1.0               [Eq 5.7e]
+        - ψ_h,V = (1.5·c1/h)^0.5 ≥ 1.0                          [Eq 5.7f]
+        - ψ_α,V = √(1/(cos²α_v + (sin α_v/2.5)²)) ≥ 1.0         [Eq 5.7g]
+        - ψ_ec,V = 1/(1 + 2·e_V/(3·c1)) ≤ 1.0                   [Eq 5.7h]
+        - ψ_re,V = reinforcement factor (1.0 or 1.4)
         
         For seismic: EOTA TR 045, Table 5.4, Row 7, apply α_seis
         
-        Note: This is a simplified implementation. Full ETAG 001 equations include
-        additional modification factors for load direction, spacing, and edge effects.
-        
         Returns:
-            Dict with:
-                V0_Rk_c: Basic characteristic resistance [kN]
-                V_Rk_c: Characteristic resistance with seismic [kN]
-                V_Rd_c: Design resistance [kN]
-                k1: Concrete constant
-                alpha_seis: Seismic reduction factor
-                gamma_Mc: Partial safety factor
+            Dict with all intermediate values and final design resistance
         """
         # ETAG 001 Annex C, Section 5.2.3.4 - Select coefficient based on cracking
         k1 = (ETAG_001_CONCRETE_CONSTANTS['k1_shear_cracked']
               if self.anchor.is_cracked_concrete
               else ETAG_001_CONCRETE_CONSTANTS['k1_shear_uncracked'])
         
-        c = self.anchor.edge_distance
-        f_ck = self.anchor.concrete_strength
+        # Parameters
+        c1 = self.anchor.edge_distance  # Edge distance in load direction
+        c2 = self.anchor.edge_distance_c2 if self.anchor.edge_distance_c2 is not None else c1  # Perpendicular edge
+        d_nom = self.anchor.diameter
+        l_f = self.anchor.l_f  # Effective length for shear
+        f_ck_cube = self.anchor.concrete_strength_cube
+        h = self.anchor.concrete_thickness
+        e_V = self.anchor.e_V  # Eccentricity of shear load
+        alpha_gap = self.anchor.alpha_gap
+        alpha_v_deg = 0.0  # Load angle from perpendicular to edge (0° = perpendicular)
         
-        # Basic characteristic capacity (simplified form)
-        # Full equation in ETAG 001 includes A_c,V / A0_c,V and other factors
-        V0_Rk_c = k1 * np.sqrt(f_ck) * (c ** 1.5) / 1000  # kN
+        # Check for edge failure applicability
+        # If edge distance is very large (e.g., 9999), skip edge failure calculation
+        if c1 >= 9999:
+            return {
+                'V0_Rk_c': float('inf'),
+                'V_Rk_c_seis': float('inf'),
+                'V_Rd_c': float('inf'),
+                'skip_reason': 'Edge distance set to infinity - edge failure not applicable',
+                'standard_reference': 'ETAG 001 Annex C Section 5.2.3.4'
+            }
         
-        # EOTA TR 045, Table 5.4, Row 7 - Apply seismic reduction
-        V_Rk_c = self.alpha_seis_concrete_shear * V0_Rk_c
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7b) and (5.7c) - Exponents
+        # α = 0.1 · (l_f/c1)^0.5
+        # β = 0.1 · (d_nom/c1)^0.2
+        # ====================================================================
+        alpha_exp = 0.1 * np.power(l_f / c1, 0.5)
+        beta_exp = 0.1 * np.power(d_nom / c1, 0.2)
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7a) - Basic characteristic resistance
+        # V⁰_Rk,c = k1 · d_nom^β · l_f^α · √f_ck,cube · c1^1.5
+        # ====================================================================
+        V0_Rk_c = (k1 * np.power(d_nom, beta_exp) * np.power(l_f, alpha_exp) * 
+                  np.sqrt(f_ck_cube) * np.power(c1, 1.5)) / 1000  # kN
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7d) - Reference projected area
+        # A⁰_c,V = 4.5 · c1²
+        # ====================================================================
+        A0_c_V = 4.5 * c1 * c1  # mm²
+        
+        # ====================================================================
+        # Calculate actual projected area A_c,V
+        # ====================================================================
+        A_c_V = self._calculate_projected_area_shear()
+        area_ratio = A_c_V / A0_c_V if A0_c_V > 0 else 1.0
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7e) - Perpendicular edge factor
+        # ψ_s,V = 0.7 + 0.3 · (c2/(1.5·c1)) ≤ 1.0
+        # ====================================================================
+        psi_s_V = min(0.7 + 0.3 * (c2 / (1.5 * c1)), 1.0)
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7f) - Member thickness factor
+        # ψ_h,V = (1.5·c1/h)^0.5 ≥ 1.0
+        # ====================================================================
+        if h > 0 and h < 1.5 * c1:
+            psi_h_V = np.sqrt(1.5 * c1 / h)
+        else:
+            psi_h_V = 1.0
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7g) - Load angle factor
+        # ψ_α,V = √(1/(cos²α_v + (sin α_v/2.5)²)) ≥ 1.0
+        # For α_v = 0° (load perpendicular to edge): ψ_α,V = 1.0
+        # ====================================================================
+        alpha_v_rad = np.radians(alpha_v_deg)
+        cos_alpha = np.cos(alpha_v_rad)
+        sin_alpha = np.sin(alpha_v_rad)
+        psi_alpha_V = max(np.sqrt(1.0 / (cos_alpha**2 + (sin_alpha/2.5)**2)), 1.0)
+        
+        # ====================================================================
+        # ETAG 001 Annex C, Eq (5.7h) - Eccentricity factor
+        # ψ_ec,V = 1/(1 + 2·e_V/(3·c1)) ≤ 1.0
+        # ====================================================================
+        psi_ec_V = min(1.0 / (1.0 + 2.0 * abs(e_V) / (3.0 * c1)), 1.0) if c1 > 0 else 1.0
+        
+        # ====================================================================
+        # ETAG 001 Annex C - Reinforcement factor
+        # ψ_re,V = 1.0 (no edge reinforcement)
+        # ψ_re,V = 1.4 (with edge reinforcement per Section 5.2.3.4)
+        # ====================================================================
+        psi_re_V = 1.4 if self.anchor.has_edge_reinforcement else 1.0
+        
+        # ====================================================================
+        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
+        # V_Rk,c,seis = α_gap · α_seis · V⁰_Rk,c · (A_c,V/A⁰_c,V) · ψ_s,V · ψ_h,V · ψ_α,V · ψ_ec,V · ψ_re,V
+        # ====================================================================
+        V_Rk_c_seis = (alpha_gap * self.alpha_seis_concrete_shear * V0_Rk_c *
+                      area_ratio * psi_s_V * psi_h_V * psi_alpha_V * psi_ec_V * psi_re_V)
         
         # ETAG 001 Annex C, Section 3.2.2.1 - Apply partial safety factor
-        V_Rd_c = V_Rk_c / self.gamma_Mc
+        V_Rd_c = V_Rk_c_seis / self.gamma_Mc
         
         return {
             'V0_Rk_c': V0_Rk_c,
-            'V_Rk_c': V_Rk_c,
+            'V_Rk_c_seis': V_Rk_c_seis,
             'V_Rd_c': V_Rd_c,
             'k1': k1,
+            'alpha_exp': alpha_exp,
+            'beta_exp': beta_exp,
+            'd_nom': d_nom,
+            'l_f': l_f,
+            'c1': c1,
+            'c2': c2,
+            'f_ck_cube': f_ck_cube,
+            'A_c_V': A_c_V,
+            'A0_c_V': A0_c_V,
+            'area_ratio': area_ratio,
+            'psi_s_V': psi_s_V,
+            'psi_h_V': psi_h_V,
+            'psi_alpha_V': psi_alpha_V,
+            'psi_ec_V': psi_ec_V,
+            'psi_re_V': psi_re_V,
+            'alpha_gap': alpha_gap,
             'alpha_seis': self.alpha_seis_concrete_shear,
             'gamma_Mc': self.gamma_Mc,
-            'standard_reference': 'ETAG 001 Annex C, Section 5.2.3.4'
+            'standard_reference': 'ETAG 001 Annex C Eq (5.7), EOTA TR 045 Eq (5.8)'
         }
+    
+    def _calculate_projected_area_shear(self) -> float:
+        """
+        Calculate actual projected area A_c,V for concrete edge failure
+        
+        Per ETAG 001 Annex C, the projected area for shear depends on:
+        - Number of anchors
+        - Spacing between anchors
+        - Edge distances
+        - Member thickness
+        
+        Returns:
+            A_c_V: Actual projected area [mm²]
+        """
+        c1 = self.anchor.edge_distance
+        c2 = self.anchor.edge_distance_c2 if self.anchor.edge_distance_c2 is not None else 1.5 * c1
+        h = self.anchor.concrete_thickness
+        n = self.anchor.number_of_anchors
+        
+        # Calculate limiting dimensions
+        h_eff = min(h, 1.5 * c1) if h > 0 else 1.5 * c1
+        c2_eff = min(c2, 1.5 * c1)
+        
+        if n == 1:
+            # Single anchor
+            # A_c,V = (2·c2,eff + s) · h_eff, but for single anchor s=0
+            width = 2 * c2_eff
+            height = h_eff
+            A_c_V = width * height
+            
+        elif n == 2:
+            # Two-anchor group
+            s = self.anchor.spacing if self.anchor.spacing is not None else 0
+            s_eff = min(s, 3 * c1)  # Limit spacing effect
+            
+            width = 2 * c2_eff + s_eff
+            height = h_eff
+            A_c_V = width * height
+            
+        elif n == 4:
+            # Four-anchor group
+            s_x = self.anchor.spacing_x if self.anchor.spacing_x is not None else 0
+            s_y = self.anchor.spacing_y if self.anchor.spacing_y is not None else 0
+            s_y_eff = min(s_y, 3 * c1)
+            
+            width = 2 * c2_eff + s_y_eff
+            height = h_eff
+            A_c_V = width * height
+        else:
+            # Default to reference area
+            A_c_V = 4.5 * c1 * c1
+            
+        return A_c_V
     
     def calculate_shear_capacity_ETAG_5_2_3(self) -> Dict:
         """
@@ -822,6 +1243,12 @@ def calculate_anchor_capacity_etag(
     seismic_design: bool = False,
     spacing_x: Optional[float] = None,
     spacing_y: Optional[float] = None,
+    alpha_gap: float = 1.0,
+    edge_distance_c2: Optional[float] = None,
+    e_N_x: float = 0.0,
+    e_N_y: float = 0.0,
+    e_V: float = 0.0,
+    has_edge_reinforcement: bool = False,
 ) -> Tuple[float, float]:
     """
     Calculate metal anchor capacity per ETAG 001 Annex C and EOTA TR 045
@@ -833,8 +1260,8 @@ def calculate_anchor_capacity_etag(
         thickness_concrete: Concrete member thickness [mm]
         diameter: Anchor nominal diameter [mm]
         embedment_depth: Effective embedment depth h_ef [mm]
-        edge_distance: Distance to nearest concrete edge [mm]
-                      Use 9999 for infinite/very large slabs
+        edge_distance: Distance to nearest concrete edge c1 [mm]
+                      Use 9999 for infinite/very large slabs (skips edge failure)
         spacing: Spacing between anchors for 2-anchor config [mm]
         number_of_anchors: Number of anchors (1, 2, or 4)
         concrete_grade: Concrete grade (e.g., 'C20/25', 'C25/30')
@@ -843,6 +1270,13 @@ def calculate_anchor_capacity_etag(
         seismic_design: True to apply EOTA TR 045 seismic factors
         spacing_x: Spacing in X direction for 4-anchor config [mm]
         spacing_y: Spacing in Y direction for 4-anchor config [mm]
+        alpha_gap: Gap/clearance factor (1.0 = no gap, 0.5 = clearance hole)
+                  IMPORTANT: Use 0.5 for anchors with standard clearance holes!
+        edge_distance_c2: Perpendicular edge distance [mm] (defaults to c1)
+        e_N_x: Eccentricity of tension load in X direction [mm]
+        e_N_y: Eccentricity of tension load in Y direction [mm]
+        e_V: Eccentricity of shear load [mm]
+        has_edge_reinforcement: True if edge reinforcement is present
     
     Returns:
         Tuple[float, float]: (tension_capacity [N], shear_capacity [N])
@@ -850,6 +1284,21 @@ def calculate_anchor_capacity_etag(
     Standard References:
         - ETAG 001 Annex C: Design Methods for Anchorages
         - EOTA TR 045: Design Under Seismic Actions
+    
+    Example:
+        >>> # Non-seismic, no clearance hole
+        >>> Nt, Vs = calculate_anchor_capacity_etag(
+        ...     thickness_concrete=165, diameter=12, embedment_depth=79.9,
+        ...     edge_distance=250, spacing=165, number_of_anchors=2,
+        ...     concrete_grade='C20/25', is_cracked_concrete=True,
+        ...     seismic_design=False, alpha_gap=1.0)
+        
+        >>> # Seismic design with clearance hole (α_gap = 0.5)
+        >>> Nt_seis, Vs_seis = calculate_anchor_capacity_etag(
+        ...     thickness_concrete=165, diameter=12, embedment_depth=79.9,
+        ...     edge_distance=250, spacing=165, number_of_anchors=2,
+        ...     concrete_grade='C20/25', is_cracked_concrete=True,
+        ...     seismic_design=True, alpha_gap=0.5)
     """
     # Convert concrete grade to f_ck
     f_ck = convert_concrete_grade_to_fck(concrete_grade)
@@ -857,23 +1306,54 @@ def calculate_anchor_capacity_etag(
     # Get characteristic values from ETA database
     eta_values = get_eta_values(anchor_product, diameter, embedment_depth, concrete_grade)
     
-    # Create anchor properties
+    # Extract critical distances from ETA database
+    s_cr_N = eta_values.get('s_cr_N', 3.0 * embedment_depth)  # Default: 3.0 * h_ef
+    c_cr_N = eta_values.get('c_cr_N', 1.5 * embedment_depth)  # Default: 1.5 * h_ef
+    l_f = eta_values.get('l_f', embedment_depth)              # Default: h_ef
+    
+    # Create anchor properties with all parameters
     anchor_props = AnchorProperties_ETAG(
+        # Geometry
         diameter=diameter,
         embedment_depth=embedment_depth,
         edge_distance=edge_distance,
+        edge_distance_c2=edge_distance_c2,
+        
+        # Concrete
         concrete_strength=f_ck,
         concrete_thickness=thickness_concrete,
         is_cracked_concrete=is_cracked_concrete,
+        
+        # Characteristic values from ETA
         N0_Rk_s=eta_values['N0_Rk_s'],
         N0_Rk_p=eta_values['N0_Rk_p'],
         V0_Rk_s=eta_values['V0_Rk_s'],
+        
+        # Critical distances from ETA
+        s_cr_N=s_cr_N,
+        c_cr_N=c_cr_N,
+        l_f=l_f,
+        
+        # Group configuration
         number_of_anchors=number_of_anchors,
         spacing=spacing,
         spacing_x=spacing_x,
         spacing_y=spacing_y,
+        
+        # Load eccentricity
+        e_N_x=e_N_x,
+        e_N_y=e_N_y,
+        e_V=e_V,
+        
+        # Gap factor (CRITICAL for shear with clearance holes!)
+        alpha_gap=alpha_gap,
+        
+        # Seismic design
         seismic_design=seismic_design,
-        is_undercut_anchor=False  # HUS4-H is not undercut type
+        is_undercut_anchor=False,  # HUS4-H is not undercut type
+        
+        # Reinforcement
+        has_edge_reinforcement=has_edge_reinforcement,
     )
     
     # Calculate capacities
