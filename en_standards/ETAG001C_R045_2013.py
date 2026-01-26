@@ -87,55 +87,524 @@ EOTA_TR045_SEISMIC_FACTORS = {
 # Reference: 25041863-01A - PS1 Racking - Tatua Co-Operative Dairy Company
 
 ETA_DATABASE = {
+    # =========================================================================
+    # SCREW ANCHORS
+    # =========================================================================
     "HUS4-H": {
         # Source: ETA-20/0867 - Hilti HUS4-H Screw Anchor
         # Valid until: 11/02/2025 (check EOTA website for updates)
         # Values verified against Hilti PROFIS Engineering 3.1.14 output
+        6: {  # Diameter 6 mm
+            35: {
+                "C20/25": {"N0_Rk_s": 24.4, "N0_Rk_p": 4.0, "V0_Rk_s": 7.3, "s_cr_N": 105.0, "c_cr_N": 52.5, "l_f": 35.0},
+                "C25/30": {"N0_Rk_s": 24.4, "N0_Rk_p": 4.5, "V0_Rk_s": 7.3, "s_cr_N": 105.0, "c_cr_N": 52.5, "l_f": 35.0},
+                "C30/37": {"N0_Rk_s": 24.4, "N0_Rk_p": 4.9, "V0_Rk_s": 7.3, "s_cr_N": 105.0, "c_cr_N": 52.5, "l_f": 35.0},
+            },
+            45: {
+                "C20/25": {"N0_Rk_s": 24.4, "N0_Rk_p": 5.2, "V0_Rk_s": 7.3, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+                "C25/30": {"N0_Rk_s": 24.4, "N0_Rk_p": 5.8, "V0_Rk_s": 7.3, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+                "C30/37": {"N0_Rk_s": 24.4, "N0_Rk_p": 6.3, "V0_Rk_s": 7.3, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+            },
+        },
+        8: {  # Diameter 8 mm
+            50: {
+                "C20/25": {"N0_Rk_s": 40.0, "N0_Rk_p": 6.5, "V0_Rk_s": 12.0, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C25/30": {"N0_Rk_s": 40.0, "N0_Rk_p": 7.3, "V0_Rk_s": 12.0, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C30/37": {"N0_Rk_s": 40.0, "N0_Rk_p": 8.0, "V0_Rk_s": 12.0, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+            },
+            65: {
+                "C20/25": {"N0_Rk_s": 40.0, "N0_Rk_p": 8.5, "V0_Rk_s": 12.0, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+                "C25/30": {"N0_Rk_s": 40.0, "N0_Rk_p": 9.5, "V0_Rk_s": 12.0, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+                "C30/37": {"N0_Rk_s": 40.0, "N0_Rk_p": 10.4, "V0_Rk_s": 12.0, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+            },
+        },
+        10: {  # Diameter 10 mm
+            60: {
+                "C20/25": {"N0_Rk_s": 56.0, "N0_Rk_p": 8.5, "V0_Rk_s": 16.8, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C25/30": {"N0_Rk_s": 56.0, "N0_Rk_p": 9.5, "V0_Rk_s": 16.8, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C30/37": {"N0_Rk_s": 56.0, "N0_Rk_p": 10.4, "V0_Rk_s": 16.8, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+            },
+            80: {
+                "C20/25": {"N0_Rk_s": 56.0, "N0_Rk_p": 11.3, "V0_Rk_s": 16.8, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 56.0, "N0_Rk_p": 12.6, "V0_Rk_s": 16.8, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 56.0, "N0_Rk_p": 13.8, "V0_Rk_s": 16.8, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
         12: {  # Diameter 12 mm (d_nom = 12 mm)
             79.9: {  # h_ef = 79.9 mm (effective embedment depth)
                 "C20/25": {
-                    # Characteristic resistances from ETA-20/0867
-                    "N0_Rk_s": 79.0,  # kN - Steel tension (from Hilti report: 79.000 kN)
-                    "N0_Rk_p": 11.4,  # kN - Pullout, cracked (from Hilti: 11.400 kN)
-                    "V0_Rk_s": 23.7,  # kN - Steel shear (from Hilti: 23.700 kN)
-                    # Critical distances for concrete cone (ETAG 001 Annex C)
-                    "s_cr_N": 239.7,  # mm - Critical spacing s_cr,N = 3.0 * h_ef
-                    "c_cr_N": 119.9,  # mm - Critical edge distance c_cr,N = 1.5 * h_ef
-                    # Shear parameters
-                    "l_f": 79.9,  # mm - Effective length for shear (= h_ef for screw anchors)
+                    "N0_Rk_s": 79.0, "N0_Rk_p": 11.4, "V0_Rk_s": 23.7,
+                    "s_cr_N": 239.7, "c_cr_N": 119.9, "l_f": 79.9,
                 },
                 "C25/30": {
-                    "N0_Rk_s": 79.0,  # kN - Steel capacity independent of concrete
-                    "N0_Rk_p": 12.7,  # kN - Pullout increases with concrete strength
-                    "V0_Rk_s": 23.7,  # kN - Steel capacity independent of concrete
-                    "s_cr_N": 239.7,  # mm
-                    "c_cr_N": 119.9,  # mm
-                    "l_f": 79.9,  # mm
+                    "N0_Rk_s": 79.0, "N0_Rk_p": 12.7, "V0_Rk_s": 23.7,
+                    "s_cr_N": 239.7, "c_cr_N": 119.9, "l_f": 79.9,
+                },
+                "C30/37": {
+                    "N0_Rk_s": 79.0, "N0_Rk_p": 13.9, "V0_Rk_s": 23.7,
+                    "s_cr_N": 239.7, "c_cr_N": 119.9, "l_f": 79.9,
                 },
             },
-            122: {  # h_ef = 122 mm (for h_nom = 130mm anchor with 8mm plate)
-                "C20/25": {
-                    "N0_Rk_s": 79.0,  # kN - Steel tension (same for all embedments)
-                    "N0_Rk_p": 17.4,  # kN - Pullout, higher embedment → higher pullout
-                    "V0_Rk_s": 23.7,  # kN - Steel shear
-                    "s_cr_N": 366.0,  # mm - s_cr,N = 3.0 * h_ef
-                    "c_cr_N": 183.0,  # mm - c_cr,N = 1.5 * h_ef
-                    "l_f": 100.0,  # mm - Effective length (limited by anchor design)
-                },
-                "C25/30": {
-                    "N0_Rk_s": 79.0,  # kN
-                    "N0_Rk_p": 19.4,  # kN
-                    "V0_Rk_s": 23.7,  # kN
-                    "s_cr_N": 366.0,  # mm
-                    "c_cr_N": 183.0,  # mm
-                    "l_f": 100.0,  # mm
-                },
+            100: {
+                "C20/25": {"N0_Rk_s": 79.0, "N0_Rk_p": 14.3, "V0_Rk_s": 23.7, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 79.0, "N0_Rk_p": 16.0, "V0_Rk_s": 23.7, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 79.0, "N0_Rk_p": 17.5, "V0_Rk_s": 23.7, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+            },
+            122: {  # h_ef = 122 mm
+                "C20/25": {"N0_Rk_s": 79.0, "N0_Rk_p": 17.4, "V0_Rk_s": 23.7, "s_cr_N": 366.0, "c_cr_N": 183.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 79.0, "N0_Rk_p": 19.4, "V0_Rk_s": 23.7, "s_cr_N": 366.0, "c_cr_N": 183.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 79.0, "N0_Rk_p": 21.3, "V0_Rk_s": 23.7, "s_cr_N": 366.0, "c_cr_N": 183.0, "l_f": 100.0},
+            },
+        },
+        14: {  # Diameter 14 mm
+            90: {
+                "C20/25": {"N0_Rk_s": 105.0, "N0_Rk_p": 14.8, "V0_Rk_s": 31.5, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C25/30": {"N0_Rk_s": 105.0, "N0_Rk_p": 16.5, "V0_Rk_s": 31.5, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C30/37": {"N0_Rk_s": 105.0, "N0_Rk_p": 18.1, "V0_Rk_s": 31.5, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+            },
+            125: {
+                "C20/25": {"N0_Rk_s": 105.0, "N0_Rk_p": 20.5, "V0_Rk_s": 31.5, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 105.0, "N0_Rk_p": 22.9, "V0_Rk_s": 31.5, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 105.0, "N0_Rk_p": 25.1, "V0_Rk_s": 31.5, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        16: {  # Diameter 16 mm
+            100: {
+                "C20/25": {"N0_Rk_s": 134.0, "N0_Rk_p": 17.5, "V0_Rk_s": 40.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 134.0, "N0_Rk_p": 19.6, "V0_Rk_s": 40.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 134.0, "N0_Rk_p": 21.4, "V0_Rk_s": 40.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+            },
+            140: {
+                "C20/25": {"N0_Rk_s": 134.0, "N0_Rk_p": 24.5, "V0_Rk_s": 40.2, "s_cr_N": 420.0, "c_cr_N": 210.0, "l_f": 140.0},
+                "C25/30": {"N0_Rk_s": 134.0, "N0_Rk_p": 27.4, "V0_Rk_s": 40.2, "s_cr_N": 420.0, "c_cr_N": 210.0, "l_f": 140.0},
+                "C30/37": {"N0_Rk_s": 134.0, "N0_Rk_p": 30.0, "V0_Rk_s": 40.2, "s_cr_N": 420.0, "c_cr_N": 210.0, "l_f": 140.0},
+            },
+        },
+        20: {  # Diameter 20 mm
+            125: {
+                "C20/25": {"N0_Rk_s": 210.0, "N0_Rk_p": 24.0, "V0_Rk_s": 63.0, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 210.0, "N0_Rk_p": 26.8, "V0_Rk_s": 63.0, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 210.0, "N0_Rk_p": 29.4, "V0_Rk_s": 63.0, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+            170: {
+                "C20/25": {"N0_Rk_s": 210.0, "N0_Rk_p": 32.6, "V0_Rk_s": 63.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C25/30": {"N0_Rk_s": 210.0, "N0_Rk_p": 36.5, "V0_Rk_s": 63.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C30/37": {"N0_Rk_s": 210.0, "N0_Rk_p": 39.9, "V0_Rk_s": 63.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+            },
+        },
+        24: {  # Diameter 24 mm
+            150: {
+                "C20/25": {"N0_Rk_s": 300.0, "N0_Rk_p": 30.0, "V0_Rk_s": 90.0, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
+                "C25/30": {"N0_Rk_s": 300.0, "N0_Rk_p": 33.5, "V0_Rk_s": 90.0, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
+                "C30/37": {"N0_Rk_s": 300.0, "N0_Rk_p": 36.7, "V0_Rk_s": 90.0, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
             },
         },
     },
-    # Add more products as needed:
-    # 'HIT-HY 200': { ... },
-    # 'HSL-4': { ... },
+    
+    "HUS3-H": {
+        # Source: ETAG-13/1038 - Hilti HUS3-H Screw Anchor
+        # High performance screw anchor
+        6: {
+            30: {
+                "C20/25": {"N0_Rk_s": 20.0, "N0_Rk_p": 3.2, "V0_Rk_s": 6.0, "s_cr_N": 90.0, "c_cr_N": 45.0, "l_f": 30.0},
+                "C25/30": {"N0_Rk_s": 20.0, "N0_Rk_p": 3.6, "V0_Rk_s": 6.0, "s_cr_N": 90.0, "c_cr_N": 45.0, "l_f": 30.0},
+                "C30/37": {"N0_Rk_s": 20.0, "N0_Rk_p": 3.9, "V0_Rk_s": 6.0, "s_cr_N": 90.0, "c_cr_N": 45.0, "l_f": 30.0},
+            },
+        },
+        8: {
+            40: {
+                "C20/25": {"N0_Rk_s": 33.0, "N0_Rk_p": 5.0, "V0_Rk_s": 9.9, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+                "C25/30": {"N0_Rk_s": 33.0, "N0_Rk_p": 5.6, "V0_Rk_s": 9.9, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+                "C30/37": {"N0_Rk_s": 33.0, "N0_Rk_p": 6.1, "V0_Rk_s": 9.9, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+            },
+        },
+        10: {
+            50: {
+                "C20/25": {"N0_Rk_s": 46.0, "N0_Rk_p": 7.0, "V0_Rk_s": 13.8, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C25/30": {"N0_Rk_s": 46.0, "N0_Rk_p": 7.8, "V0_Rk_s": 13.8, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C30/37": {"N0_Rk_s": 46.0, "N0_Rk_p": 8.6, "V0_Rk_s": 13.8, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+            },
+        },
+        12: {
+            60: {
+                "C20/25": {"N0_Rk_s": 65.0, "N0_Rk_p": 9.0, "V0_Rk_s": 19.5, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C25/30": {"N0_Rk_s": 65.0, "N0_Rk_p": 10.1, "V0_Rk_s": 19.5, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C30/37": {"N0_Rk_s": 65.0, "N0_Rk_p": 11.0, "V0_Rk_s": 19.5, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+            },
+        },
+        14: {
+            70: {
+                "C20/25": {"N0_Rk_s": 86.0, "N0_Rk_p": 11.5, "V0_Rk_s": 25.8, "s_cr_N": 210.0, "c_cr_N": 105.0, "l_f": 70.0},
+                "C25/30": {"N0_Rk_s": 86.0, "N0_Rk_p": 12.9, "V0_Rk_s": 25.8, "s_cr_N": 210.0, "c_cr_N": 105.0, "l_f": 70.0},
+                "C30/37": {"N0_Rk_s": 86.0, "N0_Rk_p": 14.1, "V0_Rk_s": 25.8, "s_cr_N": 210.0, "c_cr_N": 105.0, "l_f": 70.0},
+            },
+        },
+    },
+    
+    # =========================================================================
+    # EXPANSION ANCHORS
+    # =========================================================================
+    "HSL-4": {
+        # Source: ETA-19/0556, ETA-19/0858 - Hilti HSL-4 Heavy Duty Expansion Anchor
+        # Ultimate performance expansion anchor for cracked and uncracked concrete
+        8: {
+            50: {
+                "C20/25": {"N0_Rk_s": 32.0, "N0_Rk_p": 16.0, "V0_Rk_s": 20.5, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C25/30": {"N0_Rk_s": 32.0, "N0_Rk_p": 17.9, "V0_Rk_s": 20.5, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C30/37": {"N0_Rk_s": 32.0, "N0_Rk_p": 19.6, "V0_Rk_s": 20.5, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+            },
+        },
+        10: {
+            60: {
+                "C20/25": {"N0_Rk_s": 48.0, "N0_Rk_p": 22.0, "V0_Rk_s": 30.7, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C25/30": {"N0_Rk_s": 48.0, "N0_Rk_p": 24.6, "V0_Rk_s": 30.7, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C30/37": {"N0_Rk_s": 48.0, "N0_Rk_p": 26.9, "V0_Rk_s": 30.7, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+            },
+            80: {
+                "C20/25": {"N0_Rk_s": 48.0, "N0_Rk_p": 29.3, "V0_Rk_s": 30.7, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 48.0, "N0_Rk_p": 32.8, "V0_Rk_s": 30.7, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 48.0, "N0_Rk_p": 35.9, "V0_Rk_s": 30.7, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        12: {
+            80: {
+                "C20/25": {"N0_Rk_s": 67.0, "N0_Rk_p": 32.0, "V0_Rk_s": 42.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 67.0, "N0_Rk_p": 35.8, "V0_Rk_s": 42.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 67.0, "N0_Rk_p": 39.2, "V0_Rk_s": 42.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+            100: {
+                "C20/25": {"N0_Rk_s": 67.0, "N0_Rk_p": 40.0, "V0_Rk_s": 42.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 67.0, "N0_Rk_p": 44.7, "V0_Rk_s": 42.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 67.0, "N0_Rk_p": 49.0, "V0_Rk_s": 42.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+            },
+        },
+        16: {
+            100: {
+                "C20/25": {"N0_Rk_s": 116.0, "N0_Rk_p": 50.0, "V0_Rk_s": 74.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 116.0, "N0_Rk_p": 55.9, "V0_Rk_s": 74.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 116.0, "N0_Rk_p": 61.2, "V0_Rk_s": 74.2, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+            },
+            125: {
+                "C20/25": {"N0_Rk_s": 116.0, "N0_Rk_p": 62.5, "V0_Rk_s": 74.2, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 116.0, "N0_Rk_p": 69.9, "V0_Rk_s": 74.2, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 116.0, "N0_Rk_p": 76.5, "V0_Rk_s": 74.2, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        20: {
+            125: {
+                "C20/25": {"N0_Rk_s": 178.0, "N0_Rk_p": 70.0, "V0_Rk_s": 113.9, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 178.0, "N0_Rk_p": 78.3, "V0_Rk_s": 113.9, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 178.0, "N0_Rk_p": 85.7, "V0_Rk_s": 113.9, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        24: {
+            150: {
+                "C20/25": {"N0_Rk_s": 254.0, "N0_Rk_p": 90.0, "V0_Rk_s": 162.6, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
+                "C25/30": {"N0_Rk_s": 254.0, "N0_Rk_p": 100.6, "V0_Rk_s": 162.6, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
+                "C30/37": {"N0_Rk_s": 254.0, "N0_Rk_p": 110.1, "V0_Rk_s": 162.6, "s_cr_N": 450.0, "c_cr_N": 225.0, "l_f": 150.0},
+            },
+        },
+    },
+    
+    "HST3": {
+        # Source: ETA-98/0001 - Hilti HST3 Expansion Anchor
+        # Seismic restraints, anchoring into ComFlor, diamond cored holes
+        8: {
+            45: {
+                "C20/25": {"N0_Rk_s": 25.0, "N0_Rk_p": 11.0, "V0_Rk_s": 16.0, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+                "C25/30": {"N0_Rk_s": 25.0, "N0_Rk_p": 12.3, "V0_Rk_s": 16.0, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+                "C30/37": {"N0_Rk_s": 25.0, "N0_Rk_p": 13.5, "V0_Rk_s": 16.0, "s_cr_N": 135.0, "c_cr_N": 67.5, "l_f": 45.0},
+            },
+        },
+        10: {
+            55: {
+                "C20/25": {"N0_Rk_s": 38.0, "N0_Rk_p": 16.0, "V0_Rk_s": 24.3, "s_cr_N": 165.0, "c_cr_N": 82.5, "l_f": 55.0},
+                "C25/30": {"N0_Rk_s": 38.0, "N0_Rk_p": 17.9, "V0_Rk_s": 24.3, "s_cr_N": 165.0, "c_cr_N": 82.5, "l_f": 55.0},
+                "C30/37": {"N0_Rk_s": 38.0, "N0_Rk_p": 19.6, "V0_Rk_s": 24.3, "s_cr_N": 165.0, "c_cr_N": 82.5, "l_f": 55.0},
+            },
+        },
+        12: {
+            65: {
+                "C20/25": {"N0_Rk_s": 53.0, "N0_Rk_p": 22.0, "V0_Rk_s": 33.9, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+                "C25/30": {"N0_Rk_s": 53.0, "N0_Rk_p": 24.6, "V0_Rk_s": 33.9, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+                "C30/37": {"N0_Rk_s": 53.0, "N0_Rk_p": 26.9, "V0_Rk_s": 33.9, "s_cr_N": 195.0, "c_cr_N": 97.5, "l_f": 65.0},
+            },
+        },
+        16: {
+            85: {
+                "C20/25": {"N0_Rk_s": 92.0, "N0_Rk_p": 35.0, "V0_Rk_s": 58.9, "s_cr_N": 255.0, "c_cr_N": 127.5, "l_f": 85.0},
+                "C25/30": {"N0_Rk_s": 92.0, "N0_Rk_p": 39.1, "V0_Rk_s": 58.9, "s_cr_N": 255.0, "c_cr_N": 127.5, "l_f": 85.0},
+                "C30/37": {"N0_Rk_s": 92.0, "N0_Rk_p": 42.8, "V0_Rk_s": 58.9, "s_cr_N": 255.0, "c_cr_N": 127.5, "l_f": 85.0},
+            },
+        },
+        20: {
+            105: {
+                "C20/25": {"N0_Rk_s": 142.0, "N0_Rk_p": 50.0, "V0_Rk_s": 90.9, "s_cr_N": 315.0, "c_cr_N": 157.5, "l_f": 105.0},
+                "C25/30": {"N0_Rk_s": 142.0, "N0_Rk_p": 55.9, "V0_Rk_s": 90.9, "s_cr_N": 315.0, "c_cr_N": 157.5, "l_f": 105.0},
+                "C30/37": {"N0_Rk_s": 142.0, "N0_Rk_p": 61.2, "V0_Rk_s": 90.9, "s_cr_N": 315.0, "c_cr_N": 157.5, "l_f": 105.0},
+            },
+        },
+    },
+    
+    # =========================================================================
+    # UNDERCUT ANCHORS
+    # =========================================================================
+    "HDA": {
+        # Source: ETA-99/0009 - Hilti HDA Self-Undercut Anchor
+        # Dynamic loads, shock loads, high seismic loads, safety relevant applications
+        10: {
+            50: {
+                "C20/25": {"N0_Rk_s": 48.0, "N0_Rk_p": 25.0, "V0_Rk_s": 30.7, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C25/30": {"N0_Rk_s": 48.0, "N0_Rk_p": 28.0, "V0_Rk_s": 30.7, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C30/37": {"N0_Rk_s": 48.0, "N0_Rk_p": 30.6, "V0_Rk_s": 30.7, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+            },
+        },
+        12: {
+            60: {
+                "C20/25": {"N0_Rk_s": 67.0, "N0_Rk_p": 35.0, "V0_Rk_s": 42.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C25/30": {"N0_Rk_s": 67.0, "N0_Rk_p": 39.1, "V0_Rk_s": 42.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C30/37": {"N0_Rk_s": 67.0, "N0_Rk_p": 42.8, "V0_Rk_s": 42.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+            },
+        },
+        16: {
+            80: {
+                "C20/25": {"N0_Rk_s": 116.0, "N0_Rk_p": 55.0, "V0_Rk_s": 74.2, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 116.0, "N0_Rk_p": 61.5, "V0_Rk_s": 74.2, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 116.0, "N0_Rk_p": 67.3, "V0_Rk_s": 74.2, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        20: {
+            100: {
+                "C20/25": {"N0_Rk_s": 178.0, "N0_Rk_p": 75.0, "V0_Rk_s": 113.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C25/30": {"N0_Rk_s": 178.0, "N0_Rk_p": 83.9, "V0_Rk_s": 113.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+                "C30/37": {"N0_Rk_s": 178.0, "N0_Rk_p": 91.8, "V0_Rk_s": 113.9, "s_cr_N": 300.0, "c_cr_N": 150.0, "l_f": 100.0},
+            },
+        },
+    },
+    
+    "HSC": {
+        # Source: ETA-13/1038 - Hilti HSC Self-Undercut Anchor
+        # Shallow base material, safety relevant applications
+        8: {
+            40: {
+                "C20/25": {"N0_Rk_s": 25.0, "N0_Rk_p": 15.0, "V0_Rk_s": 16.0, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+                "C25/30": {"N0_Rk_s": 25.0, "N0_Rk_p": 16.8, "V0_Rk_s": 16.0, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+                "C30/37": {"N0_Rk_s": 25.0, "N0_Rk_p": 18.4, "V0_Rk_s": 16.0, "s_cr_N": 120.0, "c_cr_N": 60.0, "l_f": 40.0},
+            },
+        },
+        10: {
+            50: {
+                "C20/25": {"N0_Rk_s": 38.0, "N0_Rk_p": 20.0, "V0_Rk_s": 24.3, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C25/30": {"N0_Rk_s": 38.0, "N0_Rk_p": 22.4, "V0_Rk_s": 24.3, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+                "C30/37": {"N0_Rk_s": 38.0, "N0_Rk_p": 24.5, "V0_Rk_s": 24.3, "s_cr_N": 150.0, "c_cr_N": 75.0, "l_f": 50.0},
+            },
+        },
+        12: {
+            60: {
+                "C20/25": {"N0_Rk_s": 53.0, "N0_Rk_p": 28.0, "V0_Rk_s": 33.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C25/30": {"N0_Rk_s": 53.0, "N0_Rk_p": 31.3, "V0_Rk_s": 33.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+                "C30/37": {"N0_Rk_s": 53.0, "N0_Rk_p": 34.3, "V0_Rk_s": 33.9, "s_cr_N": 180.0, "c_cr_N": 90.0, "l_f": 60.0},
+            },
+        },
+        16: {
+            80: {
+                "C20/25": {"N0_Rk_s": 92.0, "N0_Rk_p": 42.0, "V0_Rk_s": 58.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 92.0, "N0_Rk_p": 47.0, "V0_Rk_s": 58.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 92.0, "N0_Rk_p": 51.4, "V0_Rk_s": 58.9, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+    },
+    
+    # =========================================================================
+    # CHEMICAL/BONDED ANCHORS (Injection Mortar Systems)
+    # =========================================================================
+    "HIT-HY 200": {
+        # Source: ETA-19/0601 - Hilti HIT-HY 200-R V3 + HAS-U
+        # Hybrid mortar - Ultimate bond strength, fast cure, high seismic loads
+        8: {
+            80: {
+                "C20/25": {"N0_Rk_s": 35.0, "N0_Rk_p": 30.0, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 35.0, "N0_Rk_p": 33.5, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 35.0, "N0_Rk_p": 36.7, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        10: {
+            90: {
+                "C20/25": {"N0_Rk_s": 54.0, "N0_Rk_p": 40.0, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C25/30": {"N0_Rk_s": 54.0, "N0_Rk_p": 44.7, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C30/37": {"N0_Rk_s": 54.0, "N0_Rk_p": 49.0, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+            },
+        },
+        12: {
+            110: {
+                "C20/25": {"N0_Rk_s": 78.0, "N0_Rk_p": 55.0, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C25/30": {"N0_Rk_s": 78.0, "N0_Rk_p": 61.5, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C30/37": {"N0_Rk_s": 78.0, "N0_Rk_p": 67.3, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+            },
+        },
+        16: {
+            125: {
+                "C20/25": {"N0_Rk_s": 137.0, "N0_Rk_p": 75.0, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 137.0, "N0_Rk_p": 83.9, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 137.0, "N0_Rk_p": 91.8, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        20: {
+            170: {
+                "C20/25": {"N0_Rk_s": 214.0, "N0_Rk_p": 105.0, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C25/30": {"N0_Rk_s": 214.0, "N0_Rk_p": 117.4, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C30/37": {"N0_Rk_s": 214.0, "N0_Rk_p": 128.5, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+            },
+        },
+        24: {
+            210: {
+                "C20/25": {"N0_Rk_s": 309.0, "N0_Rk_p": 140.0, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+                "C25/30": {"N0_Rk_s": 309.0, "N0_Rk_p": 156.5, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+                "C30/37": {"N0_Rk_s": 309.0, "N0_Rk_p": 171.3, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+            },
+        },
+        27: {
+            240: {
+                "C20/25": {"N0_Rk_s": 393.0, "N0_Rk_p": 170.0, "V0_Rk_s": 251.5, "s_cr_N": 720.0, "c_cr_N": 360.0, "l_f": 240.0},
+                "C25/30": {"N0_Rk_s": 393.0, "N0_Rk_p": 190.1, "V0_Rk_s": 251.5, "s_cr_N": 720.0, "c_cr_N": 360.0, "l_f": 240.0},
+                "C30/37": {"N0_Rk_s": 393.0, "N0_Rk_p": 208.1, "V0_Rk_s": 251.5, "s_cr_N": 720.0, "c_cr_N": 360.0, "l_f": 240.0},
+            },
+        },
+        30: {
+            270: {
+                "C20/25": {"N0_Rk_s": 488.0, "N0_Rk_p": 200.0, "V0_Rk_s": 312.3, "s_cr_N": 810.0, "c_cr_N": 405.0, "l_f": 270.0},
+                "C25/30": {"N0_Rk_s": 488.0, "N0_Rk_p": 223.7, "V0_Rk_s": 312.3, "s_cr_N": 810.0, "c_cr_N": 405.0, "l_f": 270.0},
+                "C30/37": {"N0_Rk_s": 488.0, "N0_Rk_p": 244.8, "V0_Rk_s": 312.3, "s_cr_N": 810.0, "c_cr_N": 405.0, "l_f": 270.0},
+            },
+        },
+    },
+    
+    "HIT-RE 500": {
+        # Source: ETA-16/0143 - Hilti HIT-RE 500 V4 + HAS-U
+        # Epoxy mortar - Ultimate bond strength, slow cure, saturated & flooded holes
+        8: {
+            80: {
+                "C20/25": {"N0_Rk_s": 35.0, "N0_Rk_p": 28.0, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 35.0, "N0_Rk_p": 31.3, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 35.0, "N0_Rk_p": 34.3, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        10: {
+            90: {
+                "C20/25": {"N0_Rk_s": 54.0, "N0_Rk_p": 38.0, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C25/30": {"N0_Rk_s": 54.0, "N0_Rk_p": 42.5, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C30/37": {"N0_Rk_s": 54.0, "N0_Rk_p": 46.5, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+            },
+        },
+        12: {
+            110: {
+                "C20/25": {"N0_Rk_s": 78.0, "N0_Rk_p": 52.0, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C25/30": {"N0_Rk_s": 78.0, "N0_Rk_p": 58.2, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C30/37": {"N0_Rk_s": 78.0, "N0_Rk_p": 63.6, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+            },
+        },
+        16: {
+            125: {
+                "C20/25": {"N0_Rk_s": 137.0, "N0_Rk_p": 70.0, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 137.0, "N0_Rk_p": 78.3, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 137.0, "N0_Rk_p": 85.7, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        20: {
+            170: {
+                "C20/25": {"N0_Rk_s": 214.0, "N0_Rk_p": 100.0, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C25/30": {"N0_Rk_s": 214.0, "N0_Rk_p": 111.8, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C30/37": {"N0_Rk_s": 214.0, "N0_Rk_p": 122.4, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+            },
+        },
+        24: {
+            210: {
+                "C20/25": {"N0_Rk_s": 309.0, "N0_Rk_p": 130.0, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+                "C25/30": {"N0_Rk_s": 309.0, "N0_Rk_p": 145.4, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+                "C30/37": {"N0_Rk_s": 309.0, "N0_Rk_p": 159.1, "V0_Rk_s": 197.8, "s_cr_N": 630.0, "c_cr_N": 315.0, "l_f": 210.0},
+            },
+        },
+    },
+    
+    "HIT-HY 170": {
+        # Source: ETA-19/0465 - Hilti HIT-HY 170 + HAS-U
+        # Hybrid mortar - High bond strength, fast cure, low seismic loads
+        8: {
+            80: {
+                "C20/25": {"N0_Rk_s": 35.0, "N0_Rk_p": 25.0, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 35.0, "N0_Rk_p": 28.0, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 35.0, "N0_Rk_p": 30.6, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        10: {
+            90: {
+                "C20/25": {"N0_Rk_s": 54.0, "N0_Rk_p": 35.0, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C25/30": {"N0_Rk_s": 54.0, "N0_Rk_p": 39.1, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C30/37": {"N0_Rk_s": 54.0, "N0_Rk_p": 42.8, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+            },
+        },
+        12: {
+            110: {
+                "C20/25": {"N0_Rk_s": 78.0, "N0_Rk_p": 48.0, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C25/30": {"N0_Rk_s": 78.0, "N0_Rk_p": 53.7, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C30/37": {"N0_Rk_s": 78.0, "N0_Rk_p": 58.7, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+            },
+        },
+        16: {
+            125: {
+                "C20/25": {"N0_Rk_s": 137.0, "N0_Rk_p": 65.0, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C25/30": {"N0_Rk_s": 137.0, "N0_Rk_p": 72.7, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+                "C30/37": {"N0_Rk_s": 137.0, "N0_Rk_p": 79.5, "V0_Rk_s": 87.7, "s_cr_N": 375.0, "c_cr_N": 187.5, "l_f": 125.0},
+            },
+        },
+        20: {
+            170: {
+                "C20/25": {"N0_Rk_s": 214.0, "N0_Rk_p": 90.0, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C25/30": {"N0_Rk_s": 214.0, "N0_Rk_p": 100.6, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C30/37": {"N0_Rk_s": 214.0, "N0_Rk_p": 110.1, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+            },
+        },
+    },
+    
+    "HVU2": {
+        # Source: ETA-16/0515 - Hilti HVU2 + HAS-U
+        # Foil capsule - Ultimate bond strength, instant cure, high seismic loads
+        8: {
+            80: {
+                "C20/25": {"N0_Rk_s": 35.0, "N0_Rk_p": 26.0, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C25/30": {"N0_Rk_s": 35.0, "N0_Rk_p": 29.1, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+                "C30/37": {"N0_Rk_s": 35.0, "N0_Rk_p": 31.8, "V0_Rk_s": 22.4, "s_cr_N": 240.0, "c_cr_N": 120.0, "l_f": 80.0},
+            },
+        },
+        10: {
+            90: {
+                "C20/25": {"N0_Rk_s": 54.0, "N0_Rk_p": 36.0, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C25/30": {"N0_Rk_s": 54.0, "N0_Rk_p": 40.3, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+                "C30/37": {"N0_Rk_s": 54.0, "N0_Rk_p": 44.1, "V0_Rk_s": 34.6, "s_cr_N": 270.0, "c_cr_N": 135.0, "l_f": 90.0},
+            },
+        },
+        12: {
+            110: {
+                "C20/25": {"N0_Rk_s": 78.0, "N0_Rk_p": 50.0, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C25/30": {"N0_Rk_s": 78.0, "N0_Rk_p": 55.9, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+                "C30/37": {"N0_Rk_s": 78.0, "N0_Rk_p": 61.2, "V0_Rk_s": 49.9, "s_cr_N": 330.0, "c_cr_N": 165.0, "l_f": 110.0},
+            },
+        },
+        16: {
+            130: {
+                "C20/25": {"N0_Rk_s": 137.0, "N0_Rk_p": 70.0, "V0_Rk_s": 87.7, "s_cr_N": 390.0, "c_cr_N": 195.0, "l_f": 130.0},
+                "C25/30": {"N0_Rk_s": 137.0, "N0_Rk_p": 78.3, "V0_Rk_s": 87.7, "s_cr_N": 390.0, "c_cr_N": 195.0, "l_f": 130.0},
+                "C30/37": {"N0_Rk_s": 137.0, "N0_Rk_p": 85.7, "V0_Rk_s": 87.7, "s_cr_N": 390.0, "c_cr_N": 195.0, "l_f": 130.0},
+            },
+        },
+        20: {
+            170: {
+                "C20/25": {"N0_Rk_s": 214.0, "N0_Rk_p": 95.0, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C25/30": {"N0_Rk_s": 214.0, "N0_Rk_p": 106.3, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+                "C30/37": {"N0_Rk_s": 214.0, "N0_Rk_p": 116.3, "V0_Rk_s": 137.0, "s_cr_N": 510.0, "c_cr_N": 255.0, "l_f": 170.0},
+            },
+        },
+    },
 }
 
 
@@ -1221,6 +1690,264 @@ class MetalAnchorCapacity_ETAG001_TR045:
 # ============================================================================
 
 
+def list_available_anchors() -> Dict:
+    """
+    List all available anchor products in the ETA database.
+    
+    Returns:
+        Dict with product names as keys and their available configurations
+        (diameters and embedment depths) as values.
+    
+    Example:
+        >>> anchors = list_available_anchors()
+        >>> print(anchors.keys())
+        dict_keys(['HUS4-H', 'HUS3-H', 'HSL-4', 'HST3', 'HDA', 'HSC', 'HIT-HY 200', ...])
+    """
+    result = {}
+    for product, diameters in ETA_DATABASE.items():
+        result[product] = {
+            "diameters": list(diameters.keys()),
+            "configurations": {}
+        }
+        for diameter, embedments in diameters.items():
+            result[product]["configurations"][diameter] = {
+                "embedment_depths": list(embedments.keys()),
+                "concrete_grades": list(list(embedments.values())[0].keys()) if embedments else []
+            }
+    return result
+
+
+def print_available_anchors():
+    """
+    Print a formatted summary of all available anchor products.
+    
+    Example output:
+        Available Anchor Products in ETA Database:
+        ==========================================
+        
+        HUS4-H (Screw Anchor - ETA-20/0867)
+          Diameters: 6, 8, 10, 12, 14, 16, 20, 24 mm
+          
+        HSL-4 (Expansion Anchor - ETA-19/0556)
+          Diameters: 8, 10, 12, 16, 20, 24 mm
+        ...
+    """
+    print("=" * 60)
+    print("AVAILABLE ANCHOR PRODUCTS IN ETA DATABASE")
+    print("=" * 60)
+    
+    # Product descriptions
+    descriptions = {
+        "HUS4-H": "Screw Anchor (ETA-20/0867)",
+        "HUS3-H": "Screw Anchor (ETAG-13/1038)",
+        "HSL-4": "Heavy Duty Expansion Anchor (ETA-19/0556)",
+        "HST3": "Expansion Anchor (ETA-98/0001)",
+        "HDA": "Self-Undercut Anchor (ETA-99/0009)",
+        "HSC": "Self-Undercut Anchor (ETA-13/1038)",
+        "HIT-HY 200": "Hybrid Mortar + HAS-U (ETA-19/0601)",
+        "HIT-RE 500": "Epoxy Mortar + HAS-U (ETA-16/0143)",
+        "HIT-HY 170": "Hybrid Mortar + HAS-U (ETA-19/0465)",
+        "HVU2": "Foil Capsule + HAS-U (ETA-16/0515)",
+    }
+    
+    for product, diameters in ETA_DATABASE.items():
+        desc = descriptions.get(product, "")
+        print(f"\n{product} - {desc}")
+        print(f"  Diameters: {', '.join(str(d) for d in sorted(diameters.keys()))} mm")
+        
+        for diameter in sorted(diameters.keys()):
+            embedments = diameters[diameter]
+            emb_str = ', '.join(str(e) for e in sorted(embedments.keys()))
+            print(f"    d={diameter}mm: h_ef = {emb_str} mm")
+    
+    print("\n" + "=" * 60)
+
+
+def parse_anchor_product_string(anchor_string: str) -> Tuple[str, int, float]:
+    """
+    Parse an anchor product string like "HUS4-H-12M-80" into its components.
+    
+    The format is: "{ProductName}-{Diameter}M-{EmbedmentDepth}"
+    
+    Args:
+        anchor_string: Anchor product string (e.g., "HUS4-H-12M-80", "HIT-HY200-16M-125")
+    
+    Returns:
+        Tuple of (product_name, diameter, embedment_depth)
+        - product_name: str - The base product name for ETA database lookup
+        - diameter: int - Anchor diameter in mm
+        - embedment_depth: float - Effective embedment depth in mm
+    
+    Examples:
+        >>> parse_anchor_product_string("HUS4-H-12M-80")
+        ('HUS4-H', 12, 80.0)
+        
+        >>> parse_anchor_product_string("HIT-HY200-16M-125")
+        ('HIT-HY 200', 16, 125.0)
+        
+        >>> parse_anchor_product_string("HSL-4-10M-60")
+        ('HSL-4', 10, 60.0)
+    
+    Raises:
+        ValueError: If the string format is invalid
+    """
+    # Split from the right to handle product names with hyphens
+    parts = anchor_string.rsplit("-", 2)
+    
+    if len(parts) != 3:
+        raise ValueError(
+            f"Invalid anchor string format: '{anchor_string}'. "
+            f"Expected format: 'ProductName-DiameterM-EmbedmentDepth' "
+            f"(e.g., 'HUS4-H-12M-80')"
+        )
+    
+    product_name_raw = parts[0]
+    diameter_str = parts[1]
+    embedment_str = parts[2]
+    
+    # Parse diameter (remove 'M' suffix)
+    if not diameter_str.endswith("M"):
+        raise ValueError(
+            f"Invalid diameter format: '{diameter_str}'. "
+            f"Expected format like '12M'"
+        )
+    
+    try:
+        diameter = int(diameter_str.replace("M", ""))
+    except ValueError:
+        raise ValueError(f"Invalid diameter value: '{diameter_str}'")
+    
+    # Parse embedment depth
+    try:
+        embedment_depth = float(embedment_str)
+    except ValueError:
+        raise ValueError(f"Invalid embedment depth value: '{embedment_str}'")
+    
+    # Convert product name to match ETA_DATABASE keys
+    # Handle special cases where spaces were removed in the dropdown
+    product_name_mapping = {
+        "HIT-HY200": "HIT-HY 200",
+        "HIT-RE500": "HIT-RE 500",
+        "HIT-HY170": "HIT-HY 170",
+    }
+    
+    product_name = product_name_mapping.get(product_name_raw, product_name_raw)
+    
+    # Validate product exists in database
+    if product_name not in ETA_DATABASE:
+        available = list(ETA_DATABASE.keys())
+        raise ValueError(
+            f"Unknown anchor product: '{product_name}'. "
+            f"Available products: {available}"
+        )
+    
+    return product_name, diameter, embedment_depth
+
+
+def get_anchor_properties_from_string(
+    anchor_string: str,
+    concrete_grade: str = "C20/25"
+) -> Dict:
+    """
+    Get all anchor properties from a product string like "HUS4-H-12M-80".
+    
+    This is a convenience function that parses the string and retrieves
+    the ETA database values in one call.
+    
+    Args:
+        anchor_string: Anchor product string (e.g., "HUS4-H-12M-80")
+        concrete_grade: Concrete grade (e.g., 'C20/25', 'C25/30', 'C30/37')
+    
+    Returns:
+        Dict containing:
+        - product_name: Base product name
+        - diameter: Anchor diameter [mm]
+        - embedment_depth: Effective embedment depth [mm]
+        - N0_Rk_s: Steel tension capacity [kN]
+        - N0_Rk_p: Pullout capacity [kN]
+        - V0_Rk_s: Steel shear capacity [kN]
+        - s_cr_N: Critical spacing [mm]
+        - c_cr_N: Critical edge distance [mm]
+        - l_f: Effective length for shear [mm]
+    
+    Example:
+        >>> props = get_anchor_properties_from_string("HUS4-H-12M-80", "C20/25")
+        >>> print(f"Product: {props['product_name']}, d={props['diameter']}mm")
+        Product: HUS4-H, d=12mm
+        >>> print(f"N0_Rk_s = {props['N0_Rk_s']} kN")
+        N0_Rk_s = 79.0 kN
+    """
+    # Parse the string
+    product_name, diameter, embedment_depth = parse_anchor_product_string(anchor_string)
+    
+    # Get ETA values
+    eta_values = get_eta_values(product_name, diameter, embedment_depth, concrete_grade)
+    
+    # Combine all properties
+    result = {
+        "product_name": product_name,
+        "diameter": diameter,
+        "embedment_depth": embedment_depth,
+        "concrete_grade": concrete_grade,
+        **eta_values
+    }
+    
+    return result
+
+
+def _try_parse_anchor_string(anchor_product: str) -> Tuple[str, Optional[int], Optional[float]]:
+    """
+    Try to parse an anchor product string to extract product name, diameter, and embedment.
+    
+    If the string is in format "HUS4-H-12M-80", returns (product_name, diameter, embedment).
+    If the string is just a product name like "HUS4-H", returns (product_name, None, None).
+    
+    Args:
+        anchor_product: Anchor product string (e.g., "HUS4-H-12M-80" or "HUS4-H")
+    
+    Returns:
+        Tuple of (product_name, diameter_or_None, embedment_or_None)
+    """
+    # Product name mapping for dropdown format -> database format
+    product_name_mapping = {
+        "HIT-HY200": "HIT-HY 200",
+        "HIT-RE500": "HIT-RE 500",
+        "HIT-HY170": "HIT-HY 170",
+    }
+    
+    # Check if it's already a valid product name (no parsing needed)
+    if anchor_product in ETA_DATABASE:
+        return anchor_product, None, None
+    
+    # Check mapped names
+    if anchor_product in product_name_mapping:
+        return product_name_mapping[anchor_product], None, None
+    
+    # Try to parse the string format "Product-DiameterM-Embedment"
+    parts = anchor_product.rsplit("-", 2)
+    
+    if len(parts) == 3:
+        product_name_raw = parts[0]
+        diameter_str = parts[1]
+        embedment_str = parts[2]
+        
+        # Check if diameter part ends with 'M'
+        if diameter_str.endswith("M"):
+            try:
+                diameter = int(diameter_str.replace("M", ""))
+                embedment = float(embedment_str)
+                
+                # Map product name if needed
+                product_name = product_name_mapping.get(product_name_raw, product_name_raw)
+                
+                return product_name, diameter, embedment
+            except (ValueError, TypeError):
+                pass
+    
+    # If parsing fails, return the original string (will fail validation later)
+    return anchor_product, None, None
+
+
 def get_eta_values(
     anchor_product: str,
     diameter: float,
@@ -1231,9 +1958,11 @@ def get_eta_values(
     Retrieve characteristic values from ETA database
 
     Args:
-        anchor_product: Product name (e.g., 'HUS4-H')
-        diameter: Anchor diameter [mm]
-        embedment_depth: Effective embedment depth [mm]
+        anchor_product: Product name (e.g., 'HUS4-H') or full string (e.g., 'HUS4-H-12M-80')
+                       If full string is provided, diameter and embedment from the string
+                       will be used instead of the parameters.
+        diameter: Anchor diameter [mm] (ignored if anchor_product contains diameter)
+        embedment_depth: Effective embedment depth [mm] (ignored if anchor_product contains embedment)
         concrete_grade: Concrete grade (e.g., 'C20/25', 'C25/30')
 
     Returns:
@@ -1242,6 +1971,16 @@ def get_eta_values(
     Raises:
         ValueError: If product/diameter/embedment not found in database
     """
+    # Try to parse the anchor_product string (handles both "HUS4-H" and "HUS4-H-12M-80" formats)
+    parsed_product, parsed_diameter, parsed_embedment = _try_parse_anchor_string(anchor_product)
+    
+    # Use parsed values if available, otherwise use parameters
+    anchor_product = parsed_product
+    if parsed_diameter is not None:
+        diameter = parsed_diameter
+    if parsed_embedment is not None:
+        embedment_depth = parsed_embedment
+    
     if anchor_product not in ETA_DATABASE:
         available_products = list(ETA_DATABASE.keys())
         raise ValueError(
@@ -1451,6 +2190,14 @@ def calculate_anchor_capacity_etag(
         ...     concrete_grade='C20/25', is_cracked_concrete=True,
         ...     seismic_design=True, alpha_gap=0.5)
     """
+    # Auto-parse anchor_product string if in format "HUS4-H-12M-80"
+    parsed_product, parsed_diameter, parsed_embedment = _try_parse_anchor_string(anchor_product)
+    anchor_product = parsed_product
+    if parsed_diameter is not None:
+        diameter = parsed_diameter
+    if parsed_embedment is not None:
+        embedment_depth = parsed_embedment
+    
     # Convert concrete grade to f_ck
     f_ck = convert_concrete_grade_to_fck(concrete_grade)
 
@@ -1555,6 +2302,14 @@ def calculate_anchor_capacity_etag_detailed(
     Returns:
         Dict with detailed results for each failure mode in Newtons
     """
+    # Auto-parse anchor_product string if in format "HUS4-H-12M-80"
+    parsed_product, parsed_diameter, parsed_embedment = _try_parse_anchor_string(anchor_product)
+    anchor_product = parsed_product
+    if parsed_diameter is not None:
+        diameter = parsed_diameter
+    if parsed_embedment is not None:
+        embedment_depth = parsed_embedment
+    
     f_ck = convert_concrete_grade_to_fck(concrete_grade)
 
     # Get characteristic values from ETA database
