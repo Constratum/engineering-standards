@@ -1059,11 +1059,11 @@ def calculate_tension_strength_5_3_3(
     # Calculate Pull-over Force (P_nov)
     P_nov = C * t1 * F_tu1 * (D_ws - D_h)
 
-    # Nominal tensile strength (P_nt) is the lesser of P_not and P_nov
-    P_nt = min(P_not, P_nov)
-
     # Factored limit state tensile strength (phi P_at)
     phi_P_at = phi_sc * P_nt
+
+    # Nominal tensile strength (P_nt) is the lesser of P_not and P_nov
+    P_nt = min(P_not, P_nov, phi_P_at)
 
     return phi_P_at
 
