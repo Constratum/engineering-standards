@@ -581,7 +581,7 @@ def compression_extreme_fibre_bent_strong_axis_3_4_12(
 
 
 def compression_extreme_fibre_rectangular_tubes_3_4_15(
-    alloy_temper, product, Lb, Ix, J, E=None, Fcy=None
+    alloy_temper, product, Lb, Iy, J, Zc, E=None, Fcy=None
 ):
     """
     Calculate the compression capacity for rectangular tubes, box sections, and beams with tubular portions
@@ -591,8 +591,9 @@ def compression_extreme_fibre_rectangular_tubes_3_4_15(
     alloy_temper (str): Alloy and temper designation
     product (str): Product type
     Lb (float): Length of the beam between bracing points (mm)
-    Ix (float): Moment of inertia of a beam about axis parallel to web (mm^4)
+    Iy (float): Moment of inertia of a beam about axis parallel to web (mm^4)
     J (float): Torsion constant (mm^4)
+    Zc (float): Section modulus of the compression flange (mm^3)
     E (float, optional): Modulus of elasticity (MPa). If provided, uses this value instead of table lookup.
     Fcy (float, optional): Compressive yield strength (MPa). If provided, uses this value instead of table lookup.
 
@@ -621,14 +622,17 @@ def compression_extreme_fibre_rectangular_tubes_3_4_15(
     Bc = Fcy * (1 + (Fcy / 15510) ** 0.5)
     Dc = (Bc / 10) * (Bc / E) ** 0.5
     Cc = 0.41 * Bc / Dc
-
-    # Slenderness parameter
-    slenderness = (Lb * np.sqrt(Ix / J)) / (0.5 * np.sqrt(Ix * J))
-
+    print("Bc: ", Bc)
+    print("Dc: ", Dc)
+    print("Cc: ", Cc)
+    # Slenderness parameter - Eq 3.4.15
+    slenderness = (Lb * Zc) / (0.5 * np.sqrt(Iy * J))
+    print("slenderness: ", slenderness)
     # Slenderness limits
     S1 = ((Bc - (phi_y * Fcy / phi_b)) / (1.6 * Dc)) ** 2
     S2 = (Cc / 1.6) ** 2
-
+    print("S1: ", S1)
+    print("S2: ", S2)
     # Calculate compression capacity based on slenderness
     if slenderness < S1:
         # Case (a) - Equation 3.4.15(1)
@@ -741,6 +745,71 @@ def compression_extreme_fibre_bent_weak_axis_3_4_21(
     else:
         # Case (c)
         phi_FL = phi_b * (np.pi**2 * E) / ((3.5 * b_t) ** 2)
+
+    return phi_FL
+
+
+def compression_beam_web_flat_plate_both_edges_supported_3_4_22(
+    alloy_temper, product, h, t, E=None, Fcy=None
+):
+    """
+    Calculate the compression capacity for components of beams (component under bending in own plane),
+    gross section - flat plates with both edges supported, based on Clause 3.4.22 of AS/NZS 1664.1:1997.
+
+    Parameters:
+    alloy_temper (str): Alloy and temper designation
+    product (str): Product type
+    h (float): Clear web height (mm) - as shown in Figure 3.4.22
+    t (float): Thickness of the plate (mm)
+    E (float, optional): Modulus of elasticity (MPa). If provided, uses this value instead of table lookup.
+    Fcy (float, optional): Compressive yield strength (MPa). If provided, uses this value instead of table lookup.
+
+    Returns:
+    float: Compression capacity (MPa)
+    """
+    if E is None:
+        E = table_3_3_A.loc[
+            (table_3_3_A["Alloy and temper"] == alloy_temper)
+            & (table_3_3_A["Product"] == product),
+            "Compressive modulus of elasticity_E",
+        ].values[0]
+    if Fcy is None:
+        Fcy = table_3_3_A.loc[
+            (table_3_3_A["Alloy and temper"] == alloy_temper)
+            & (table_3_3_A["Product"] == product),
+            "Compression_Fcy",
+        ].values[0]
+
+    # Constants (Table 3.4(A))
+    phi_y = 0.95
+    phi_b = 0.85
+
+    # Coefficients for flat plates in BENDING (Table 3.3(D))
+    # Note: Use bending coefficients since web is under bending stress
+    k1 = 0.50
+    k2 = 2.04
+
+    # Table 3.3(D) - Buckling coefficients for compressive bending stress in solid rectangular bars (Bbr, Dbr)
+    Bbr = 1.3 * Fcy * (1 + ((Fcy) ** 0.5) / 13.3)
+    Dbr = (Bbr / 20) * ((6 * Bbr / E) ** 0.5)
+
+    # Slenderness limits - Eq 3.4.22
+    S1 = (Bbr - 1.3 * Fcy * (phi_y / phi_b)) / (0.67 * Dbr)
+    S2 = (k1 * Bbr) / (0.67 * Dbr)
+
+    # Slenderness ratio - h is clear web height per Figure 3.4.22
+    h_t = h / t
+
+    # Calculate compression capacity based on slenderness
+    if h_t < S1:
+        # Case (a) - Equation 3.4.22(1)
+        phi_FL = 1.3 * phi_b * Fcy
+    elif S1 <= h_t <= S2:
+        # Case (b) - Equation 3.4.22(2)
+        phi_FL = phi_b * (Bbr - 0.67 * Dbr * h_t)
+    else:
+        # Case (c) - Equation 3.4.22(3)
+        phi_FL = (phi_b * k2 * np.sqrt(Bbr * E)) / (0.67 * h_t)
 
     return phi_FL
 
@@ -1059,11 +1128,11 @@ def calculate_tension_strength_5_3_3(
     # Calculate Pull-over Force (P_nov)
     P_nov = C * t1 * F_tu1 * (D_ws - D_h)
 
+    # Nominal tensile strength (P_nt) is the lesser of P_not and P_nov
+    P_nt = min(P_not, P_nov)
+
     # Factored limit state tensile strength (phi P_at)
     phi_P_at = phi_sc * P_nt
-
-    # Nominal tensile strength (P_nt) is the lesser of P_not and P_nov
-    P_nt = min(P_not, P_nov, phi_P_at)
 
     return phi_P_at
 
