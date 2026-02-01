@@ -622,17 +622,12 @@ def compression_extreme_fibre_rectangular_tubes_3_4_15(
     Bc = Fcy * (1 + (Fcy / 15510) ** 0.5)
     Dc = (Bc / 10) * (Bc / E) ** 0.5
     Cc = 0.41 * Bc / Dc
-    print("Bc: ", Bc)
-    print("Dc: ", Dc)
-    print("Cc: ", Cc)
     # Slenderness parameter - Eq 3.4.15
     slenderness = (Lb * Zc) / (0.5 * np.sqrt(Iy * J))
-    print("slenderness: ", slenderness)
     # Slenderness limits
     S1 = ((Bc - (phi_y * Fcy / phi_b)) / (1.6 * Dc)) ** 2
     S2 = (Cc / 1.6) ** 2
-    print("S1: ", S1)
-    print("S2: ", S2)
+
     # Calculate compression capacity based on slenderness
     if slenderness < S1:
         # Case (a) - Equation 3.4.15(1)
