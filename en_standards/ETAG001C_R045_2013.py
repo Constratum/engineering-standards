@@ -2073,16 +2073,25 @@ def convert_concrete_grade_to_fck(concrete_grade: str) -> float:
 
 def convert_fck_to_concrete_grade(fck: float) -> str:
     """
-    Convert f_ck value to European concrete grade notation
+    Convert f_ck value to the highest European concrete grade that does NOT
+    exceed the given *fck*.
+
+    The ETA database used for anchor design only covers grades up to C30/37.
+    Any *fck* above 30 MPa is therefore capped at ``"C30/37"`` — this is the
+    conservative approach (lower grade ⇒ lower pull-out capacity ⇒ safe).
 
     European notation: C{cylinder}/{cube}
-    Common grades: C20/25, C25/30, C30/37, C35/45, C40/50
 
     Args:
-        fck: Characteristic cylinder compressive strength [MPa]
+        fck: Characteristic cylinder compressive strength [MPa].
+             Must be >= 20 MPa.
 
     Returns:
-        concrete_grade: Grade notation (e.g., 'C20/25', 'C25/30', 'C30/37')
+        concrete_grade: Grade notation limited to grades available in the
+        ETA database: ``'C20/25'``, ``'C25/30'``, or ``'C30/37'``.
+
+    Raises:
+        ValueError: If *fck* is below the minimum grade (20 MPa).
 
     Examples:
         >>> convert_fck_to_concrete_grade(20)
@@ -2091,28 +2100,33 @@ def convert_fck_to_concrete_grade(fck: float) -> str:
         'C25/30'
         >>> convert_fck_to_concrete_grade(30)
         'C30/37'
+        >>> convert_fck_to_concrete_grade(35)
+        'C30/37'
     """
-    # Mapping of cylinder strength to cube strength (European standard)
-    fck_to_grade = {
-        20: "C20/25",
-        25: "C25/30",
-        30: "C30/37",
-        35: "C35/45",
-        40: "C40/50",
-        45: "C45/55",
-        50: "C50/60",
-    }
+    # Only grades that exist in the ETA_DATABASE (conservative cap)
+    fck_to_grade = [
+        (20, "C20/25"),
+        (25, "C25/30"),
+        (30, "C30/37"),
+    ]
 
-    # Round to nearest available grade
-    fck_int = int(round(fck))
+    fck_val = float(fck)
 
-    if fck_int in fck_to_grade:
-        return fck_to_grade[fck_int]
-    else:
-        # Find closest available grade
-        available = sorted(fck_to_grade.keys())
-        closest = min(available, key=lambda x: abs(x - fck_int))
-        return fck_to_grade[closest]
+    if fck_val < fck_to_grade[0][0]:
+        raise ValueError(
+            f"fck={fck_val} MPa is below the minimum available grade "
+            f"({fck_to_grade[0][1]}, fck={fck_to_grade[0][0]} MPa)."
+        )
+
+    # Pick the highest grade whose fck does NOT exceed the provided value
+    selected = fck_to_grade[0][1]
+    for grade_fck, grade_name in fck_to_grade:
+        if fck_val >= grade_fck:
+            selected = grade_name
+        else:
+            break
+
+    return selected
 
 
 # ============================================================================
