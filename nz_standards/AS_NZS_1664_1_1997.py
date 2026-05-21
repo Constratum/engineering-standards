@@ -17,6 +17,8 @@ Reviewed - MB
 ###Initialise  Dependents and Libraries
 """
 
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -219,147 +221,144 @@ table_3_4_B = pd.concat(
     [table_3_4_B, pd.DataFrame(data_3_4_b, columns=columns_3_4_b)], ignore_index=True
 )
 
-# Add the data to the DataFrame using pd.concat
+TABLE_3_4_B_DEFAULT_ALLOY = "All others listed in Table 3.3(A)"
+
+_TABLE_3_3_A_PROPERTY_COLUMNS = {
+    "E": "Compressive modulus of elasticity_E",
+    "Fty": "Tension_Fty",
+    "Ftu": "Tension_Ftu",
+    "Fcy": "Compression_Fcy",
+    "Fby": "Bearing_Fbry",
+    "Fbu": "Bearing_Fbru",
+    "Fsu": "Shear_Fsu",
+    "Fsy": "Shear_Fsy",
+}
+
+def is_in_table_3_3_a(alloy_temper: str, product: str) -> bool:
+    mask = (table_3_3_A["Alloy and temper"] == alloy_temper) & (
+        table_3_3_A["Product"] == product
+    )
+    return bool(mask.any())
 
 
-def kt_table_3_4_b(alloy_temper, welded_region):
+def get_table_3_3_a_row(alloy_temper: str, product: str) -> pd.Series:
+    mask = (table_3_3_A["Alloy and temper"] == alloy_temper) & (
+        table_3_3_A["Product"] == product
+    )
+    rows = table_3_3_A.loc[mask]
+    if rows.empty:
+        raise ValueError(
+            f"No Table 3.3(A) row for alloy and temper {alloy_temper!r} "
+            f"and product {product!r}."
+        )
+    return rows.iloc[0]
 
+
+def resolve_property(
+    alloy_temper: str,
+    product: str,
+    property_name: str,
+    user_value: Optional[float] = None,
+) -> float:
+    """Table 3.3(A) row wins when present; otherwise user_value is required."""
+    if property_name not in _TABLE_3_3_A_PROPERTY_COLUMNS:
+        raise ValueError(f"Unknown material property {property_name!r}.")
+    column = _TABLE_3_3_A_PROPERTY_COLUMNS[property_name]
+    if is_in_table_3_3_a(alloy_temper, product):
+        return float(get_table_3_3_a_row(alloy_temper, product)[column])
+    if user_value is None:
+        raise ValueError(
+            f"Alloy and temper {alloy_temper!r} with product {product!r} is not "
+            f"listed in Table 3.3(A). Provide {property_name}."
+        )
+    return float(user_value)
+
+
+def parse_aluminium_strength_input(value) -> Optional[float]:
+    """Convert notebook blank inputs to None or a float."""
+    if value in ["-", "", "None", None]:
+        return None
+    return float(value)
+
+
+def _lookup_table_3_4_b_coefficient(alloy_temper: str, column: str) -> float:
+    mask = table_3_4_B["Alloy and temper"] == alloy_temper
+    if mask.any():
+        return float(table_3_4_B.loc[mask, column].values[0])
+    mask = table_3_4_B["Alloy and temper"] == TABLE_3_4_B_DEFAULT_ALLOY
+    if mask.any():
+        return float(table_3_4_B.loc[mask, column].values[0])
+    raise ValueError(
+        f"No Table 3.4(B) coefficient in column {column!r} for alloy "
+        f"{alloy_temper!r} and no default row available."
+    )
+
+
+def kt_table_3_4_b(alloy_temper, welded_region, kt=None):
+    if kt is not None:
+        return float(kt)
     if welded_region == "Regions within 25 mm of a weld_kt":
-        kt_value = table_3_4_B.loc[
-            table_3_4_B["Alloy and temper"] == alloy_temper,
-            "Regions within 25 mm of a weld_kt",
-        ].values[0]
+        column = "Regions within 25 mm of a weld_kt"
     else:
-        kt_value = table_3_4_B.loc[
-            table_3_4_B["Alloy and temper"] == alloy_temper,
-            "Non-welded or regions farther than 25 mm from a weld_kt",
-        ].values[0]
-        # kt_value = filtered_row_3_4B["Non-welded or regions farther than 25 mm from a weld_kt"].values[0]
-
-    return kt_value
+        column = "Non-welded or regions farther than 25 mm from a weld_kt"
+    return _lookup_table_3_4_b_coefficient(alloy_temper, column)
 
 
-def kc_table_3_4_b(alloy_temper, welded_region):
-
+def kc_table_3_4_b(alloy_temper, welded_region, kc=None):
+    if kc is not None:
+        return float(kc)
     if welded_region == "Regions within 25 mm of a weld_kc":
-        kc_value = table_3_4_B.loc[
-            table_3_4_B["Alloy and temper"] == alloy_temper,
-            "Regions within 25 mm of a weld_kc",
-        ].values[0]
+        column = "Regions within 25 mm of a weld_kc"
     else:
-        kc_value = table_3_4_B.loc[
-            table_3_4_B["Alloy and temper"] == alloy_temper,
-            "Non-welded or regions farther than 25 mm from a weld_kc",
-        ].values[0]
-
-    return kc_value
+        column = "Non-welded or regions farther than 25 mm from a weld_kc"
+    return _lookup_table_3_4_b_coefficient(alloy_temper, column)
 
 
 # Tension in Axial, Net Section - Section 3.4.2
 def tension_stress_axial_net_section_3_4_2(
-    alloy_temper, product, welded_region, Fty=None, Ftu=None
+    alloy_temper, product, welded_region, Fty=None, Ftu=None, kt=None
 ):
     φ_y = 0.95
     φ_u = 0.85
 
-    # Get the Tension_Fty and Ftu values - use input if provided, otherwise read from table
-    if Fty is None:
-        tension_fty_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Fty",
-        ].values[0]
-    else:
-        tension_fty_value = Fty
-
-    if Ftu is None:
-        tension_ftu_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Ftu",
-        ].values[0]
-    else:
-        tension_ftu_value = Ftu
+    tension_fty_value = resolve_property(alloy_temper, product, "Fty", Fty)
+    tension_ftu_value = resolve_property(alloy_temper, product, "Ftu", Ftu)
 
     fl_yield_stress = φ_y * tension_fty_value
-    kt = kt_table_3_4_b(alloy_temper, welded_region)
-    fl_ultimate_stress = φ_u * tension_ftu_value / kt
+    kt_value = kt_table_3_4_b(alloy_temper, welded_region, kt=kt)
+    fl_ultimate_stress = φ_u * tension_ftu_value / kt_value
     tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
     return tension_capacity
 
 
 def tension_stress_extreme_fibers_bent_strong_axis_3_4_3(
-    alloy_temper, product, welded_region, Fty=None, Ftu=None
+    alloy_temper, product, welded_region, Fty=None, Ftu=None, kt=None
 ):
     φ_y = 0.95
     φ_u = 0.85
 
-    # Get the Tension_Fty and Ftu values - use input if provided, otherwise read from table
-    if Fty is None:
-        tension_fty_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Fty",
-        ].values[0]
-    else:
-        tension_fty_value = Fty
-
-    if Ftu is None:
-        tension_ftu_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Ftu",
-        ].values[0]
-    else:
-        tension_ftu_value = Ftu
+    tension_fty_value = resolve_property(alloy_temper, product, "Fty", Fty)
+    tension_ftu_value = resolve_property(alloy_temper, product, "Ftu", Ftu)
 
     fl_yield_stress = φ_y * tension_fty_value
-    kt = kt_table_3_4_b(alloy_temper, welded_region)
-    fl_ultimate_stress = φ_u * tension_ftu_value / kt
+    kt_value = kt_table_3_4_b(alloy_temper, welded_region, kt=kt)
+    fl_ultimate_stress = φ_u * tension_ftu_value / kt_value
     tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
     return tension_capacity
 
 
 def tension_stress_extreme_fibers_bent_weak_axis_3_4_5(
-    alloy_temper, product, welded_region, Fty=None, Ftu=None
+    alloy_temper, product, welded_region, Fty=None, Ftu=None, kt=None
 ):
     φ_y = 0.95
     φ_u = 0.85
 
-    # Get the Tension_Fty and Ftu values - use input if provided, otherwise read from table
-    if Fty is None:
-        tension_fty_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Fty",
-        ].values[0]
-    else:
-        tension_fty_value = Fty
-
-    if Ftu is None:
-        tension_ftu_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Ftu",
-        ].values[0]
-    else:
-        tension_ftu_value = Ftu
+    tension_fty_value = resolve_property(alloy_temper, product, "Fty", Fty)
+    tension_ftu_value = resolve_property(alloy_temper, product, "Ftu", Ftu)
 
     fl_yield_stress = 1.3 * φ_y * tension_fty_value
-    kt = kt_table_3_4_b(alloy_temper, welded_region)
-    fl_ultimate_stress = 1.42 * φ_u * tension_ftu_value / kt
+    kt_value = kt_table_3_4_b(alloy_temper, welded_region, kt=kt)
+    fl_ultimate_stress = 1.42 * φ_u * tension_ftu_value / kt_value
     tension_capacity = min((fl_yield_stress, fl_ultimate_stress))
     return tension_capacity
 
@@ -375,12 +374,7 @@ def define_equivalent_slenderness_ratio_3_4_8_2(
     E (float, optional): Modulus of elasticity (MPa). If provided, uses this value instead of table lookup.
     """
     kx = 1
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
 
     G = (3 * E) / 8
     # Calculate F_ex (Flexural buckling stress)
@@ -417,12 +411,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(
     kx = 1
     ko = 1
 
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
 
     G = (3 * E) / 8
     # Calculate F_ex (Flexural buckling stress)
@@ -451,7 +440,7 @@ def define_equivalent_slenderness_ratio_3_4_8_3(
 
 
 def calculate_axial_compression_capacity_3_4_8(
-    alloy_temper, product, welded_region, kL_r, E=None, Fcy=None
+    alloy_temper, product, welded_region, kL_r, E=None, Fcy=None, kc=None
 ):
     """
     Calculate the compression capacity of a column.
@@ -469,23 +458,13 @@ def calculate_axial_compression_capacity_3_4_8(
     Returns:
     float: Compression capacity
     """
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     G = 3 * E / 8
 
     # kL_r = define_equivalent_slenderness_ratio_3_4_8_3(alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw)
-    kc = kc_table_3_4_b(alloy_temper, welded_region)
+    kc = kc_table_3_4_b(alloy_temper, welded_region, kc=kc)
     # Calculate slenderness parameter (λ)
     lambda_ = kL_r * (1 / np.pi) * np.sqrt(Fcy / E)
 
@@ -541,18 +520,8 @@ def compression_extreme_fibre_bent_strong_axis_3_4_12(
     float: Compression capacity (kN)
     """
 
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     Bc = Fcy * (1 + (Fcy / 15510) ** 0.5)
     Dc = (Bc / 10) * ((Bc / E) ** 0.5)
@@ -600,19 +569,8 @@ def compression_extreme_fibre_rectangular_tubes_3_4_15(
     Returns:
     float: Compression capacity (MPa)
     """
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     # Constants
     phi_y = 0.95
@@ -650,18 +608,8 @@ def compression_extreme_fibre_bent_strong_axis_3_4_17(
     E (float, optional): Modulus of elasticity (MPa). If provided, uses this value instead of table lookup.
     Fcy (float, optional): Compressive yield strength (MPa). If provided, uses this value instead of table lookup.
     """
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     phi_y = 0.95
     phi_b = 0.85
@@ -703,18 +651,8 @@ def compression_extreme_fibre_bent_weak_axis_3_4_21(
     Returns:
     float: Compression capacity (MPa)
     """
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     # Constants
     phi_y = 0.95
@@ -762,18 +700,8 @@ def compression_beam_web_flat_plate_both_edges_supported_3_4_22(
     Returns:
     float: Compression capacity (MPa)
     """
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    E = resolve_property(alloy_temper, product, "E", E)
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     # Constants (Table 3.4(A))
     phi_y = 0.95
@@ -827,6 +755,7 @@ def combined_compression_bending_4_1_1(
     E=None,
     Fty=None,
     Fcy=None,
+    kc=None,
 ):
     """
     Check combined compression and bending based on AS/NZS 1664.1:1997 Clause 4.1.1.
@@ -864,40 +793,17 @@ def combined_compression_bending_4_1_1(
     ky = 1
     Cmx = Cmy = 0.6
 
-    if E is None:
-        E = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compressive modulus of elasticity_E",
-        ].values[0]
-
-    # Get the Tension_Fty value - use input if provided, otherwise read from table
-    if Fty is None:
-        tension_fty_value = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Tension_Fty",
-        ].values[0]
-    else:
-        tension_fty_value = Fty
-
+    E = resolve_property(alloy_temper, product, "E", E)
+    tension_fty_value = resolve_property(alloy_temper, product, "Fty", Fty)
     Fao = tension_fty_value
-
-    if Fcy is None:
-        Fcy = table_3_3_A.loc[
-            (table_3_3_A["Alloy and temper"] == alloy_temper)
-            & (table_3_3_A["Product"] == product),
-            "Compression_Fcy",
-        ].values[0]
+    Fcy = resolve_property(alloy_temper, product, "Fcy", Fcy)
 
     G = 3 * E / 8
 
     # kL_r = define_equivalent_slenderness_ratio_3_4_8_3(
     #     alloy_temper, product, Lb, Lt, section_area, rx, ry, J, xo, Cw
     # )
-    kc = kc_table_3_4_b(alloy_temper, welded_region)
+    kc = kc_table_3_4_b(alloy_temper, welded_region, kc=kc)
     # Calculate slenderness parameter (λ)
     lambda_ = kL_r * (1 / np.pi) * np.sqrt(Fcy / E)
 
@@ -1008,26 +914,8 @@ def shear_in_rivets_bolts_3_4_6(
     # Reduction factors
     phi_y = 0.95
     phi_u = 0.85
-    if Fby is None:
-        F_by = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Bearing_Fbry",
-        ].values[0]
-    else:
-        F_by = Fby
-    if Fbu is None:
-        F_bu = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Bearing_Fbru",
-        ].values[0]
-    else:
-        F_bu = Fbu
+    F_by = resolve_property(alloy_temper, product, "Fby", Fby)
+    F_bu = resolve_property(alloy_temper, product, "Fbu", Fbu)
     # Calculate bearing stresses
     phi_FL_y = phi_y * F_by
     phi_FL_u = phi_u * F_bu / 1.2
@@ -1057,26 +945,8 @@ def bearing_on_surface_3_4_7(
     # Reduction factors
     phi_y = 0.95
     phi_u = 0.85
-    if Fby is None:
-        F_by = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Bearing_Fbry",
-        ].values[0]
-    else:
-        F_by = Fby
-    if Fbu is None:
-        F_bu = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper)
-                & (table_3_3_A["Product"] == product)
-            ),
-            "Bearing_Fbru",
-        ].values[0]
-    else:
-        F_bu = Fbu
+    F_by = resolve_property(alloy_temper, product, "Fby", Fby)
+    F_bu = resolve_property(alloy_temper, product, "Fbu", Fbu)
 
     bearing = min(phi_y * F_by, phi_u * F_bu)
     return bearing
@@ -1084,7 +954,18 @@ def bearing_on_surface_3_4_7(
 
 ## Tension Capacity
 def calculate_tension_strength_5_3_3(
-    alloy_temper_1, product_1, F_tu2, D, t1, t_c, D_ws, D_h, C, Ftu1=None
+    alloy_temper_1,
+    product_1,
+    F_tu2,
+    D,
+    t1,
+    t_c,
+    D_ws,
+    D_h,
+    C,
+    Ftu1=None,
+    alloy_temper_2=None,
+    product_2=None,
 ):
     """
     Calculate the factored limit state strength in tension for a screw.
@@ -1105,16 +986,9 @@ def calculate_tension_strength_5_3_3(
     float: Factored limit state strength in tension (kN)
     """
 
-    if Ftu1 is None:
-        F_tu1 = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper_1)
-                & (table_3_3_A["Product"] == product_1)
-            ),
-            "Bearing_Fbru",
-        ].values[0]
-    else:
-        F_tu1 = Ftu1
+    F_tu1 = resolve_property(alloy_temper_1, product_1, "Fbu", Ftu1)
+    if alloy_temper_2 is not None and product_2 is not None:
+        F_tu2 = resolve_property(alloy_temper_2, product_2, "Ftu", F_tu2)
 
     phi_sc = 0.50
     # Calculate Pull-out Force (P_not)
@@ -1146,6 +1020,8 @@ def calculate_shear_strength_5_3_2(
     D,
     Fby1=None,
     Fu1=None,
+    alloy_temper_2=None,
+    product_2=None,
 ):
     """
     Calculate the connection shear factored limit state shear strength per screw (phi P_as).
@@ -1170,27 +1046,11 @@ def calculate_shear_strength_5_3_2(
     phi_u = 0.85
 
     # Calculate F_by1, F_by2, F_u1, F_u2
-    if Fby1 is None:
-        F_by1 = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper_1)
-                & (table_3_3_A["Product"] == product_1)
-            ),
-            "Bearing_Fbry",
-        ].values[0]
-    else:
-        F_by1 = Fby1
-
-    if Fu1 is None:
-        F_u1 = table_3_3_A.loc[
-            (
-                (table_3_3_A["Alloy and temper"] == alloy_temper_1)
-                & (table_3_3_A["Product"] == product_1)
-            ),
-            "Bearing_Fbru",
-        ].values[0]
-    else:
-        F_u1 = Fu1
+    F_by1 = resolve_property(alloy_temper_1, product_1, "Fby", Fby1)
+    F_u1 = resolve_property(alloy_temper_1, product_1, "Fbu", Fu1)
+    if alloy_temper_2 is not None and product_2 is not None:
+        F_by2 = resolve_property(alloy_temper_2, product_2, "Fby", F_by2)
+        F_u2 = resolve_property(alloy_temper_2, product_2, "Fbu", F_u2)
 
     # Calculate P_ns values
     P_ns1 = (phi_y / phi_sc) * F_by1 * t1 * D
