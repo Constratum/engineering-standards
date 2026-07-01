@@ -1355,3 +1355,111 @@ class NZS_3404_1997(Section4, Section5, Section6, Section7, Section8, Section12)
                 columns=["lower_percent", "upper_percent"],
             ),
         }
+
+
+# ------------------------------------------------------------------
+# Module-level convenience functions (fence member design)
+#
+# These bundle the multi-step Section 5 workflow into single calls so the
+# engineering-method cells can call the standard directly -
+# ``NZS_3404_1997.section_moment(...)`` - the same way the other material
+# standards (AS/NZS 4600, AS/NZS 1664, NZS AS 1720.1) are called, without any
+# notebook-level helper functions.
+# ------------------------------------------------------------------
+
+_NZS3404_INSTANCE = None
+
+
+def _instance():
+    """Lazily create and reuse a single ``NZS_3404_1997`` instance."""
+    global _NZS3404_INSTANCE
+    if _NZS3404_INSTANCE is None:
+        _NZS3404_INSTANCE = NZS_3404_1997()
+    return _NZS3404_INSTANCE
+
+
+def _require(name, value):
+    if value is None:
+        raise ValueError(f"{name} is required for NZS 3404 capacity calculations")
+
+
+def effective_section_modulus_5_2(
+    fy_MPa, Z_mm3, S_mm3, b_flat_mm, t_mm, table_5_2_case,
+    residual_stress=None, subtype=None, slender_case="uniform",
+):
+    """Effective section modulus Ze and slenderness terms (Cl 5.2.3-5.2.5)."""
+    n = _instance()
+    _require("S_mm3", S_mm3)
+    _require("b_flat_mm", b_flat_mm)
+    _require("t_mm", t_mm)
+    lambda_ep, lambda_ey, _ = n.get_plate_limits_5_2(table_5_2_case, residual_stress, subtype)
+    lambda_s = n.plate_slenderness(b_flat_mm, t_mm, fy_MPa)
+    Ze = n.effective_section_modulus(Z_mm3, S_mm3, lambda_s, lambda_ep, lambda_ey, slender_case)
+    return Ze, lambda_s, lambda_ep, lambda_ey
+
+
+def section_moment(
+    fy_MPa, Z_mm3, S_mm3, b_flat_mm, t_mm, table_5_2_case,
+    residual_stress=None, subtype=None, slender_case="uniform",
+):
+    """Nominal and design section moment capacity (Cl 5.2.1, 5.1)."""
+    n = _instance()
+    Ze, lambda_s, lambda_ep, lambda_ey = effective_section_modulus_5_2(
+        fy_MPa, Z_mm3, S_mm3, b_flat_mm, t_mm, table_5_2_case,
+        residual_stress, subtype, slender_case,
+    )
+    Ms = n.nominal_section_moment_capacity(fy_MPa, Ze)
+    phi = n.get_phi("bending_shear")
+    return {
+        "Ze_mm3": Ze, "lambda_s": lambda_s, "lambda_ep": lambda_ep,
+        "lambda_ey": lambda_ey, "Ms_Nmm": Ms, "phi_Ms_Nmm": phi * Ms, "phi": phi,
+    }
+
+
+def member_moment_ff(Ms_Nmm, restraint_arrangement):
+    """Nominal and design member moment capacity for F-F restraint (Cl 5.6)."""
+    if restraint_arrangement != "FF":
+        raise NotImplementedError(
+            "Only F-F restraint is set up for NZS 3404 fence member capacity. "
+            f"Received {restraint_arrangement!r}."
+        )
+    phi = _instance().get_phi("bending_shear")
+    return {
+        "restraint_arrangement": restraint_arrangement, "full_lateral_restraint": True,
+        "Mb_Nmm": Ms_Nmm, "phi_Mb_Nmm": phi * Ms_Nmm, "phi": phi,
+    }
+
+
+def hollow_shear_stress_ratio(b_mm, d_mm):
+    """Maximum-to-average shear stress ratio for RHS (Cl 5.11.3)."""
+    return 3.0 * (2.0 * b_mm + d_mm) / (2.0 * (3.0 * b_mm + d_mm))
+
+
+def shear_capacity(fy_MPa, d_p_mm, t_mm, *, n_webs=2, b_outer_mm=None, d_outer_mm=None):
+    """Nominal and design web shear capacity (Cl 5.11.2-5.11.3)."""
+    n = _instance()
+    _require("d_p_mm", d_p_mm)
+    _require("t_mm", t_mm)
+    Aw = n_webs * d_p_mm * t_mm
+    Vvu = n.shear_capacity_uniform(Aw, fy_MPa, d_p_mm, t_mm)
+    if b_outer_mm is not None and d_outer_mm is not None:
+        stress_ratio = hollow_shear_stress_ratio(b_outer_mm, d_outer_mm)
+        Vvn = n.shear_capacity_non_uniform(Vvu, stress_ratio, 1.0)
+    else:
+        stress_ratio = None
+        Vvn = Vvu
+    phi = n.get_phi("bending_shear")
+    return {
+        "d_p_mm": d_p_mm, "Aw_mm2": Aw, "Vvu_N": Vvu, "Vvn_N": Vvn,
+        "phi_Vv_N": phi * Vvn, "shear_stress_ratio": stress_ratio, "phi": phi,
+    }
+
+
+# Also expose them on the class, so callers that hold the class object (e.g. the
+# PF runtime, which resolves ``NZS_3404_1997`` to the class) use the same
+# ``NZS_3404_1997.section_moment(...)`` call as the notebook (module).
+NZS_3404_1997.effective_section_modulus_5_2 = staticmethod(effective_section_modulus_5_2)
+NZS_3404_1997.section_moment = staticmethod(section_moment)
+NZS_3404_1997.member_moment_ff = staticmethod(member_moment_ff)
+NZS_3404_1997.hollow_shear_stress_ratio = staticmethod(hollow_shear_stress_ratio)
+NZS_3404_1997.shear_capacity = staticmethod(shear_capacity)
