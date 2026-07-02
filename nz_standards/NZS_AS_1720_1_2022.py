@@ -2556,6 +2556,38 @@ def create_joint_system(
         )
 
 
+def expand_member_thicknesses(joint_configuration, thickness_mm):
+    """Expand one joist thickness into the member list expected by joint calcs.
+
+    Webapp / PF inputs carry a single ``thickness_timber_joist`` value. The
+    standard joint functions expect a list whose length matches the joint
+    configuration (two-member, three-member, etc.).
+    """
+    if isinstance(thickness_mm, (list, tuple)):
+        return list(thickness_mm)
+
+    if not isinstance(thickness_mm, (int, float)):
+        raise ValueError(
+            "thickness_mm must be a numeric joist thickness (mm) or a list of thicknesses; "
+            f"got {thickness_mm!r}"
+        )
+
+    thickness_mm = float(thickness_mm)
+    member_count_by_configuration = {
+        "two_member": 2,
+        "three_member": 3,
+    }
+    if joint_configuration == "multiple_member":
+        raise ValueError(
+            "multiple_member joints require member_thicknesses as an explicit list "
+            "of thicknesses (mm)"
+        )
+    member_count = member_count_by_configuration.get(joint_configuration)
+    if member_count is None:
+        raise ValueError(f"Invalid joint configuration: {joint_configuration}")
+    return [thickness_mm] * member_count
+
+
 def calculate_joint_capacities(
     joint_connection_type,
     n_fasteners,
@@ -2583,7 +2615,8 @@ def calculate_joint_capacities(
         is_side_grain (bool): Whether the fasteners are in side grain (True) or end grain (False)
         has_metal_side_plates (bool): Whether the joint has metal side plates
         joint_configuration (str): Type of joint configuration ('two_member', 'three_member', etc.)
-        member_thicknesses (list): List of thicknesses for each member in mm
+        member_thicknesses (list | number): One joist thickness (mm) or explicit list of
+            member thicknesses. A single value is expanded using ``expand_member_thicknesses``.
         angle_degrees (float): Angle between load direction and grain direction in degrees
         is_seasoned (bool): Whether the timber is seasoned
         washer_diameter (float): Diameter of the washer in mm (required for bolts in tension)
@@ -2598,6 +2631,10 @@ def calculate_joint_capacities(
     Raises:
         ValueError: If required parameters are missing or invalid
     """
+    member_thicknesses = expand_member_thicknesses(
+        joint_configuration, member_thicknesses
+    )
+
     # Create appropriate joint systems for tension and shear
     if joint_connection_type == "coach_screw":
         # For coach screws
