@@ -21,7 +21,7 @@ module. This module owns NZS 4219 demand and NZS 4219 tabulated capacities only.
 
 from __future__ import annotations
 
-from math import cos, radians, sqrt
+import numpy as np
 from typing import Any, Optional
 
 GRAVITY_M_S2 = 9.80665
@@ -1335,7 +1335,7 @@ class Section3:
             raise ValueError(
                 f"brace_angle_deg must be in [0, 60] (NZS 4219 Eq. 3.4); got {theta}"
             )
-        p = f / cos(radians(theta))
+        p = f / np.cos(np.radians(theta))
         return {
             "brace_axial_force_kn": p,
             "horizontal_force_kn": f,
@@ -1405,7 +1405,7 @@ class Section3:
             raise ValueError(
                 f"brace_angle_deg must be in [0, 60] (NZS 4219 Eq. 3.7); got {theta}"
             )
-        cos_t = cos(radians(theta))
+        cos_t = np.cos(np.radians(theta))
         p = c * w * h / (h_brace * cos_t)
         rh = (c * w - p * cos_t) / n
         return {
@@ -1623,7 +1623,7 @@ class Section3:
             raise ValueError(
                 f"brace_angle_deg must be in [0, 60] (NZS 4219 cl. 3.8); got {theta}"
             )
-        p_total = c * w / cos(radians(theta))
+        p_total = c * w / np.cos(np.radians(theta))
         return Section3._pack_suspended_brace_result(
             p_total,
             theta,
@@ -1660,7 +1660,7 @@ class Section3:
         h_span = _require_positive(
             "lower_to_upper_support_mm", lower_to_upper_support_mm
         )
-        p_total = h * c * w / (h_span * cos(radians(theta)))
+        p_total = h * c * w / (h_span * np.cos(np.radians(theta)))
         return Section3._pack_suspended_brace_result(
             p_total,
             theta,
