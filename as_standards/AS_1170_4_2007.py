@@ -144,11 +144,21 @@ table3_1 = pd.DataFrame(
 
 
 def return_period_factor(P):
-    kp = table3_1.loc[
+    if P is None:
+        raise ValueError("Annual probability of exceedance P is required.")
+    matched = table3_1.loc[
         table3_1["Annual probability of exceedance (P)"] == P, "Probability factor (kp)"
-    ].squeeze()
-
-    return kp
+    ]
+    if matched.empty:
+        raise ValueError(
+            f"Probability factor kp is not defined for annual probability of exceedance {P!r}."
+        )
+    kp = matched.squeeze()
+    if isinstance(kp, pd.Series):
+        raise ValueError(
+            f"Probability factor kp lookup for {P!r} is not unique."
+        )
+    return float(kp)
 
 
 # @title Table 3.2 - Hazard factor ( 𝑍 ) For Specific Australian Locations { vertical-output: true }
@@ -267,11 +277,19 @@ table3_3 = pd.DataFrame(
 )
 
 def min_kp_z(P):
-    min_kpZ = table3_3.loc[
+    if P is None:
+        raise ValueError("Annual probability of exceedance P is required for min kpZ.")
+    matched = table3_3.loc[
         table3_3["Annual probability of exceedance (P)"] == P, "Minimum value of kpZ"
-    ].squeeze()
-
-    return min_kpZ
+    ]
+    if matched.empty:
+        raise ValueError(
+            f"Minimum kpZ (Table 3.3) is not defined for annual probability of exceedance {P!r}."
+        )
+    min_kpZ = matched.squeeze()
+    if isinstance(min_kpZ, pd.Series):
+        raise ValueError(f"Minimum kpZ lookup for {P!r} is not unique.")
+    return float(min_kpZ)
 
 # Seismic weight (Wi)
 
@@ -586,24 +604,121 @@ table6_4_1 = pd.DataFrame(
 def spectral_shape_factor(Subsoil_Type, T, spectral_method):
     if spectral_method == "General (table 6.4)":
         table = table6_4
-    else:
+    elif spectral_method == "modal, numerical, parts (table 6.4(1))":
         table = table6_4_1
+    else:
+        raise ValueError(
+            f"Unknown spectral_method {spectral_method!r}. "
+            "Use 'General (table 6.4)' or 'modal, numerical, parts (table 6.4(1))'."
+        )
+    if Subsoil_Type not in table.columns:
+        raise ValueError(
+            f"Unknown subsoil type {Subsoil_Type!r}. Valid: {list(table.columns)}."
+        )
+    if T is None:
+        raise ValueError("Period T is required for spectral_shape_factor.")
+    T = float(T)
+    if T < 0.0:
+        raise ValueError(f"Period T must be >= 0, got {T}.")
 
-    # linear interpolation
     a = table.index.values
     b = table[Subsoil_Type].to_numpy()
-
-    ChT = np.interp(T, a, b)
-
-    return ChT
+    return float(np.interp(T, a, b))
 
 
 # Hazard Factor
 def hazard_factor(location):
-    Z = table3_2.loc[table3_2["Location"] == location, "Z"]
-    Z = Z.squeeze()
+    if location is None or location == "":
+        raise ValueError("Location is required for hazard_factor.")
+    matched = table3_2.loc[table3_2["Location"] == location, "Z"]
+    if matched.empty:
+        raise ValueError(
+            f"Hazard factor Z is not defined for location {location!r}."
+        )
+    Z = matched.squeeze()
+    if isinstance(Z, pd.Series):
+        raise ValueError(f"Hazard factor Z lookup for {location!r} is not unique.")
+    return float(Z)
 
-    return Z
+
+# Section 6 - Equivalent static analysis (structure, not parts)
+def elastic_site_spectra(ChT, Z, kp, P):
+    """AS 1170.4 Eq 6.2(5): C(T) = kp Z Ch(T), with kpZ not less than Table 3.3."""
+    if ChT is None:
+        raise ValueError("Spectral shape factor ChT is required.")
+    if Z is None:
+        raise ValueError("Hazard factor Z is required.")
+    if kp is None:
+        raise ValueError("Probability factor kp is required.")
+    kpZ = max(float(kp) * float(Z), min_kp_z(P))
+    return kpZ * float(ChT)
+
+
+def horizontal_design_action(CT, Sp, mu):
+    """AS 1170.4 Eq 6.2(4): Cd(T) = C(T) Sp / mu. No NZS k_mu and no Cd floor."""
+    if CT is None:
+        raise ValueError("Elastic site hazard spectrum CT is required.")
+    if Sp is None:
+        raise ValueError("Structural performance factor Sp is required.")
+    if mu is None:
+        raise ValueError("Structural ductility factor mu is required.")
+    mu = float(mu)
+    if mu <= 0.0:
+        raise ValueError(f"Structural ductility factor mu must be > 0, got {mu}.")
+    return float(CT) * float(Sp) / mu
+
+
+def calculating_horizontal_shear_base_6_2(CdT, Wt):
+    """AS 1170.4 Eq 6.2(1): V = Cd(T1) Wt."""
+    if CdT is None:
+        raise ValueError("Horizontal design action coefficient CdT is required.")
+    if Wt is None:
+        raise ValueError("Seismic weight Wt is required.")
+    return float(CdT) * float(Wt)
+
+
+def height_distribution_exponent(T1):
+    """AS 1170.4 Clause 6.3: k = 1 if T1 <= 0.5, k = 2 if T1 >= 2.5, else linear."""
+    if T1 <= 0.5:
+        return 1.0
+    if T1 >= 2.5:
+        return 2.0
+    return 1.0 + (T1 - 0.5) / 2.0
+
+
+def calculating_eq_static_horizontal_load(V, phi_E, Q, G, h1, hi, nLevels, T1):
+    """AS 1170.4 Clause 6.3: Fi = V * (Wi * hi^k) / Σ(Wj * hj^k). No NZS Ft = 0.08V."""
+    k = height_distribution_exponent(T1)
+
+    def calculating_level_data(phi_E, Q, G, h1, hi, nLevels):
+        levels = list(range(nLevels, 0, -1))
+        heights = [h1 + (i - 1) * hi for i in levels]
+        Wi_value = phi_E * Q + G
+        Wi_list = [Wi_value] * nLevels
+        return pd.DataFrame({"Level": levels, "hi": heights, "Wi": Wi_list})
+
+    result_df = calculating_level_data(phi_E, Q, G, h1, hi, nLevels)
+    result_df["k"] = k
+    result_df["Wi*hi^k"] = result_df["Wi"] * (result_df["hi"] ** k)
+    sigma_wi_hi_k = result_df["Wi*hi^k"].sum()
+    if sigma_wi_hi_k <= 0.0:
+        raise ValueError("Equivalent-static sum(Wi hi^k) is zero.")
+    # Eq 6.3(1)–(2): Fi = k_F,i * V  with  k_F,i = (Wi hi^k) / Σ(Wj hj^k)
+    result_df["Fi"] = V * (result_df["Wi*hi^k"] / sigma_wi_hi_k)
+    return result_df
+
+
+def calculating_eq_static_horizontal_load_from_storeys(V, levels, heights, weights, T1):
+    """Same Clause 6.3 Fi equation, with storey Wi and hi supplied (irregular layout)."""
+    k = height_distribution_exponent(T1)
+    result_df = pd.DataFrame({"Level": levels, "hi": heights, "Wi": weights})
+    result_df["k"] = k
+    result_df["Wi*hi^k"] = result_df["Wi"] * (result_df["hi"] ** k)
+    sigma_wi_hi_k = result_df["Wi*hi^k"].sum()
+    if sigma_wi_hi_k <= 0.0:
+        raise ValueError("Equivalent-static sum(Wi hi^k) is zero.")
+    result_df["Fi"] = V * (result_df["Wi*hi^k"] / sigma_wi_hi_k)
+    return result_df
 
 
 # Section 8 - Design of parts and components
