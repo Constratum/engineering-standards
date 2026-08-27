@@ -872,7 +872,7 @@ def calc_Beta_E2(t, xc, a, b, c, Iy, x_o, section_type):
             2 / 3 * t * (xc + b) * ((a / 2) ** 3 - (a / 2 - c) ** 3)
         )
 
-    beta_y = (beta_w + beta_f + beta_l / Iy) - 2 * x_o
+    beta_y = (beta_w + beta_f + beta_l) / Iy - 2 * x_o
 
     return beta_y
 
