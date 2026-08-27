@@ -8,9 +8,6 @@ Target documents
 
 Scope
 -----
-This module provides AS 3600 equivalents for the slab-related calculation
-style used in ``NZS_3101_1_22006.py``:
-
 1. Punching shear of slabs around a support or concentrated load
    (AS 3600 Clause 9.3).
 2. Concrete bearing surfaces under a plate or other loaded area
