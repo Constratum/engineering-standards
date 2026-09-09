@@ -1,0 +1,117 @@
+product: "HIT-HY 200"
+manufacturer: "Hilti"
+eta: "ETA-19/0601"
+eta_date: "2025-09-08"
+description: "Hybrid Mortar + HAS-U 8.8"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HY200_V3_DIBt__ETA-19_0601.pdf"
+notes: "HIT-HY 200-A/R V3 + HAS-U 8.8. N0_Rk_p from tau_Rk,cr temperature range I, dry/wet hammer drilling. V0_Rk,s = 0.5 * NRk,s."
+aliases:
+  - "HIT-HY200"
+sizes:
+  - diameter: 8
+    embedments:
+      80:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 14.7
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 15.1
+          C25/30: 16.9
+          C30/37: 18.4
+  - diameter: 10
+    embedments:
+      90:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 23.2
+        s_cr_N: 270.0
+        c_cr_N: 135.0
+        l_f: 90.0
+        h_ef: 90.0
+        N0_Rk_p:
+          C20/25: 26.6
+          C25/30: 29.7
+          C30/37: 32.5
+  - diameter: 12
+    embedments:
+      110:
+        N0_Rk_s: 67.4
+        V0_Rk_s: 33.7
+        s_cr_N: 330.0
+        c_cr_N: 165.0
+        l_f: 110.0
+        h_ef: 110.0
+        N0_Rk_p:
+          C20/25: 39.4
+          C25/30: 44.1
+          C30/37: 48.1
+  - diameter: 16
+    embedments:
+      125:
+        N0_Rk_s: 125.6
+        V0_Rk_s: 62.8
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 59.7
+          C25/30: 66.7
+          C30/37: 72.8
+  - diameter: 20
+    embedments:
+      170:
+        N0_Rk_s: 196.0
+        V0_Rk_s: 98.0
+        s_cr_N: 510.0
+        c_cr_N: 255.0
+        l_f: 170.0
+        h_ef: 170.0
+        N0_Rk_p:
+          C20/25: 101.5
+          C25/30: 113.5
+          C30/37: 123.8
+  - diameter: 24
+    embedments:
+      210:
+        N0_Rk_s: 282.4
+        V0_Rk_s: 141.2
+        s_cr_N: 630.0
+        c_cr_N: 315.0
+        l_f: 210.0
+        h_ef: 210.0
+        N0_Rk_p:
+          C20/25: 150.4
+          C25/30: 168.2
+          C30/37: 183.5
+  - diameter: 27
+    embedments:
+      240:
+        N0_Rk_s: 367.2
+        V0_Rk_s: 183.6
+        s_cr_N: 720.0
+        c_cr_N: 360.0
+        l_f: 240.0
+        h_ef: 240.0
+        N0_Rk_p:
+          C20/25: 193.4
+          C25/30: 216.2
+          C30/37: 235.9
+  - diameter: 30
+    embedments:
+      270:
+        N0_Rk_s: 448.8
+        V0_Rk_s: 224.4
+        s_cr_N: 810.0
+        c_cr_N: 405.0
+        l_f: 270.0
+        h_ef: 270.0
+        N0_Rk_p:
+          C20/25: 241.7
+          C25/30: 270.2
+          C30/37: 294.9

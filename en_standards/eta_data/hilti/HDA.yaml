@@ -1,0 +1,64 @@
+product: "HDA"
+manufacturer: "Hilti"
+eta: "ETA-99/0009"
+eta_date: "2025-05-06"
+description: "Self-Undercut Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: true
+embedment_key: "h_ef"
+source_pdf: "HDA_CSTB__ETA-99_0009.pdf"
+notes: "HDA-P / HDA-T carbon. N0_Rk_p = NRk,p,cr C20/25. psi_c C30/37=1.22."
+aliases: []
+sizes:
+  - diameter: 10
+    embedments:
+      100:
+        N0_Rk_s: 46.0
+        V0_Rk_s: 26.4
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 39.8
+          C25/30: 44.5
+          C30/37: 48.6
+  - diameter: 12
+    embedments:
+      125:
+        N0_Rk_s: 67.0
+        V0_Rk_s: 37.7
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 55.6
+          C25/30: 62.2
+          C30/37: 67.8
+  - diameter: 16
+    embedments:
+      190:
+        N0_Rk_s: 126.0
+        V0_Rk_s: 67.8
+        s_cr_N: 570.0
+        c_cr_N: 285.0
+        l_f: 190.0
+        h_ef: 190.0
+        N0_Rk_p:
+          C20/25: 104.2
+          C25/30: 116.5
+          C30/37: 127.1
+  - diameter: 20
+    embedments:
+      250:
+        N0_Rk_s: 192.0
+        V0_Rk_s: 104.0
+        s_cr_N: 750.0
+        c_cr_N: 375.0
+        l_f: 250.0
+        h_ef: 250.0
+        N0_Rk_p:
+          C20/25: 157.3
+          C25/30: 175.9
+          C30/37: 191.9

@@ -1,0 +1,77 @@
+product: "HVU2"
+manufacturer: "Hilti"
+eta: "ETA-16/0515"
+eta_date: "2023-09-14"
+description: "Foil Capsule + HAS-(E) 8.8"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HVU2_ETA-16_0515.pdf"
+notes: "HVU2 + HAS-(E) 8.8. N0_Rk_p from tau_Rk,cr temperature range I, hammer-drilled holes."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      80:
+        N0_Rk_s: 26.5
+        V0_Rk_s: 13.2
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 10.1
+          C25/30: 11.3
+          C30/37: 12.3
+  - diameter: 10
+    embedments:
+      90:
+        N0_Rk_s: 42.2
+        V0_Rk_s: 21.1
+        s_cr_N: 270.0
+        c_cr_N: 135.0
+        l_f: 90.0
+        h_ef: 90.0
+        N0_Rk_p:
+          C20/25: 14.1
+          C25/30: 15.8
+          C30/37: 17.2
+  - diameter: 12
+    embedments:
+      110:
+        N0_Rk_s: 61.0
+        V0_Rk_s: 30.5
+        s_cr_N: 330.0
+        c_cr_N: 165.0
+        l_f: 110.0
+        h_ef: 110.0
+        N0_Rk_p:
+          C20/25: 20.7
+          C25/30: 23.1
+          C30/37: 25.3
+  - diameter: 16
+    embedments:
+      130:
+        N0_Rk_s: 115.4
+        V0_Rk_s: 57.7
+        s_cr_N: 390.0
+        c_cr_N: 195.0
+        l_f: 130.0
+        h_ef: 130.0
+        N0_Rk_p:
+          C20/25: 55.5
+          C25/30: 62.1
+          C30/37: 67.7
+  - diameter: 20
+    embedments:
+      170:
+        N0_Rk_s: 179.5
+        V0_Rk_s: 89.8
+        s_cr_N: 510.0
+        c_cr_N: 255.0
+        l_f: 170.0
+        h_ef: 170.0
+        N0_Rk_p:
+          C20/25: 90.8
+          C25/30: 101.5
+          C30/37: 110.8

@@ -1,0 +1,77 @@
+product: "HST4"
+manufacturer: "Hilti"
+eta: "ETA-21/0878"
+eta_date: "2025-10-09"
+description: "Expansion Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HST4_CSTB__ETA-21_0878.pdf"
+notes: "Hilti HST4 carbon, hammer drilling, cracked C20/25. Representative h_ef in the approved range."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      50:
+        N0_Rk_s: 21.0
+        V0_Rk_s: 16.3
+        s_cr_N: 150.0
+        c_cr_N: 75.0
+        l_f: 50.0
+        h_ef: 50.0
+        N0_Rk_p:
+          C20/25: 12.0
+          C25/30: 13.4
+          C30/37: 14.6
+  - diameter: 10
+    embedments:
+      70:
+        N0_Rk_s: 32.5
+        V0_Rk_s: 24.8
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 19.0
+          C25/30: 21.2
+          C30/37: 23.2
+  - diameter: 12
+    embedments:
+      80:
+        N0_Rk_s: 46.0
+        V0_Rk_s: 37.4
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 28.0
+          C25/30: 31.3
+          C30/37: 34.2
+  - diameter: 16
+    embedments:
+      85:
+        N0_Rk_s: 75.0
+        V0_Rk_s: 62.9
+        s_cr_N: 255.0
+        c_cr_N: 127.5
+        l_f: 85.0
+        h_ef: 85.0
+        N0_Rk_p:
+          C20/25: 38.0
+          C25/30: 42.5
+          C30/37: 46.4
+  - diameter: 20
+    embedments:
+      125:
+        N0_Rk_s: 124.2
+        V0_Rk_s: 83.9
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 35.0
+          C25/30: 39.1
+          C30/37: 42.7

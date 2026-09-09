@@ -1,0 +1,176 @@
+product: "HUS4-H"
+manufacturer: "Hilti"
+eta: "ETA-20/0867"
+eta_date: "2025-12-22"
+description: "Screw Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_nom"
+source_pdf: "HUS4_DIBt_ETA-20-0867.pdf"
+notes: "Keys are nominal embedment h_nom [mm]; h_ef is the effective depth from the ETA. N0_Rk_p is cracked C20/25 pull-out; where ETA says pull-out is not governing, N0_Rk,c is stored."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      40:
+        N0_Rk_s: 36.0
+        V0_Rk_s: 18.8
+        s_cr_N: 91.8
+        c_cr_N: 45.9
+        l_f: 40.0
+        h_ef: 30.6
+        N0_Rk_p:
+          C20/25: 5.5
+          C25/30: 6.1
+          C30/37: 6.7
+      60:
+        N0_Rk_s: 36.0
+        V0_Rk_s: 18.8
+        s_cr_N: 142.8
+        c_cr_N: 71.4
+        l_f: 60.0
+        h_ef: 47.6
+        N0_Rk_p:
+          C20/25: 11.3
+          C25/30: 12.6
+          C30/37: 13.8
+      70:
+        N0_Rk_s: 36.0
+        V0_Rk_s: 21.9
+        s_cr_N: 168.3
+        c_cr_N: 84.2
+        l_f: 70.0
+        h_ef: 56.1
+        N0_Rk_p:
+          C20/25: 14.5
+          C25/30: 16.2
+          C30/37: 17.7
+  - diameter: 10
+    embedments:
+      55:
+        N0_Rk_s: 55.0
+        V0_Rk_s: 28.8
+        s_cr_N: 127.5
+        c_cr_N: 63.8
+        l_f: 55.0
+        h_ef: 42.5
+        N0_Rk_p:
+          C20/25: 9.5
+          C25/30: 10.6
+          C30/37: 11.6
+      75:
+        N0_Rk_s: 55.0
+        V0_Rk_s: 28.8
+        s_cr_N: 178.5
+        c_cr_N: 89.2
+        l_f: 75.0
+        h_ef: 59.5
+        N0_Rk_p:
+          C20/25: 15.8
+          C25/30: 17.7
+          C30/37: 19.3
+      85:
+        N0_Rk_s: 55.0
+        V0_Rk_s: 32.0
+        s_cr_N: 204.0
+        c_cr_N: 102.0
+        l_f: 85.0
+        h_ef: 68.0
+        N0_Rk_p:
+          C20/25: 19.3
+          C25/30: 21.6
+          C30/37: 23.5
+  - diameter: 12
+    embedments:
+      60:
+        N0_Rk_s: 79.0
+        V0_Rk_s: 38.9
+        s_cr_N: 137.7
+        c_cr_N: 68.8
+        l_f: 60.0
+        h_ef: 45.9
+        N0_Rk_p:
+          C20/25: 10.0
+          C25/30: 11.2
+          C30/37: 12.2
+      80:
+        N0_Rk_s: 79.0
+        V0_Rk_s: 44.9
+        s_cr_N: 188.7
+        c_cr_N: 94.3
+        l_f: 80.0
+        h_ef: 62.9
+        N0_Rk_p:
+          C20/25: 17.2
+          C25/30: 19.2
+          C30/37: 21.0
+      100:
+        N0_Rk_s: 79.0
+        V0_Rk_s: 44.9
+        s_cr_N: 239.7
+        c_cr_N: 119.9
+        l_f: 100.0
+        h_ef: 79.9
+        N0_Rk_p:
+          C20/25: 24.6
+          C25/30: 27.5
+          C30/37: 30.0
+  - diameter: 14
+    embedments:
+      65:
+        N0_Rk_s: 101.5
+        V0_Rk_s: 55.0
+        s_cr_N: 147.9
+        c_cr_N: 73.9
+        l_f: 65.0
+        h_ef: 49.3
+        N0_Rk_p:
+          C20/25: 11.9
+          C25/30: 13.3
+          C30/37: 14.5
+      85:
+        N0_Rk_s: 101.5
+        V0_Rk_s: 55.0
+        s_cr_N: 198.9
+        c_cr_N: 99.4
+        l_f: 85.0
+        h_ef: 66.3
+        N0_Rk_p:
+          C20/25: 18.6
+          C25/30: 20.8
+          C30/37: 22.7
+      115:
+        N0_Rk_s: 101.5
+        V0_Rk_s: 62.0
+        s_cr_N: 275.4
+        c_cr_N: 137.7
+        l_f: 115.0
+        h_ef: 91.8
+        N0_Rk_p:
+          C20/25: 30.3
+          C25/30: 33.9
+          C30/37: 37.0
+  - diameter: 16
+    embedments:
+      85:
+        N0_Rk_s: 107.7
+        V0_Rk_s: 65.1
+        s_cr_N: 199.8
+        c_cr_N: 99.9
+        l_f: 85.0
+        h_ef: 66.6
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+      130:
+        N0_Rk_s: 107.7
+        V0_Rk_s: 73.1
+        s_cr_N: 314.7
+        c_cr_N: 157.4
+        l_f: 130.0
+        h_ef: 104.9
+        N0_Rk_p:
+          C20/25: 32.0
+          C25/30: 35.8
+          C30/37: 39.0

@@ -1,0 +1,77 @@
+product: "HST3"
+manufacturer: "Hilti"
+eta: "unavailable"
+eta_date: "unavailable"
+description: "Expansion Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "unavailable"
+notes: "HST3 ETA not in tests/anchors/. Values from previous database. HST4 and HST2-V3 added from current ETAs."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      45:
+        N0_Rk_s: 25.0
+        V0_Rk_s: 16.0
+        s_cr_N: 135.0
+        c_cr_N: 67.5
+        l_f: 45.0
+        h_ef: 45.0
+        N0_Rk_p:
+          C20/25: 11.0
+          C25/30: 12.3
+          C30/37: 13.4
+  - diameter: 10
+    embedments:
+      55:
+        N0_Rk_s: 38.0
+        V0_Rk_s: 24.3
+        s_cr_N: 165.0
+        c_cr_N: 82.5
+        l_f: 55.0
+        h_ef: 55.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+  - diameter: 12
+    embedments:
+      65:
+        N0_Rk_s: 53.0
+        V0_Rk_s: 33.9
+        s_cr_N: 195.0
+        c_cr_N: 97.5
+        l_f: 65.0
+        h_ef: 65.0
+        N0_Rk_p:
+          C20/25: 22.0
+          C25/30: 24.6
+          C30/37: 26.8
+  - diameter: 16
+    embedments:
+      85:
+        N0_Rk_s: 92.0
+        V0_Rk_s: 58.9
+        s_cr_N: 255.0
+        c_cr_N: 127.5
+        l_f: 85.0
+        h_ef: 85.0
+        N0_Rk_p:
+          C20/25: 35.0
+          C25/30: 39.1
+          C30/37: 42.7
+  - diameter: 20
+    embedments:
+      105:
+        N0_Rk_s: 142.0
+        V0_Rk_s: 90.9
+        s_cr_N: 315.0
+        c_cr_N: 157.5
+        l_f: 105.0
+        h_ef: 105.0
+        N0_Rk_p:
+          C20/25: 50.0
+          C25/30: 55.9
+          C30/37: 61.0

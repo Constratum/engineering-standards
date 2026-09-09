@@ -1,0 +1,64 @@
+product: "HST2-V3"
+manufacturer: "Hilti"
+eta: "ETA-21/0480"
+eta_date: "2025-10-20"
+description: "Expansion Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HST2v3__ETA-21_0480.pdf"
+notes: "Hilti HST2 V3 carbon, hammer drilling, cracked C20/25."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      50:
+        N0_Rk_s: 16.5
+        V0_Rk_s: 10.6
+        s_cr_N: 150.0
+        c_cr_N: 75.0
+        l_f: 50.0
+        h_ef: 50.0
+        N0_Rk_p:
+          C20/25: 7.0
+          C25/30: 7.8
+          C30/37: 8.5
+  - diameter: 10
+    embedments:
+      60:
+        N0_Rk_s: 28.0
+        V0_Rk_s: 18.9
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 11.0
+          C25/30: 12.3
+          C30/37: 13.4
+  - diameter: 12
+    embedments:
+      70:
+        N0_Rk_s: 41.4
+        V0_Rk_s: 29.5
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 14.0
+          C25/30: 15.7
+          C30/37: 17.1
+  - diameter: 16
+    embedments:
+      80:
+        N0_Rk_s: 82.6
+        V0_Rk_s: 51.0
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 25.0
+          C25/30: 28.0
+          C30/37: 30.5

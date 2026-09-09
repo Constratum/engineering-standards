@@ -1,0 +1,77 @@
+product: "HUS3-H"
+manufacturer: "Hilti"
+eta: "unavailable"
+eta_date: "unavailable"
+description: "Screw Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "unavailable"
+notes: "No HUS3 ETA PDF in tests/anchors/. Values from previous database. N0_Rk_p treated as cracked C20/25."
+aliases: []
+sizes:
+  - diameter: 6
+    embedments:
+      30:
+        N0_Rk_s: 20.0
+        V0_Rk_s: 6.0
+        s_cr_N: 90.0
+        c_cr_N: 45.0
+        l_f: 30.0
+        h_ef: 30.0
+        N0_Rk_p:
+          C20/25: 3.2
+          C25/30: 3.6
+          C30/37: 3.9
+  - diameter: 8
+    embedments:
+      40:
+        N0_Rk_s: 33.0
+        V0_Rk_s: 9.9
+        s_cr_N: 120.0
+        c_cr_N: 60.0
+        l_f: 40.0
+        h_ef: 40.0
+        N0_Rk_p:
+          C20/25: 5.0
+          C25/30: 5.6
+          C30/37: 6.1
+  - diameter: 10
+    embedments:
+      50:
+        N0_Rk_s: 46.0
+        V0_Rk_s: 13.8
+        s_cr_N: 150.0
+        c_cr_N: 75.0
+        l_f: 50.0
+        h_ef: 50.0
+        N0_Rk_p:
+          C20/25: 7.0
+          C25/30: 7.8
+          C30/37: 8.5
+  - diameter: 12
+    embedments:
+      60:
+        N0_Rk_s: 65.0
+        V0_Rk_s: 19.5
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 9.0
+          C25/30: 10.1
+          C30/37: 11.0
+  - diameter: 14
+    embedments:
+      70:
+        N0_Rk_s: 86.0
+        V0_Rk_s: 25.8
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 11.5
+          C25/30: 12.9
+          C30/37: 14.0

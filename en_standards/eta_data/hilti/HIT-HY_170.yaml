@@ -1,0 +1,78 @@
+product: "HIT-HY 170"
+manufacturer: "Hilti"
+eta: "ETA-19/0161"
+eta_date: "unavailable"
+description: "Hybrid Mortar"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HY170_DIBt__ETA-19_0161.pdf"
+notes: "Previous concrete values retained. tests/anchors/HY170 PDF is ETA-19/0161 masonry (EAD 330076), not a concrete fastener ETA."
+aliases:
+  - "HIT-HY170"
+sizes:
+  - diameter: 8
+    embedments:
+      80:
+        N0_Rk_s: 35.0
+        V0_Rk_s: 22.4
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 25.0
+          C25/30: 28.0
+          C30/37: 30.5
+  - diameter: 10
+    embedments:
+      90:
+        N0_Rk_s: 54.0
+        V0_Rk_s: 34.6
+        s_cr_N: 270.0
+        c_cr_N: 135.0
+        l_f: 90.0
+        h_ef: 90.0
+        N0_Rk_p:
+          C20/25: 35.0
+          C25/30: 39.1
+          C30/37: 42.7
+  - diameter: 12
+    embedments:
+      110:
+        N0_Rk_s: 78.0
+        V0_Rk_s: 49.9
+        s_cr_N: 330.0
+        c_cr_N: 165.0
+        l_f: 110.0
+        h_ef: 110.0
+        N0_Rk_p:
+          C20/25: 48.0
+          C25/30: 53.7
+          C30/37: 58.6
+  - diameter: 16
+    embedments:
+      125:
+        N0_Rk_s: 137.0
+        V0_Rk_s: 87.7
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 65.0
+          C25/30: 72.7
+          C30/37: 79.3
+  - diameter: 20
+    embedments:
+      170:
+        N0_Rk_s: 214.0
+        V0_Rk_s: 137.0
+        s_cr_N: 510.0
+        c_cr_N: 255.0
+        l_f: 170.0
+        h_ef: 170.0
+        N0_Rk_p:
+          C20/25: 90.0
+          C25/30: 100.6
+          C30/37: 109.8

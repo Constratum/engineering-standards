@@ -1,0 +1,62 @@
+product: "HSC"
+manufacturer: "Hilti"
+eta: "ETA-02/0027"
+eta_date: "2018-07-04"
+description: "Self-Undercut Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: true
+embedment_key: "h_ef"
+source_pdf: "HSC_CSTB__ETA_02_0027.pdf"
+notes: "HSC-A. Pull-out is not governing; N0_Rk_p stored as N0_Rk,c (k1=7.7)."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      40:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 14.6
+        s_cr_N: 120.0
+        c_cr_N: 60.0
+        l_f: 40.0
+        h_ef: 40.0
+        N0_Rk_p:
+          C20/25: 8.7
+          C25/30: 9.7
+          C30/37: 10.6
+      50:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 14.6
+        s_cr_N: 150.0
+        c_cr_N: 75.0
+        l_f: 50.0
+        h_ef: 50.0
+        N0_Rk_p:
+          C20/25: 12.2
+          C25/30: 13.6
+          C30/37: 14.9
+  - diameter: 10
+    embedments:
+      40:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 23.2
+        s_cr_N: 120.0
+        c_cr_N: 60.0
+        l_f: 40.0
+        h_ef: 40.0
+        N0_Rk_p:
+          C20/25: 8.7
+          C25/30: 9.7
+          C30/37: 10.6
+  - diameter: 12
+    embedments:
+      60:
+        N0_Rk_s: 67.4
+        V0_Rk_s: 33.7
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5

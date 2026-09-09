@@ -1,0 +1,178 @@
+product: "HSL-4"
+manufacturer: "Hilti"
+eta: "ETA-19/0556"
+eta_date: "2023-08-02"
+description: "Heavy Duty Expansion Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "HSL4_ETA_19-0556.pdf"
+notes: "Only settings with assessed NRk,p,cr. psi_c C30/37=1.22."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      60:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 31.1
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 12.0
+          C25/30: 13.4
+          C30/37: 14.6
+      80:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 31.1
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 12.0
+          C25/30: 13.4
+          C30/37: 14.6
+      100:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 31.1
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 12.0
+          C25/30: 13.4
+          C30/37: 14.6
+  - diameter: 10
+    embedments:
+      70:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 60.5
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+      90:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 60.5
+        s_cr_N: 270.0
+        c_cr_N: 135.0
+        l_f: 90.0
+        h_ef: 90.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+      110:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 60.5
+        s_cr_N: 330.0
+        c_cr_N: 165.0
+        l_f: 110.0
+        h_ef: 110.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+  - diameter: 12
+    embedments:
+      105:
+        N0_Rk_s: 67.4
+        V0_Rk_s: 89.6
+        s_cr_N: 315.0
+        c_cr_N: 157.5
+        l_f: 105.0
+        h_ef: 105.0
+        N0_Rk_p:
+          C20/25: 24.0
+          C25/30: 26.8
+          C30/37: 29.3
+      130:
+        N0_Rk_s: 67.4
+        V0_Rk_s: 89.6
+        s_cr_N: 390.0
+        c_cr_N: 195.0
+        l_f: 130.0
+        h_ef: 130.0
+        N0_Rk_p:
+          C20/25: 24.0
+          C25/30: 26.8
+          C30/37: 29.3
+  - diameter: 16
+    embedments:
+      125:
+        N0_Rk_s: 125.6
+        V0_Rk_s: 158.5
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 36.0
+          C25/30: 40.2
+          C30/37: 43.9
+      150:
+        N0_Rk_s: 125.6
+        V0_Rk_s: 158.5
+        s_cr_N: 450.0
+        c_cr_N: 225.0
+        l_f: 150.0
+        h_ef: 150.0
+        N0_Rk_p:
+          C20/25: 36.0
+          C25/30: 40.2
+          C30/37: 43.9
+  - diameter: 20
+    embedments:
+      155:
+        N0_Rk_s: 196.0
+        V0_Rk_s: 186.0
+        s_cr_N: 465.0
+        c_cr_N: 232.5
+        l_f: 155.0
+        h_ef: 155.0
+        N0_Rk_p:
+          C20/25: 50.0
+          C25/30: 55.9
+          C30/37: 61.0
+      185:
+        N0_Rk_s: 196.0
+        V0_Rk_s: 186.0
+        s_cr_N: 555.0
+        c_cr_N: 277.5
+        l_f: 185.0
+        h_ef: 185.0
+        N0_Rk_p:
+          C20/25: 50.0
+          C25/30: 55.9
+          C30/37: 61.0
+  - diameter: 24
+    embedments:
+      180:
+        N0_Rk_s: 282.4
+        V0_Rk_s: 204.5
+        s_cr_N: 540.0
+        c_cr_N: 270.0
+        l_f: 180.0
+        h_ef: 180.0
+        N0_Rk_p:
+          C20/25: 65.0
+          C25/30: 72.7
+          C30/37: 79.3
+      210:
+        N0_Rk_s: 282.4
+        V0_Rk_s: 204.5
+        s_cr_N: 630.0
+        c_cr_N: 315.0
+        l_f: 210.0
+        h_ef: 210.0
+        N0_Rk_p:
+          C20/25: 65.0
+          C25/30: 72.7
+          C30/37: 79.3
