@@ -1,0 +1,103 @@
+product: "R-KEX-II"
+manufacturer: "Rawlplug"
+eta: "ETA-21/0244"
+eta_date: "2023-09-27"
+description: "Bonded Fastener + 8.8 rod"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "Rawlplug/ETA_21_0244_EN_now._2023.pdf"
+notes: "R-KEX-II + property class 8.8 rod. N0_Rk_p from tau_Rk,cr,50 hammer, temperature range I, at h_ef,min. psi_c C30/37=1.04."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      60:
+        N0_Rk_s: 29.0
+        V0_Rk_s: 14.5
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 12.1
+          C25/30: 13.5
+          C30/37: 12.6
+  - diameter: 10
+    embedments:
+      70:
+        N0_Rk_s: 46.0
+        V0_Rk_s: 23.0
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 17.6
+          C25/30: 19.7
+          C30/37: 18.3
+  - diameter: 12
+    embedments:
+      80:
+        N0_Rk_s: 67.0
+        V0_Rk_s: 33.5
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 21.1
+          C25/30: 23.6
+          C30/37: 21.9
+  - diameter: 16
+    embedments:
+      100:
+        N0_Rk_s: 126.0
+        V0_Rk_s: 63.0
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 35.2
+          C25/30: 39.4
+          C30/37: 36.6
+  - diameter: 20
+    embedments:
+      120:
+        N0_Rk_s: 196.0
+        V0_Rk_s: 98.0
+        s_cr_N: 360.0
+        c_cr_N: 180.0
+        l_f: 120.0
+        h_ef: 120.0
+        N0_Rk_p:
+          C20/25: 52.8
+          C25/30: 59.0
+          C30/37: 54.9
+  - diameter: 24
+    embedments:
+      140:
+        N0_Rk_s: 282.0
+        V0_Rk_s: 141.0
+        s_cr_N: 420.0
+        c_cr_N: 210.0
+        l_f: 140.0
+        h_ef: 140.0
+        N0_Rk_p:
+          C20/25: 63.3
+          C25/30: 70.8
+          C30/37: 65.8
+  - diameter: 30
+    embedments:
+      165:
+        N0_Rk_s: 449.0
+        V0_Rk_s: 224.5
+        s_cr_N: 495.0
+        c_cr_N: 247.5
+        l_f: 165.0
+        h_ef: 165.0
+        N0_Rk_p:
+          C20/25: 77.8
+          C25/30: 87.0
+          C30/37: 80.9

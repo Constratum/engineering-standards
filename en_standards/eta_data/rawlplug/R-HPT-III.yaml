@@ -1,0 +1,77 @@
+product: "R-HPT-III"
+manufacturer: "Rawlplug"
+eta: "ETA-21/1082"
+eta_date: "2024-04-26"
+description: "Expansion Anchor"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "Rawlplug/ETA_21_1082_v2024.pdf"
+notes: "R-HPT III carbon. N0_Rk_p is cracked C20/25 at the deeper h_ef range."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      55:
+        N0_Rk_s: 19.8
+        V0_Rk_s: 14.5
+        s_cr_N: 165.0
+        c_cr_N: 82.5
+        l_f: 55.0
+        h_ef: 55.0
+        N0_Rk_p:
+          C20/25: 7.5
+          C25/30: 8.4
+          C30/37: 9.2
+  - diameter: 10
+    embedments:
+      70:
+        N0_Rk_s: 31.1
+        V0_Rk_s: 24.4
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+  - diameter: 12
+    embedments:
+      80:
+        N0_Rk_s: 48.7
+        V0_Rk_s: 32.6
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 20.2
+          C25/30: 22.6
+          C30/37: 24.6
+  - diameter: 16
+    embedments:
+      100:
+        N0_Rk_s: 69.7
+        V0_Rk_s: 43.6
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 27.0
+          C25/30: 30.2
+          C30/37: 32.9
+  - diameter: 20
+    embedments:
+      125:
+        N0_Rk_s: 121.4
+        V0_Rk_s: 60.7
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 40.9
+          C25/30: 45.7
+          C30/37: 49.9

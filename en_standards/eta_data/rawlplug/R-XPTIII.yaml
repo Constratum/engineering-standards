@@ -1,0 +1,77 @@
+product: "R-XPTIII"
+manufacturer: "Rawlplug"
+eta: "ETA-23/0887"
+eta_date: "2026-06-08"
+description: "Expansion Anchor, uncracked"
+concrete_condition: "uncracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "Rawlplug/ETA_23_0887_2026_06_08_EN.pdf"
+notes: "R-XPTIII-ZP. Uncracked concrete. Representative h_ef in the deeper assessed range."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      46:
+        N0_Rk_s: 17.5
+        V0_Rk_s: 11.0
+        s_cr_N: 138.0
+        c_cr_N: 69.0
+        l_f: 46.0
+        h_ef: 46.0
+        N0_Rk_p:
+          C20/25: 15.0
+          C25/30: 16.8
+          C30/37: 18.3
+  - diameter: 10
+    embedments:
+      60:
+        N0_Rk_s: 27.6
+        V0_Rk_s: 17.4
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 18.0
+          C25/30: 20.1
+          C30/37: 22.0
+  - diameter: 12
+    embedments:
+      80:
+        N0_Rk_s: 40.0
+        V0_Rk_s: 25.3
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 32.0
+          C25/30: 35.8
+          C30/37: 39.0
+  - diameter: 16
+    embedments:
+      100:
+        N0_Rk_s: 71.1
+        V0_Rk_s: 47.0
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 50.0
+          C25/30: 55.9
+          C30/37: 61.0
+  - diameter: 20
+    embedments:
+      125:
+        N0_Rk_s: 108.1
+        V0_Rk_s: 73.5
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 80.0
+          C25/30: 89.4
+          C30/37: 97.6

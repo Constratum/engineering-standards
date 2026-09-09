@@ -1,0 +1,176 @@
+product: "R-HLX"
+manufacturer: "Rawlplug"
+eta: "ETA-23/0707"
+eta_date: "2025-01-24"
+description: "Concrete Screw"
+concrete_condition: "cracked"
+is_undercut_anchor: false
+embedment_key: "h_nom"
+source_pdf: "Rawlplug/ETA_23_0707_2025_01_24___R_HLX_EN.pdf"
+notes: "Keys are nominal embedment h_nom [mm]. N0_Rk_p is cracked C20/25 (Table C1). psi_c: C25/30=1.08 (d<=8) / 1.10 (d>=10); C30/37=1.17 / 1.22."
+aliases: []
+sizes:
+  - diameter: 6
+    embedments:
+      40:
+        N0_Rk_s: 19.4
+        V0_Rk_s: 9.7
+        s_cr_N: 90.0
+        c_cr_N: 45.0
+        l_f: 40.0
+        h_ef: 30.0
+        N0_Rk_p:
+          C20/25: 2.0
+          C25/30: 2.2
+          C30/37: 2.3
+      55:
+        N0_Rk_s: 19.4
+        V0_Rk_s: 9.7
+        s_cr_N: 129.0
+        c_cr_N: 64.5
+        l_f: 55.0
+        h_ef: 43.0
+        N0_Rk_p:
+          C20/25: 3.5
+          C25/30: 3.8
+          C30/37: 4.1
+  - diameter: 8
+    embedments:
+      50:
+        N0_Rk_s: 35.4
+        V0_Rk_s: 17.7
+        s_cr_N: 117.0
+        c_cr_N: 58.5
+        l_f: 50.0
+        h_ef: 39.0
+        N0_Rk_p:
+          C20/25: 8.0
+          C25/30: 8.6
+          C30/37: 9.4
+      60:
+        N0_Rk_s: 35.4
+        V0_Rk_s: 17.7
+        s_cr_N: 129.0
+        c_cr_N: 64.5
+        l_f: 60.0
+        h_ef: 43.0
+        N0_Rk_p:
+          C20/25: 9.0
+          C25/30: 9.7
+          C30/37: 10.5
+      70:
+        N0_Rk_s: 35.4
+        V0_Rk_s: 17.7
+        s_cr_N: 168.0
+        c_cr_N: 84.0
+        l_f: 70.0
+        h_ef: 56.0
+        N0_Rk_p:
+          C20/25: 11.0
+          C25/30: 11.9
+          C30/37: 12.9
+  - diameter: 10
+    embedments:
+      55:
+        N0_Rk_s: 54.3
+        V0_Rk_s: 27.2
+        s_cr_N: 126.0
+        c_cr_N: 63.0
+        l_f: 55.0
+        h_ef: 42.0
+        N0_Rk_p:
+          C20/25: 9.4
+          C25/30: 10.3
+          C30/37: 11.5
+      75:
+        N0_Rk_s: 54.3
+        V0_Rk_s: 27.2
+        s_cr_N: 177.0
+        c_cr_N: 88.5
+        l_f: 75.0
+        h_ef: 59.0
+        N0_Rk_p:
+          C20/25: 15.6
+          C25/30: 17.2
+          C30/37: 19.0
+      85:
+        N0_Rk_s: 54.3
+        V0_Rk_s: 27.2
+        s_cr_N: 204.0
+        c_cr_N: 102.0
+        l_f: 85.0
+        h_ef: 68.0
+        N0_Rk_p:
+          C20/25: 19.3
+          C25/30: 21.2
+          C30/37: 23.5
+  - diameter: 12
+    embedments:
+      60:
+        N0_Rk_s: 83.1
+        V0_Rk_s: 41.6
+        s_cr_N: 138.0
+        c_cr_N: 69.0
+        l_f: 60.0
+        h_ef: 46.0
+        N0_Rk_p:
+          C20/25: 10.7
+          C25/30: 11.8
+          C30/37: 13.1
+      80:
+        N0_Rk_s: 83.1
+        V0_Rk_s: 41.6
+        s_cr_N: 189.0
+        c_cr_N: 94.5
+        l_f: 80.0
+        h_ef: 63.0
+        N0_Rk_p:
+          C20/25: 17.2
+          C25/30: 18.9
+          C30/37: 21.0
+      100:
+        N0_Rk_s: 83.1
+        V0_Rk_s: 41.6
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 100.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 24.6
+          C25/30: 27.1
+          C30/37: 30.0
+  - diameter: 14
+    embedments:
+      65:
+        N0_Rk_s: 111.1
+        V0_Rk_s: 55.6
+        s_cr_N: 147.0
+        c_cr_N: 73.5
+        l_f: 65.0
+        h_ef: 49.0
+        N0_Rk_p:
+          C20/25: 11.8
+          C25/30: 13.0
+          C30/37: 14.4
+      85:
+        N0_Rk_s: 111.1
+        V0_Rk_s: 55.6
+        s_cr_N: 198.0
+        c_cr_N: 99.0
+        l_f: 85.0
+        h_ef: 66.0
+        N0_Rk_p:
+          C20/25: 18.5
+          C25/30: 20.4
+          C30/37: 22.6
+      115:
+        N0_Rk_s: 111.1
+        V0_Rk_s: 55.6
+        s_cr_N: 276.0
+        c_cr_N: 138.0
+        l_f: 115.0
+        h_ef: 92.0
+        N0_Rk_p:
+          C20/25: 30.4
+          C25/30: 33.4
+          C30/37: 37.1

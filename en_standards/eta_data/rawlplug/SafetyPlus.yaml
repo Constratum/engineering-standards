@@ -1,0 +1,77 @@
+product: "SafetyPlus"
+manufacturer: "Rawlplug"
+eta: "ETA-11/0126"
+eta_date: "2024-07-24"
+description: "Expansion Anchor, uncracked"
+concrete_condition: "uncracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "Rawlplug/ETA_11_0126_SafetyPlus_2024_EN.pdf"
+notes: "Rawlplug SafetyPlus (R-SPL). Uncracked concrete."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      60:
+        N0_Rk_s: 29.3
+        V0_Rk_s: 19.2
+        s_cr_N: 180.0
+        c_cr_N: 90.0
+        l_f: 60.0
+        h_ef: 60.0
+        N0_Rk_p:
+          C20/25: 9.0
+          C25/30: 10.1
+          C30/37: 11.0
+  - diameter: 10
+    embedments:
+      70:
+        N0_Rk_s: 46.4
+        V0_Rk_s: 30.0
+        s_cr_N: 210.0
+        c_cr_N: 105.0
+        l_f: 70.0
+        h_ef: 70.0
+        N0_Rk_p:
+          C20/25: 12.0
+          C25/30: 13.4
+          C30/37: 14.6
+  - diameter: 12
+    embedments:
+      80:
+        N0_Rk_s: 57.4
+        V0_Rk_s: 43.2
+        s_cr_N: 240.0
+        c_cr_N: 120.0
+        l_f: 80.0
+        h_ef: 80.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+  - diameter: 16
+    embedments:
+      100:
+        N0_Rk_s: 125.6
+        V0_Rk_s: 77.6
+        s_cr_N: 300.0
+        c_cr_N: 150.0
+        l_f: 100.0
+        h_ef: 100.0
+        N0_Rk_p:
+          C20/25: 35.0
+          C25/30: 39.1
+          C30/37: 42.7
+  - diameter: 20
+    embedments:
+      125:
+        N0_Rk_s: 196.0
+        V0_Rk_s: 73.68
+        s_cr_N: 375.0
+        c_cr_N: 187.5
+        l_f: 125.0
+        h_ef: 125.0
+        N0_Rk_p:
+          C20/25: 40.0
+          C25/30: 44.7
+          C30/37: 48.8

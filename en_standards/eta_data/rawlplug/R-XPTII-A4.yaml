@@ -1,0 +1,64 @@
+product: "R-XPTII-A4"
+manufacturer: "Rawlplug"
+eta: "ETA-17/0782"
+eta_date: "unavailable"
+description: "Expansion Anchor, uncracked"
+concrete_condition: "uncracked"
+is_undercut_anchor: false
+embedment_key: "h_ef"
+source_pdf: "Rawlplug/UKTA_R_XPTII_A4_0836_22_6204_2022_EN.pdf"
+notes: "UKTA-0836-22/6204 / ETA-17/0782. Uncracked concrete only (standard embedment). N0_Rk_p is uncracked C20/25."
+aliases: []
+sizes:
+  - diameter: 8
+    embedments:
+      47:
+        N0_Rk_s: 21.2
+        V0_Rk_s: 11.7
+        s_cr_N: 141.0
+        c_cr_N: 70.5
+        l_f: 47.0
+        h_ef: 47.0
+        N0_Rk_p:
+          C20/25: 9.0
+          C25/30: 10.1
+          C30/37: 11.0
+  - diameter: 10
+    embedments:
+      59:
+        N0_Rk_s: 33.6
+        V0_Rk_s: 18.5
+        s_cr_N: 177.0
+        c_cr_N: 88.5
+        l_f: 59.0
+        h_ef: 59.0
+        N0_Rk_p:
+          C20/25: 16.0
+          C25/30: 17.9
+          C30/37: 19.5
+  - diameter: 12
+    embedments:
+      68:
+        N0_Rk_s: 44.8
+        V0_Rk_s: 24.6
+        s_cr_N: 204.0
+        c_cr_N: 102.0
+        l_f: 68.0
+        h_ef: 68.0
+        N0_Rk_p:
+          C20/25: 25.0
+          C25/30: 28.0
+          C30/37: 30.5
+  - diameter: 16
+    embedments:
+      85:
+        N0_Rk_s: 82.6
+        V0_Rk_s: 45.4
+        s_cr_N: 255.0
+        c_cr_N: 127.5
+        l_f: 85.0
+        h_ef: 85.0
+        N0_Rk_p:
+          C20/25: 27.0
+          C25/30: 30.2
+          C30/37: 32.9
