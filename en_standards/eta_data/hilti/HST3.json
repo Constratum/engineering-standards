@@ -1,0 +1,120 @@
+{
+  "name": "Anchor - HST3",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "unavailable",
+  "eta_date": "unavailable",
+  "description": "Expansion Anchor",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HST3",
+        "unit": ""
+      },
+      "anchor_type": "headed_bolt"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12,
+          16,
+          20
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            45
+          ],
+          "10": [
+            55
+          ],
+          "12": [
+            65
+          ],
+          "16": [
+            85
+          ],
+          "20": [
+            105
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HST3",
+  "anchor_type": "headed_bolt",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12,
+      16,
+      20
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        45
+      ],
+      "10": [
+        55
+      ],
+      "12": [
+        65
+      ],
+      "16": [
+        85
+      ],
+      "20": [
+        105
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 45,
+      "h_ef": 45.0
+    },
+    {
+      "diameter": 10,
+      "length": 55,
+      "h_ef": 55.0
+    },
+    {
+      "diameter": 12,
+      "length": 65,
+      "h_ef": 65.0
+    },
+    {
+      "diameter": 16,
+      "length": 85,
+      "h_ef": 85.0
+    },
+    {
+      "diameter": 20,
+      "length": 105,
+      "h_ef": 105.0
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "name": "Anchor - HSC",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "ETA-02/0027",
+  "eta_date": "2018-07-04",
+  "description": "Self-Undercut Anchor",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": true,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HSC",
+        "unit": ""
+      },
+      "anchor_type": "headed_stud"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            40,
+            50
+          ],
+          "10": [
+            40
+          ],
+          "12": [
+            60
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HSC",
+  "anchor_type": "headed_stud",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        40,
+        50
+      ],
+      "10": [
+        40
+      ],
+      "12": [
+        60
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 40,
+      "h_ef": 40.0
+    },
+    {
+      "diameter": 8,
+      "length": 50,
+      "h_ef": 50.0
+    },
+    {
+      "diameter": 10,
+      "length": 40,
+      "h_ef": 40.0
+    },
+    {
+      "diameter": 12,
+      "length": 60,
+      "h_ef": 60.0
+    }
+  ]
+}

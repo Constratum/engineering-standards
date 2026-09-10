@@ -1,0 +1,120 @@
+{
+  "name": "Anchor - HST4",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "ETA-21/0878",
+  "eta_date": "2025-10-09",
+  "description": "Expansion Anchor",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HST4",
+        "unit": ""
+      },
+      "anchor_type": "headed_bolt"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12,
+          16,
+          20
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            50
+          ],
+          "10": [
+            70
+          ],
+          "12": [
+            80
+          ],
+          "16": [
+            85
+          ],
+          "20": [
+            125
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HST4",
+  "anchor_type": "headed_bolt",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12,
+      16,
+      20
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        50
+      ],
+      "10": [
+        70
+      ],
+      "12": [
+        80
+      ],
+      "16": [
+        85
+      ],
+      "20": [
+        125
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 50,
+      "h_ef": 50.0
+    },
+    {
+      "diameter": 10,
+      "length": 70,
+      "h_ef": 70.0
+    },
+    {
+      "diameter": 12,
+      "length": 80,
+      "h_ef": 80.0
+    },
+    {
+      "diameter": 16,
+      "length": 85,
+      "h_ef": 85.0
+    },
+    {
+      "diameter": 20,
+      "length": 125,
+      "h_ef": 125.0
+    }
+  ]
+}

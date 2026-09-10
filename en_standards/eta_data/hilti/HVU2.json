@@ -1,0 +1,120 @@
+{
+  "name": "Anchor - HVU2",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "ETA-16/0515",
+  "eta_date": "2023-09-14",
+  "description": "Foil Capsule + HAS-(E) 8.8",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HVU2",
+        "unit": ""
+      },
+      "anchor_type": "headed_bolt"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12,
+          16,
+          20
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            80
+          ],
+          "10": [
+            90
+          ],
+          "12": [
+            110
+          ],
+          "16": [
+            130
+          ],
+          "20": [
+            170
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HVU2",
+  "anchor_type": "headed_bolt",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12,
+      16,
+      20
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        80
+      ],
+      "10": [
+        90
+      ],
+      "12": [
+        110
+      ],
+      "16": [
+        130
+      ],
+      "20": [
+        170
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 80,
+      "h_ef": 80.0
+    },
+    {
+      "diameter": 10,
+      "length": 90,
+      "h_ef": 90.0
+    },
+    {
+      "diameter": 12,
+      "length": 110,
+      "h_ef": 110.0
+    },
+    {
+      "diameter": 16,
+      "length": 130,
+      "h_ef": 130.0
+    },
+    {
+      "diameter": 20,
+      "length": 170,
+      "h_ef": 170.0
+    }
+  ]
+}

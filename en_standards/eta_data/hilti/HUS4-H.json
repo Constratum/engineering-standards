@@ -1,0 +1,183 @@
+{
+  "name": "Anchor - HUS4-H",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "ETA-20/0867",
+  "eta_date": "2025-12-22",
+  "description": "Screw Anchor",
+  "embedment_key": "h_nom",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HUS4-H",
+        "unit": ""
+      },
+      "anchor_type": "screw"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12,
+          14,
+          16
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            40,
+            60,
+            70
+          ],
+          "10": [
+            55,
+            75,
+            85
+          ],
+          "12": [
+            60,
+            80,
+            100
+          ],
+          "14": [
+            65,
+            85,
+            115
+          ],
+          "16": [
+            85,
+            130
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HUS4-H",
+  "anchor_type": "screw",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12,
+      14,
+      16
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        40,
+        60,
+        70
+      ],
+      "10": [
+        55,
+        75,
+        85
+      ],
+      "12": [
+        60,
+        80,
+        100
+      ],
+      "14": [
+        65,
+        85,
+        115
+      ],
+      "16": [
+        85,
+        130
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 40,
+      "h_ef": 30.6
+    },
+    {
+      "diameter": 8,
+      "length": 60,
+      "h_ef": 47.6
+    },
+    {
+      "diameter": 8,
+      "length": 70,
+      "h_ef": 56.1
+    },
+    {
+      "diameter": 10,
+      "length": 55,
+      "h_ef": 42.5
+    },
+    {
+      "diameter": 10,
+      "length": 75,
+      "h_ef": 59.5
+    },
+    {
+      "diameter": 10,
+      "length": 85,
+      "h_ef": 68.0
+    },
+    {
+      "diameter": 12,
+      "length": 60,
+      "h_ef": 45.9
+    },
+    {
+      "diameter": 12,
+      "length": 80,
+      "h_ef": 62.9
+    },
+    {
+      "diameter": 12,
+      "length": 100,
+      "h_ef": 79.9
+    },
+    {
+      "diameter": 14,
+      "length": 65,
+      "h_ef": 49.3
+    },
+    {
+      "diameter": 14,
+      "length": 85,
+      "h_ef": 66.3
+    },
+    {
+      "diameter": 14,
+      "length": 115,
+      "h_ef": 91.8
+    },
+    {
+      "diameter": 16,
+      "length": 85,
+      "h_ef": 66.6
+    },
+    {
+      "diameter": 16,
+      "length": 130,
+      "h_ef": 104.9
+    }
+  ]
+}

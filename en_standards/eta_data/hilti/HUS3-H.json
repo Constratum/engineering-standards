@@ -1,0 +1,120 @@
+{
+  "name": "Anchor - HUS3-H",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "unavailable",
+  "eta_date": "unavailable",
+  "description": "Screw Anchor",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HUS3-H",
+        "unit": ""
+      },
+      "anchor_type": "screw"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          6,
+          8,
+          10,
+          12,
+          14
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "6": [
+            30
+          ],
+          "8": [
+            40
+          ],
+          "10": [
+            50
+          ],
+          "12": [
+            60
+          ],
+          "14": [
+            70
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HUS3-H",
+  "anchor_type": "screw",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      6,
+      8,
+      10,
+      12,
+      14
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "6": [
+        30
+      ],
+      "8": [
+        40
+      ],
+      "10": [
+        50
+      ],
+      "12": [
+        60
+      ],
+      "14": [
+        70
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 6,
+      "length": 30,
+      "h_ef": 30.0
+    },
+    {
+      "diameter": 8,
+      "length": 40,
+      "h_ef": 40.0
+    },
+    {
+      "diameter": 10,
+      "length": 50,
+      "h_ef": 50.0
+    },
+    {
+      "diameter": 12,
+      "length": 60,
+      "h_ef": 60.0
+    },
+    {
+      "diameter": 14,
+      "length": 70,
+      "h_ef": 70.0
+    }
+  ]
+}

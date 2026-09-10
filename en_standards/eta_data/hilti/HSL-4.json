@@ -1,0 +1,189 @@
+{
+  "name": "Anchor - HSL-4",
+  "manufacturer": "Hilti",
+  "component_type_name": "Anchor",
+  "qs_type": "fastener",
+  "catalogue": [
+    "racking"
+  ],
+  "country": [
+    "NZ"
+  ],
+  "floor_wall_type": "concrete",
+  "eta": "ETA-19/0556",
+  "eta_date": "2023-08-02",
+  "description": "Heavy Duty Expansion Anchor",
+  "embedment_key": "h_ef",
+  "concrete_condition": "cracked",
+  "is_undercut_anchor": false,
+  "aliases": [],
+  "specification": {
+    "type": {
+      "anchor_product": {
+        "value": "HSL-4",
+        "unit": ""
+      },
+      "anchor_type": "headed_bolt"
+    },
+    "dimension": {
+      "diameter": {
+        "unit": "mm",
+        "options": [
+          8,
+          10,
+          12,
+          16,
+          20,
+          24
+        ]
+      },
+      "length": {
+        "unit": "mm",
+        "options_by_diameter": {
+          "8": [
+            60,
+            80,
+            100
+          ],
+          "10": [
+            70,
+            90,
+            110
+          ],
+          "12": [
+            105,
+            130
+          ],
+          "16": [
+            125,
+            150
+          ],
+          "20": [
+            155,
+            185
+          ],
+          "24": [
+            180,
+            210
+          ]
+        }
+      }
+    }
+  },
+  "anchor_product": "HSL-4",
+  "anchor_type": "headed_bolt",
+  "diameter": {
+    "unit": "mm",
+    "options": [
+      8,
+      10,
+      12,
+      16,
+      20,
+      24
+    ]
+  },
+  "length": {
+    "unit": "mm",
+    "options_by_diameter": {
+      "8": [
+        60,
+        80,
+        100
+      ],
+      "10": [
+        70,
+        90,
+        110
+      ],
+      "12": [
+        105,
+        130
+      ],
+      "16": [
+        125,
+        150
+      ],
+      "20": [
+        155,
+        185
+      ],
+      "24": [
+        180,
+        210
+      ]
+    }
+  },
+  "sizes": [
+    {
+      "diameter": 8,
+      "length": 60,
+      "h_ef": 60.0
+    },
+    {
+      "diameter": 8,
+      "length": 80,
+      "h_ef": 80.0
+    },
+    {
+      "diameter": 8,
+      "length": 100,
+      "h_ef": 100.0
+    },
+    {
+      "diameter": 10,
+      "length": 70,
+      "h_ef": 70.0
+    },
+    {
+      "diameter": 10,
+      "length": 90,
+      "h_ef": 90.0
+    },
+    {
+      "diameter": 10,
+      "length": 110,
+      "h_ef": 110.0
+    },
+    {
+      "diameter": 12,
+      "length": 105,
+      "h_ef": 105.0
+    },
+    {
+      "diameter": 12,
+      "length": 130,
+      "h_ef": 130.0
+    },
+    {
+      "diameter": 16,
+      "length": 125,
+      "h_ef": 125.0
+    },
+    {
+      "diameter": 16,
+      "length": 150,
+      "h_ef": 150.0
+    },
+    {
+      "diameter": 20,
+      "length": 155,
+      "h_ef": 155.0
+    },
+    {
+      "diameter": 20,
+      "length": 185,
+      "h_ef": 185.0
+    },
+    {
+      "diameter": 24,
+      "length": 180,
+      "h_ef": 180.0
+    },
+    {
+      "diameter": 24,
+      "length": 210,
+      "h_ef": 210.0
+    }
+  ]
+}
