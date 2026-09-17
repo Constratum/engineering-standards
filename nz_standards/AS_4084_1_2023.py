@@ -21,7 +21,7 @@ import pandas as pd
 class StorageRackingSeismic:
     """
     Class for calculating seismic design parameters for storage racking systems according to
-    AS 4084.1:2023 standard, sections 2.6 and 2.7.
+    AS 4084.1:2023 standard, sections 2.6, 2.7, and 3.3.2.
     """
 
     def __init__(self, earthquake_design_category=None, site_hazard_factor=None):
@@ -48,6 +48,9 @@ class StorageRackingSeismic:
 
         # Table 2.7.4 - Action factors
         self.create_action_factors_table_2_7_4()
+
+        # Table 3.3.2.1 - Out-of-plumb angle (φ0)
+        self.create_out_of_plumb_angle_table_3_3_2_1()
 
     def create_rigid_mass_factor_table_2_6_2(self):
         """
@@ -105,6 +108,20 @@ class StorageRackingSeismic:
 
         self.df_action_factors = pd.DataFrame(table_data)
         self.df_action_factors.set_index("Actions", inplace=True)
+
+    def create_out_of_plumb_angle_table_3_3_2_1(self):
+        """Create Table 3.3.2.1 — Out-of-plumb angle (φ0) by AS 4084.2 tolerance grade."""
+        table_data = {
+            "Type of out-of-plumb angle": [
+                "Maximum installation out-of-plumb angle of upright perpendicular to the plane of the upright frames (down-aisle)",
+                "Maximum installation out-of-plumb angle of upright in the plane of the upright frames (cross-aisle)",
+            ],
+            "I": [1.0 / 350.0, 1.0 / 350.0],
+            "II": [1.0 / 750.0, 1.0 / 750.0],
+            "III": [1.0 / 1000.0, 1.0 / 1000.0],
+        }
+        self.df_out_of_plumb_angle = pd.DataFrame(table_data)
+        self.df_out_of_plumb_angle.set_index("Type of out-of-plumb angle", inplace=True)
 
     def get_rigid_mass_factor_2_6_2(self, stored_goods_type):
         """
@@ -517,6 +534,128 @@ class StorageRackingSeismic:
                 f"Invalid action_type: {action_type} or limit_state: {limit_state}. "
                 f"Valid actions: {valid_actions}, Valid states: {valid_states}"
             )
+
+    _PHI_MIN_3_3_2 = 1.0 / 500.0
+    _FRAME_IMPERFECTION_DIRECTIONS = {
+        "down-aisle": (
+            "Maximum installation out-of-plumb angle of upright perpendicular to the plane of the upright frames (down-aisle)"
+        ),
+        "cross-aisle": (
+            "Maximum installation out-of-plumb angle of upright in the plane of the upright frames (cross-aisle)"
+        ),
+    }
+
+    def n_fu_down_aisle_3_3_2(self, number_of_bays):
+        """n_fu for down-aisle: upright frames connected by pallet beams in one row.
+
+        n_fu = number_of_bays + 1.
+        """
+        if number_of_bays is None:
+            raise ValueError(
+                "number_of_bays is required for AS 4084.1 Clause 3.3.2 n_fu (down-aisle)."
+            )
+        n_bays = int(number_of_bays)
+        if n_bays < 1:
+            raise ValueError(f"number_of_bays must be >= 1, got {number_of_bays!r}.")
+        return n_bays + 1
+
+    def n_fu_cross_aisle_3_3_2(self, n_cross_bays):
+        """n_fu for cross-aisle: uprights in the plane of one frame.
+
+        n_fu = n_cross_bays + 1. A single-depth frame (n_cross_bays = 1) has two uprights.
+        """
+        if n_cross_bays is None:
+            raise ValueError(
+                "n_cross_bays is required for AS 4084.1 Clause 3.3.2 n_fu (cross-aisle)."
+            )
+        n_cross = int(n_cross_bays)
+        if n_cross < 1:
+            raise ValueError(f"n_cross_bays must be >= 1, got {n_cross_bays!r}.")
+        return n_cross + 1
+
+    def get_out_of_plumb_angle_3_3_2_1(self, grade, direction):
+        """Table 3.3.2.1 φ0 for AS 4084.2 tolerance grade I/II/III and direction."""
+        if grade is None:
+            raise ValueError(
+                "tolerance grade is required (AS 4084.2 Table 3.3.2.1: 'I', 'II', or 'III')."
+            )
+        grade_key = str(grade).strip().upper()
+        if grade_key not in ("I", "II", "III"):
+            raise ValueError(
+                "tolerance grade must be 'I', 'II', or 'III' (AS 4084.2 Table 3.3.2.1), "
+                f"got {grade!r}."
+            )
+        if direction not in self._FRAME_IMPERFECTION_DIRECTIONS:
+            valid = ", ".join(sorted(self._FRAME_IMPERFECTION_DIRECTIONS))
+            raise ValueError(
+                f"direction must be one of {valid} (AS 4084.1 Table 3.3.2.1), "
+                f"got {direction!r}."
+            )
+        row = self._FRAME_IMPERFECTION_DIRECTIONS[direction]
+        return float(self.df_out_of_plumb_angle.loc[row, grade_key])
+
+    def frame_imperfection_phi_3_3_2(
+        self, grade, direction, n_fu, phi_l, limit_state
+    ):
+        """AS 4084.1 Clause 3.3.2 frame imperfection φ = φsu αh αnu + φℓ.
+
+        ULS: γu = 1.5, αh = 1, αnu = √[½(1 + 1/n_fu)], φ ≥ 1/500.
+        SLS: γu = 1, αh = αnu = 1.
+
+        φℓ = 0 when connector looseness is in the moment-rotation connection model;
+        otherwise 0.01 in the plane of the beams.
+        """
+        if limit_state is None:
+            raise ValueError("limit_state is required ('ULS' or 'SLS').")
+        state = str(limit_state).strip().upper()
+        if state not in ("ULS", "SLS"):
+            raise ValueError(f"limit_state must be 'ULS' or 'SLS', got {limit_state!r}.")
+        if n_fu is None:
+            raise ValueError(
+                "n_fu (number of upright frames in the row / uprights in the frame) "
+                "is required for AS 4084.1 Clause 3.3.2."
+            )
+        n_fu = int(n_fu)
+        if n_fu < 1:
+            raise ValueError(f"n_fu must be >= 1, got {n_fu}.")
+        if phi_l is None:
+            raise ValueError(
+                "phi_l is required. Use 0.0 when connector looseness is modelled; "
+                "otherwise AS 4084.1 requires 0.01 in the plane of the beams."
+            )
+        phi_0 = self.get_out_of_plumb_angle_3_3_2_1(grade, direction)
+        if state == "ULS":
+            gamma_u = 1.5
+            alpha_h = 1.0
+            alpha_nu = (0.5 * (1.0 + 1.0 / n_fu)) ** 0.5
+        else:
+            gamma_u = 1.0
+            alpha_h = 1.0
+            alpha_nu = 1.0
+        phi_su = gamma_u * phi_0
+        phi = phi_su * alpha_h * alpha_nu + float(phi_l)
+        if state == "ULS":
+            phi = max(phi, self._PHI_MIN_3_3_2)
+        return float(phi)
+
+    def equivalent_horizontal_forces_3_3_2_1(self, phi, vertical_loads_N):
+        """Hi = φ × Ni (Clause 3.3.2.1 equivalent horizontal forces)."""
+        if phi is None:
+            raise ValueError("phi is required for equivalent horizontal forces.")
+        phi = float(phi)
+        if phi <= 0.0:
+            raise ValueError(f"phi must be positive, got {phi}.")
+        if vertical_loads_N is None:
+            raise ValueError("vertical_loads_N per level is required.")
+        loads = list(vertical_loads_N)
+        if not loads:
+            raise ValueError("vertical_loads_N per level is required.")
+        forces = []
+        for load in loads:
+            if load is None:
+                raise ValueError("A level vertical load is missing.")
+            forces.append(phi * float(load))
+        return forces
 
     def design_for_imposed_stored_materials(self, stored_materials_criteria):
         """
