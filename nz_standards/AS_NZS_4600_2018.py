@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pandas as pd
 
@@ -242,21 +244,115 @@ data_1_5_2 = {
 table_1_5_2 = pd.DataFrame(data_1_5_2)
 
 
+# Connection API expected by the AU/NZ racking engineering methods.
+# All capacities in this API are factored, in N; lengths are mm and stresses MPa.
+BRACE_CONNECTION_API_VERSION = 1
+
+
+def positive(value, name):
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be a positive finite number.")
+    try:
+        value = float(value)
+    except (ValueError, TypeError):
+        raise ValueError(f"{name} must be a positive finite number.") from None
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be a positive finite number.")
+    return value
+
+
+def count(value, name):
+    value = positive(value, name)
+    if not value.is_integer():
+        raise ValueError(f"{name} must be an integer.")
+    return int(value)
+
+
 ## Section 3: Axial Tension
-def tension_section_capacity_3_2_1(fy, Ag, fu=None, An=None):
-    phi_t = 0.8
+def tension_section_capacity_3_2_1(fy, Ag, fu=None, An=None, kt=1.0):
+    """Clauses 3.2.1-3.2.3, Table 1.6.3.
+
+    The current two-argument call remains valid:
+    tension_section_capacity_3_2_1(fy, Ag). phi_t is 0.90.
+    fu and An are used only when both are supplied. kt is 1.0 unless given.
+    """
+    phi_t = 0.90
     Nt_g = phi_t * Ag * fy
-    if An != None and fu != None:
-        kt = 1.0
+    if fu is None and An is None:
+        Nt = Nt_g
+    else:
+        if fu is None or An is None:
+            raise ValueError("fu and An must be supplied together.")
+        fy = positive(fy, "fy")
+        Ag = positive(Ag, "Ag")
+        fu = positive(fu, "fu")
+        An = positive(An, "An")
+        kt = positive(kt, "kt")
+        if An > Ag or kt > 1:
+            raise ValueError("An must not exceed Ag; kt must not exceed 1.")
+        Nt_g = phi_t * Ag * fy
         Nt_net = phi_t * (0.85 * kt * An * fu)
         Nt = min(Nt_g, Nt_net)
-    else:
-        Nt = Nt_g
-
     return Nt
 
 
 ## Section 5: Connection
+### Section 5.2: Welded Connections
+def butt_weld_shear_capacity_5_2_2_2(length, throat, fuw, fy):
+    """Minimum of weld-metal and base-metal shear, per weld line."""
+    length = positive(length, "length")
+    throat = positive(throat, "throat")
+    fuw = positive(fuw, "fuw")
+    fy = positive(fy, "fy")
+    Vw_weld_metal = 0.80 * 0.60 * fuw
+    Vw_base_metal = 0.90 * fy / math.sqrt(3)
+    Vw = min(Vw_weld_metal, Vw_base_metal) * length * throat
+    return Vw
+
+
+def fillet_weld_capacity_5_2_3(length, throat, fuw, t1, fu1, t2, fu2,
+                             loading, inclination_failure):
+    """Concentric longitudinal/transverse loading, per full-size weld line.
+
+    The sheet checks in 5.2.3.2/3 apply to BOTH sheets. The additional weld-metal
+    check in 5.2.3.4 applies when the thinner connected sheet is >= 2.5 mm.
+    Oblique/eccentric weld groups require a separate force-distribution analysis.
+    """
+    length = positive(length, "length")
+    throat = positive(throat, "throat")
+    fuw = positive(fuw, "fuw")
+    t1 = positive(t1, "t1")
+    fu1 = positive(fu1, "fu1")
+    t2 = positive(t2, "t2")
+    fu2 = positive(fu2, "fu2")
+    if loading not in ("longitudinal", "transverse"):
+        raise ValueError("fillet loading must be longitudinal or transverse.")
+    if not isinstance(inclination_failure, bool):
+        raise ValueError("inclination_failure must be a boolean.")
+    sheet_limits = []
+    for t, fu in ((t1, fu1), (t2, fu2)):
+        if loading == "longitudinal":
+            ratio = length / t
+            if ratio < 25:
+                phi_sheet = 0.60 * (1 - 0.01 * ratio)
+            else:
+                phi_sheet = 0.55 * 0.75
+            Vw_sheet = phi_sheet * t * length * fu
+        else:
+            if inclination_failure:
+                phi_sheet = 0.55
+            else:
+                phi_sheet = 0.60
+            Vw_sheet = phi_sheet * t * length * fu
+        sheet_limits.append(Vw_sheet)
+    limits = list(sheet_limits)
+    if min(t1, t2) >= 2.5:
+        Vw_weld_metal = 0.60 * 0.75 * throat * length * fuw
+        limits.append(Vw_weld_metal)
+    Vw = min(limits)
+    return Vw
+
+
 ### Section 5.3: Bolted Connections
 def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
     """
@@ -275,36 +371,36 @@ def modified_net_shear_area(plate_width, t, hole_diameter, no_bolts):
 
 ### Section 5.3.2: Tearout
 def design_shear_force_tearout_5_3_2(fy_bolt, fu_bolt, t, e):
-    """
-    Calculate the design shear force considering tearout for a connected part.
+    """Factored connected-sheet tearout (N), Clause 5.3.2.
 
-    Parameters:
-    t : float
-        Thickness of the connected part (in mm or appropriate unit).
-    e : float
-        Edge distance from the bolt to the nearest edge of an adjacent hole or end of the connected part (in mm or appropriate unit).
-    fu : float
-        Ultimate tensile strength of the material (in MPa or appropriate unit).
-    fy : float
-        Yield strength of the material (in MPa or appropriate unit).
-
-    Returns:
-    Vr_star : float
-        The design shear force considering tearout (in kN or appropriate unit).
+    The argument names fy_bolt and fu_bolt are unchanged. Pass the connected
+    sheet yield and tensile strengths, in MPa. t and e are in mm.
     """
-    # Determine the capacity reduction factor (φ) based on the ratio of fu to fy
+    fy_bolt = positive(fy_bolt, "fy_bolt")
+    fu_bolt = positive(fu_bolt, "fu_bolt")
+    t = positive(t, "t")
+    e = positive(e, "e")
     if fu_bolt / fy_bolt >= 1.05:
         phi = 0.70
     else:
         phi = 0.60
-
-    # Calculate the nominal shear capacity (Vr)
     Vf = t * e * fu_bolt
-
-    # Calculate the design shear force considering tearout (Vr_star)
     Vf_tearout = phi * Vf
-
     return Vf_tearout
+
+
+### Section 5.3.3: Net section tension
+def net_section_connection_5_3_3(fu, An, d, sf):
+    """Equation 5.3.3(2) with phi=0.80, in addition to Clause 3.2."""
+    fu = positive(fu, "fu")
+    An = positive(An, "An")
+    d = positive(d, "d")
+    sf = positive(sf, "sf")
+    if d >= sf:
+        raise ValueError("Bolt spacing / connected width sf must exceed d.")
+    phi = 0.80
+    Nt_net = phi * (0.9 + 0.1 * d / sf) * An * fu
+    return Nt_net
 
 
 # Data for Table 5.3.4.2(A)
@@ -324,12 +420,18 @@ data_table_5_3_4_2_a = {
 table_5_3_4_2_a = pd.DataFrame(data_table_5_3_4_2_a)
 
 
+# Stable short names for the same rows; the existing table owns the factors.
+BEARING_FACTORS = dict(zip(
+    ('single_or_outer_with_two_washers', 'single_or_outer_without_two_washers', 'single_or_outer_oversized_or_parallel_slot', 'single_or_outer_transverse_slot', 'inside_double_shear', 'inside_double_shear_oversized_or_parallel_slot', 'inside_double_shear_transverse_slot'),
+    data_table_5_3_4_2_a["alpha"],
+))
+
+
 #### Table 5_3_4_2_B: Bearing Factor (C)
 def table_5_3_4_2_b(t, d):
-    """
-    t = Thickness of the connected part (in mm or appropriate unit)
-    d = Fastener diameter (in mm or appropriate unit)
-    """
+    """Bearing factor C from Table 5.3.4.2(B). t and d are in mm."""
+    t = positive(t, "t")
+    d = positive(d, "d")
     if d / t < 10:
         C = 3
     elif d / t > 22:
@@ -340,30 +442,26 @@ def table_5_3_4_2_b(t, d):
 
 
 def bearing_capacity_5_3_4_2(fu_bolt, bearing_type, d_bolt, t):
-    """
-    Calculate the nominal bearing capacity for a bolted connection.
+    """Factored connected-sheet bearing capacity (N), Clause 5.3.4.2.
 
-    Parameters:
-    alpha : float
-        Modification factor for the type of bearing connection.
-    C : float
-        Bearing factor.
-    d_bolt : float
-        Nominal bolt diameter (in mm or appropriate unit).
-    t : float
-        Base metal thickness (in mm or appropriate unit).
-    fu : float
-        Tensile strength of the sheet (in MPa or appropriate unit).
-
-    Returns:
-    Vb : float
-        The nominal bearing capacity (in kN or appropriate unit).
+    The argument names and the full Table 5.3.4.2(A) descriptions are unchanged.
+    The short BEARING_FACTORS names are also accepted. fu_bolt is the sheet
+    tensile strength in MPa. d_bolt and t are in mm.
     """
-    alpha = table_5_3_4_2_a.loc[
-        table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"
-    ].values[0]
+    fu_bolt = positive(fu_bolt, "fu_bolt")
+    d_bolt = positive(d_bolt, "d_bolt")
+    t = positive(t, "t")
+    if bearing_type in BEARING_FACTORS:
+        alpha = BEARING_FACTORS[bearing_type]
+    else:
+        matches = table_5_3_4_2_a.loc[
+            table_5_3_4_2_a["Type of bearing"] == bearing_type, "alpha"
+        ]
+        if len(matches) != 1:
+            raise ValueError(f"Unknown bearing_type {bearing_type!r}.")
+        alpha = float(matches.iloc[0])
     C = table_5_3_4_2_b(t, d_bolt)
-    phi = 0.60  # Capacity reduction factor for bearing capacity without considering bolt hole deformation
+    phi = 0.60
     Vb = alpha * C * d_bolt * t * fu_bolt * phi
     return Vb
 
