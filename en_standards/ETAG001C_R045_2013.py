@@ -2040,6 +2040,20 @@ def get_eta_values(
     return embedment_data[concrete_grade]
 
 
+def _formula_embedment_depth(eta_values: Dict, embedment_depth: float) -> float:
+    """Return h_ef for the capacity formulas.
+
+    Product catalogues installed into ETA_DATABASE are keyed by h_nom and carry
+    the row's h_ef; the built-in tables are keyed by h_ef and carry no h_ef.
+    """
+    if "h_ef" not in eta_values:
+        return embedment_depth
+    h_ef = eta_values["h_ef"]
+    if isinstance(h_ef, bool) or not isinstance(h_ef, (int, float)) or h_ef <= 0:
+        raise ValueError(f"ETA row h_ef must be a positive number, got {h_ef!r}.")
+    return float(h_ef)
+
+
 def convert_concrete_grade_to_fck(concrete_grade: str) -> float:
     """
     Convert concrete grade notation to f_ck value
@@ -2220,16 +2234,18 @@ def calculate_anchor_capacity_etag(
         anchor_product, diameter, embedment_depth, concrete_grade
     )
 
+    h_ef = _formula_embedment_depth(eta_values, embedment_depth)
+
     # Extract critical distances from ETA database
-    s_cr_N = eta_values.get("s_cr_N", 3.0 * embedment_depth)  # Default: 3.0 * h_ef
-    c_cr_N = eta_values.get("c_cr_N", 1.5 * embedment_depth)  # Default: 1.5 * h_ef
-    l_f = eta_values.get("l_f", embedment_depth)  # Default: h_ef
+    s_cr_N = eta_values.get("s_cr_N", 3.0 * h_ef)  # Default: 3.0 * h_ef
+    c_cr_N = eta_values.get("c_cr_N", 1.5 * h_ef)  # Default: 1.5 * h_ef
+    l_f = eta_values.get("l_f", h_ef)  # Default: h_ef
 
     # Create anchor properties with all parameters
     anchor_props = AnchorProperties_ETAG(
         # Geometry
         diameter=diameter,
-        embedment_depth=embedment_depth,
+        embedment_depth=h_ef,
         edge_distance=edge_distance,
         edge_distance_c2=edge_distance_c2,
         # Concrete
@@ -2331,16 +2347,18 @@ def calculate_anchor_capacity_etag_detailed(
         anchor_product, diameter, embedment_depth, concrete_grade
     )
 
+    h_ef = _formula_embedment_depth(eta_values, embedment_depth)
+
     # Extract critical distances from ETA database
-    s_cr_N = eta_values.get("s_cr_N", 3.0 * embedment_depth)
-    c_cr_N = eta_values.get("c_cr_N", 1.5 * embedment_depth)
-    l_f = eta_values.get("l_f", embedment_depth)
+    s_cr_N = eta_values.get("s_cr_N", 3.0 * h_ef)
+    c_cr_N = eta_values.get("c_cr_N", 1.5 * h_ef)
+    l_f = eta_values.get("l_f", h_ef)
 
     # Create anchor properties
     anchor_props = AnchorProperties_ETAG(
         # Geometric properties
         diameter=diameter,
-        embedment_depth=embedment_depth,
+        embedment_depth=h_ef,
         edge_distance=edge_distance,
         edge_distance_c2=(
             edge_distance_c2 if edge_distance_c2 is not None else edge_distance
@@ -2449,6 +2467,7 @@ def calculate_anchor_capacity_etag_detailed(
         "input_parameters": {
             "diameter": diameter,
             "embedment_depth": embedment_depth,
+            "h_ef": h_ef,
             "edge_distance": edge_distance,
             "concrete_grade": concrete_grade,
             "f_ck": f_ck,
