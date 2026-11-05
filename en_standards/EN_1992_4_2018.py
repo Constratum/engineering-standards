@@ -117,7 +117,12 @@ def calculate_mechanical_anchor(
     c1 = _positive(edge_distance_c1_mm, "edge_distance_c1_mm")
     s_cr_N = _positive(s_cr_N_mm, "s_cr_N_mm")
     c_cr_N = _positive(c_cr_N_mm, "c_cr_N_mm")
-    k1 = _positive(k_cr_N if cracked else k_ucr_N, "k_cr_N" if cracked else "k_ucr_N")
+    if cracked:
+        k1 = _positive(k_cr_N, "k_cr_N")
+    elif k_ucr_N is None:
+        raise ValueError("k_ucr_N is required for uncracked concrete")
+    else:
+        k1 = _positive(k_ucr_N, "k_ucr_N")
     gamma_c = _GAMMA_C_BASIC * _positive(gamma_inst, "gamma_inst")
     gamma_c_shear = _GAMMA_C_BASIC
     gamma_ms_n = _positive(gamma_Ms_N, "gamma_Ms_N")
