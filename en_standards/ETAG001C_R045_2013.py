@@ -21,6 +21,7 @@ All equations, constants, and methods are directly traceable to these two standa
 
 from dataclasses import dataclass
 from typing import Optional, Dict, Tuple, List
+import math
 import numpy as np
 
 
@@ -72,6 +73,123 @@ EOTA_TR045_SEISMIC_FACTORS = {
     "shear_pryout_group_undercut": 0.85,  # Table 5.4, Row 8a - Pryout, undercut
     "shear_pryout_group_other": 0.75,  # Table 5.4, Row 8b - Pryout, other
 }
+
+# Concrete edge failure is not applicable at or beyond this distance.
+NO_CONCRETE_EDGE_MM = 9999.0
+
+# ETAG 001 Annex C, Section 3.2.2.1. Installation multiplies the tension
+# concrete and pull-out factors. Concrete shear stays at this basic factor.
+_GAMMA_C_BASIC = ETAG_001_PARTIAL_SAFETY_FACTORS["gamma_Mc"]
+
+
+def _positive(value, label):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a number, got {value!r}")
+    number = float(value)
+    if number <= 0.0:
+        raise ValueError(f"{label} must be > 0, got {value!r}")
+    return number
+
+
+def psi_re_N(h_ef, dense_reinforcement):
+    """ETAG 001 Annex C Eq (5.2d), with the reinforcement exemption.
+
+    psi_re,N = 1 when reinforcement spacing is dense enough that shell
+    spalling does not apply. Otherwise psi_re,N = 0.5 + h_ef/200, at most 1.
+    """
+    if not isinstance(dense_reinforcement, bool):
+        raise TypeError(
+            "dense_reinforcement must be true or false, "
+            f"got {dense_reinforcement!r}"
+        )
+    h_ef = _positive(h_ef, "h_ef")
+    if dense_reinforcement:
+        return 1.0
+    return min(0.5 + h_ef / 200.0, 1.0)
+
+
+def psi_h_sp(h, h_min, h_ef):
+    """Member-thickness factor for splitting.
+
+    ETAG 001 Annex C Eq (5.3a) and EOTA TR 029 Eq (5.4a):
+    psi_h,sp = (h / h_min)^(2/3).
+    TR 029 Eq (5.4b) caps it at (2 * h_ef / h_min)^(2/3).
+    """
+    h = _positive(h, "h")
+    h_min = _positive(h_min, "h_min")
+    h_ef = _positive(h_ef, "h_ef")
+    if h < h_min:
+        raise ValueError(
+            f"Member thickness h={h} mm is below the ETA minimum "
+            f"h_min={h_min} mm, so splitting resistance is not defined."
+        )
+    raw = (h / h_min) ** (2.0 / 3.0)
+    upper = (2.0 * h_ef / h_min) ** (2.0 / 3.0)
+    if upper < 1.0:
+        raise ValueError(
+            f"h_min={h_min} mm is greater than 2*h_ef={2.0 * h_ef} mm, so "
+            "TR 029 Eq (5.4b) has no permitted psi_h,sp. Omit the splitting "
+            "check only when the standard's exemption applies."
+        )
+    return min(raw, upper)
+
+
+def projected_area_tension(n, s_cr, c_cr, c1, spacing, spacing_x, spacing_y):
+    """Projected cone area A_c,N for 1, 2 or 4 anchors."""
+    s_cr = _positive(s_cr, "s_cr")
+    c_cr = _positive(c_cr, "c_cr")
+    c1_eff = min(c1, c_cr)
+    if n == 1:
+        if c1 >= c_cr:
+            return s_cr * s_cr
+        return (c1_eff + s_cr / 2.0) * s_cr
+    if n == 2:
+        if spacing is None:
+            raise ValueError("spacing is required for a 2-anchor projected area")
+        s_eff = min(_positive(spacing, "spacing"), s_cr)
+        if c1 >= c_cr:
+            return (s_cr + s_eff) * s_cr
+        return (c1_eff + s_cr / 2.0) * (s_cr + s_eff)
+    if n == 4:
+        if spacing_x is None or spacing_y is None:
+            raise ValueError(
+                "spacing_x and spacing_y are required for a 4-anchor projected area"
+            )
+        s_x_eff = min(_positive(spacing_x, "spacing_x"), s_cr)
+        s_y_eff = min(_positive(spacing_y, "spacing_y"), s_cr)
+        if c1 >= c_cr:
+            return (s_cr + s_x_eff) * (s_cr + s_y_eff)
+        return (c1_eff + s_cr / 2.0 + s_x_eff) * (s_cr + s_y_eff)
+    raise ValueError(f"Projected area supports 1, 2 or 4 anchors, got {n}")
+
+
+def projected_area_shear(n, c1, c2_1, c2_2, h, spacing, spacing_y):
+    """Projected edge area A_c,V.
+
+    Width is the nearer limited perpendicular edge, plus the spacing along
+    the edge, plus the far limited perpendicular edge.
+    """
+    c1 = _positive(c1, "c1")
+    c2_1 = _positive(c2_1, "c2_1")
+    c2_2 = _positive(c2_2, "c2_2")
+    h = _positive(h, "h")
+    limit = 1.5 * c1
+    c2_1_eff = min(c2_1, limit)
+    c2_2_eff = min(c2_2, limit)
+    height = min(h, limit)
+    if n == 1:
+        return (c2_1_eff + c2_2_eff) * height
+    if n == 2:
+        if spacing is None:
+            raise ValueError("spacing is required for a 2-anchor shear area")
+        s_eff = min(_positive(spacing, "spacing"), 3.0 * c1)
+        return (c2_1_eff + s_eff + c2_2_eff) * height
+    if n == 4:
+        if spacing_y is None:
+            raise ValueError("spacing_y is required for a 4-anchor shear area")
+        s_eff = min(_positive(spacing_y, "spacing_y"), 3.0 * c1)
+        return (c2_1_eff + s_eff + c2_2_eff) * height
+    raise ValueError(f"Shear area supports 1, 2 or 4 anchors, got {n}")
 
 
 # ============================================================================
@@ -687,14 +805,27 @@ class AnchorProperties_ETAG:
     c_cr_N: float  # Critical edge distance for tension c_cr,N [mm]
     l_f: float  # Effective length for shear l_f [mm]
 
+    # Partial factors from the ETA. No code default: a missing ETA factor
+    # must not be replaced by 1.5.
+    gamma_Ms_N: float  # Steel tension
+    gamma_Ms_V: float  # Steel shear
+    gamma_inst: float  # Installation factor on tension concrete and pull-out
+    dense_reinforcement: bool  # True: psi_re,N = 1. Shell spalling does not apply.
+    splitting_check_required: bool
+
     # Group properties - FLEXIBLE for 1, 2, or 4 anchors
     number_of_anchors: int = 1  # n: Number of anchors
     spacing: Optional[float] = None  # s: Spacing for 2 anchors [mm]
     spacing_x: Optional[float] = None  # s_x: Spacing in X for 4 anchors [mm]
     spacing_y: Optional[float] = None  # s_y: Spacing in Y for 4 anchors [mm]
 
-    # Additional edge distance (for perpendicular direction)
-    edge_distance_c2: Optional[float] = None  # c2 [mm] - perpendicular edge distance
+    # Both perpendicular edges. Required when c1 is a real edge.
+    edge_distance_c2_1: Optional[float] = None
+    edge_distance_c2_2: Optional[float] = None
+    # Splitting distances and the thickness the ETA evaluated them at.
+    c_cr_sp: Optional[float] = None
+    s_cr_sp: Optional[float] = None
+    h_min: Optional[float] = None
 
     # Concrete cube strength (if not provided, calculated from f_ck)
     concrete_strength_cube: Optional[float] = None  # f_ck,cube [MPa]
@@ -717,11 +848,52 @@ class AnchorProperties_ETAG:
     has_edge_reinforcement: bool = False  # True if edge reinforcement present
 
     def __post_init__(self):
-        """Calculate derived values after initialization."""
-        # Calculate cube strength from cylinder strength if not provided
-        # f_ck,cube ≈ f_ck / 0.8 (approximate relationship)
+        """Reject missing ETA factors and an undefined edge pair."""
+        for label, value in (
+            ("gamma_Ms_N", self.gamma_Ms_N),
+            ("gamma_Ms_V", self.gamma_Ms_V),
+            ("gamma_inst", self.gamma_inst),
+        ):
+            _positive(value, label)
+        if not isinstance(self.dense_reinforcement, bool):
+            raise TypeError(
+                "dense_reinforcement must be true or false, "
+                f"got {self.dense_reinforcement!r}"
+            )
+        if not isinstance(self.splitting_check_required, bool):
+            raise TypeError(
+                "splitting_check_required must be true or false, "
+                f"got {self.splitting_check_required!r}"
+            )
+        if not isinstance(self.seismic_design, bool):
+            raise TypeError(
+                f"seismic_design must be true or false, got {self.seismic_design!r}"
+            )
+        if not self.seismic_design and self.alpha_gap != 1.0:
+            raise ValueError(
+                "alpha_gap applies to seismic shear only. Static design "
+                f"requires alpha_gap = 1, got {self.alpha_gap!r}."
+            )
+        if self.edge_distance < NO_CONCRETE_EDGE_MM and (
+            self.edge_distance_c2_1 is None or self.edge_distance_c2_2 is None
+        ):
+            raise ValueError(
+                "edge_distance_c2_1 and edge_distance_c2_2 are required "
+                f"when c1={self.edge_distance} mm is a concrete edge."
+            )
+        if self.splitting_check_required and (
+            self.c_cr_sp is None or self.s_cr_sp is None or self.h_min is None
+        ):
+            raise ValueError(
+                "splitting_check_required needs c_cr_sp, s_cr_sp and h_min "
+                "from the ETA."
+            )
         if self.concrete_strength_cube is None:
-            self.concrete_strength_cube = self.concrete_strength / 0.8
+            raise ValueError(
+                "concrete_strength_cube (f_ck,cube) is required. "
+                "ETAG cone and edge resistance use cube strength, and it is "
+                "not derived from the cylinder strength."
+            )
 
 
 # ============================================================================
@@ -798,10 +970,13 @@ class MetalAnchorCapacity_ETAG001_TR045:
 
         Per ETAG 001 Annex C, Section 3.2.2 and EOTA TR 045, Table 5.4
         """
-        # ETAG 001 Annex C, Section 3.2.2 - Partial safety factors
-        self.gamma_Ms = ETAG_001_PARTIAL_SAFETY_FACTORS["gamma_Ms"]
-        self.gamma_Mc = ETAG_001_PARTIAL_SAFETY_FACTORS["gamma_Mc"]
-        self.gamma_Mp = ETAG_001_PARTIAL_SAFETY_FACTORS["gamma_Mp"]
+        # Partial factors come from the ETA row. Tension concrete and
+        # pull-out include the installation factor. Concrete shear does not.
+        self.gamma_Ms_N = self.anchor.gamma_Ms_N
+        self.gamma_Ms_V = self.anchor.gamma_Ms_V
+        self.gamma_Mc = _GAMMA_C_BASIC * self.anchor.gamma_inst
+        self.gamma_Mp = _GAMMA_C_BASIC * self.anchor.gamma_inst
+        self.gamma_Mc_shear = _GAMMA_C_BASIC
 
         # EOTA TR 045, Table 5.4 - Seismic reduction factors
         if self.anchor.seismic_design:
@@ -892,22 +1067,19 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # ETAG 001 Annex C, Section 5.2.2.2 - Basic characteristic resistance from ETA
         N0_Rk_s = self.anchor.N0_Rk_s
 
-        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
-        # N_Rk,s,seis = α_gap · α_seis · N⁰_Rk,s
-        alpha_gap = self.anchor.alpha_gap
-        N_Rk_s_seis = alpha_gap * self.alpha_seis_steel_tension * N0_Rk_s
+        # alpha_gap is a seismic shear factor. It does not reduce tension.
+        N_Rk_s_seis = self.alpha_seis_steel_tension * N0_Rk_s
 
-        # ETAG 001 Annex C, Section 3.2.2.2 - Apply partial safety factor
-        N_Rd_s = N_Rk_s_seis / self.gamma_Ms
+        N_Rd_s = N_Rk_s_seis / self.gamma_Ms_N
 
         return {
             "N0_Rk_s": N0_Rk_s,
             "N_Rk_s_seis": N_Rk_s_seis,
             "N_Rd_s": N_Rd_s,
-            "alpha_gap": alpha_gap,
+            "alpha_gap": 1.0,
             "alpha_seis": self.alpha_seis_steel_tension,
-            "gamma_Ms": self.gamma_Ms,
-            "standard_reference": "ETAG 001 Annex C Section 5.2.2.2, EOTA TR 045 Eq (5.8)",
+            "gamma_Ms": self.gamma_Ms_N,
+            "standard_reference": "ETAG 001 Annex C Section 5.2.2.2",
         }
 
     def pullout_failure_ETAG_5_2_2_3(self) -> Dict:
@@ -937,25 +1109,19 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # ETAG 001 Annex C, Section 5.2.2.3 - Basic characteristic resistance from ETA
         N0_Rk_p = self.anchor.N0_Rk_p
 
-        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
-        # N_Rk,p,seis = α_gap · α_seis · N⁰_Rk,p
-        alpha_gap = self.anchor.alpha_gap
-        N_Rk_p_seis = alpha_gap * self.alpha_seis_pullout * N0_Rk_p
+        # alpha_gap is a seismic shear factor. It does not reduce tension.
+        N_Rk_p_seis = self.alpha_seis_pullout * N0_Rk_p
 
-        # ψ_c,seis factor (typically 1.0 for cracked concrete per ETA)
-        psi_c_seis = 1.0
-
-        # ETAG 001 Annex C, Section 3.2.2.1 - Apply partial safety factor
-        # N_Rd,p = ψ_c,seis · N_Rk,p,seis / γ_Mp
-        N_Rd_p = psi_c_seis * N_Rk_p_seis / self.gamma_Mp
+        # ETAG 001 Annex C pull-out has no concrete-strength factor.
+        # EN 1992-4 psi_c is applied by EN_1992_4_2018, not here.
+        N_Rd_p = N_Rk_p_seis / self.gamma_Mp
 
         return {
             "N0_Rk_p": N0_Rk_p,
             "N_Rk_p_seis": N_Rk_p_seis,
             "N_Rd_p": N_Rd_p,
-            "alpha_gap": alpha_gap,
+            "alpha_gap": 1.0,
             "alpha_seis": self.alpha_seis_pullout,
-            "psi_c_seis": psi_c_seis,
             "gamma_Mp": self.gamma_Mp,
             "standard_reference": "ETAG 001 Annex C Section 5.2.2.3, EOTA TR 045 Eq (5.8)",
         }
@@ -995,7 +1161,6 @@ class MetalAnchorCapacity_ETAG001_TR045:
         c = self.anchor.edge_distance
         s_cr_N = self.anchor.s_cr_N
         c_cr_N = self.anchor.c_cr_N
-        alpha_gap = self.anchor.alpha_gap
 
         # ====================================================================
         # ETAG 001 Annex C, Eq (5.2a) - Basic characteristic resistance
@@ -1015,7 +1180,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # For anchor near edge: A_c,N is reduced
         # For anchor groups: A_c,N considers overlap
         # ====================================================================
-        A_c_N = self._calculate_projected_area_tension()
+        A_c_N = self._calculate_projected_area_tension(s_cr_N, c_cr_N)
 
         # Area ratio
         area_ratio = A_c_N / A0_c_N
@@ -1027,11 +1192,8 @@ class MetalAnchorCapacity_ETAG001_TR045:
         c_min = min(c, c_cr_N)  # Use minimum edge distance
         psi_s_N = min(0.7 + 0.3 * (c_min / c_cr_N), 1.0)
 
-        # ====================================================================
-        # ETAG 001 Annex C, Eq (5.2d) - Shell spalling factor
-        # ψ_re,N = 0.5 + h_ef/200 ≤ 1.0
-        # ====================================================================
-        psi_re_N = min(0.5 + h_ef / 200.0, 1.0)
+        # ETAG 001 Annex C, Eq (5.2d). Dense reinforcement sets this to 1.
+        psi_re_value = psi_re_N(h_ef, self.anchor.dense_reinforcement)
 
         # ====================================================================
         # ETAG 001 Annex C, Eq (5.2e) - Eccentricity factors
@@ -1048,17 +1210,13 @@ class MetalAnchorCapacity_ETAG001_TR045:
             min(1.0 / (1.0 + 2.0 * abs(e_N_y) / s_cr_N), 1.0) if s_cr_N > 0 else 1.0
         )
 
-        # ====================================================================
-        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
-        # N_Rk,c,seis = α_gap · α_seis · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ_s,N · ψ_re,N · ψ_ec1,N · ψ_ec2,N
-        # ====================================================================
+        # alpha_gap is a seismic shear factor. It does not reduce tension.
         N_Rk_c_seis = (
-            alpha_gap
-            * self.alpha_seis_concrete
+            self.alpha_seis_concrete
             * N0_Rk_c
             * area_ratio
             * psi_s_N
-            * psi_re_N
+            * psi_re_value
             * psi_ec1_N
             * psi_ec2_N
         )
@@ -1079,88 +1237,78 @@ class MetalAnchorCapacity_ETAG001_TR045:
             "s_cr_N": s_cr_N,
             "c_cr_N": c_cr_N,
             "psi_s_N": psi_s_N,
-            "psi_re_N": psi_re_N,
+            "psi_re_N": psi_re_value,
             "psi_ec1_N": psi_ec1_N,
             "psi_ec2_N": psi_ec2_N,
-            "alpha_gap": alpha_gap,
+            "alpha_gap": 1.0,
             "alpha_seis": self.alpha_seis_concrete,
             "gamma_Mc": self.gamma_Mc,
             "standard_reference": "ETAG 001 Annex C Eq (5.2), EOTA TR 045 Eq (5.8)",
         }
 
-    def _calculate_projected_area_tension(self) -> float:
+    def _calculate_projected_area_tension(self, s_cr, c_cr) -> float:
+        """Projected area A_c,N. s_cr and c_cr are the cone or splitting values."""
+        return projected_area_tension(
+            self.anchor.number_of_anchors,
+            s_cr,
+            c_cr,
+            self.anchor.edge_distance,
+            self.anchor.spacing,
+            self.anchor.spacing_x,
+            self.anchor.spacing_y,
+        )
+
+    def splitting_failure_ETAG_5_2_2_6(self) -> Dict:
+        """Splitting due to loading. ETAG 001 Annex C, Section 5.2.2.6.
+
+        Same cone proof with the ETA splitting distances and psi_h,sp.
+        Omitted only when splitting_check_required is false.
         """
-        Calculate actual projected area A_c,N for concrete cone failure
-
-        Per ETAG 001 Annex C, the projected area depends on:
-        - Number of anchors
-        - Spacing between anchors
-        - Edge distances
-        - Member thickness
-
-        Returns:
-            A_c_N: Actual projected area [mm²]
-        """
-        h_ef = self.anchor.embedment_depth
-        s_cr_N = self.anchor.s_cr_N
-        c_cr_N = self.anchor.c_cr_N
-        c1 = self.anchor.edge_distance
-        h = self.anchor.concrete_thickness
-        n = self.anchor.number_of_anchors
-
-        # Limit edge distance to critical value
-        c1_eff = min(c1, c_cr_N)
-
-        # Calculate effective member thickness influence
-        # h_eff = min(h, c_cr_N) for single anchor
-        h_eff = min(h, 1.5 * h_ef) if h > 0 else 1.5 * h_ef
-
-        if n == 1:
-            # Single anchor - rectangular projected area
-            # Width = min(c1, c_cr,N) + s_cr,N/2 for edge, or s_cr,N for internal
-            if c1 >= c_cr_N:
-                # Internal anchor (far from edge)
-                A_c_N = s_cr_N * s_cr_N
-            else:
-                # Near edge - reduced area
-                width = c1_eff + s_cr_N / 2.0
-                height = s_cr_N
-                A_c_N = width * height
-
-        elif n == 2:
-            # Two-anchor group
-            s = self.anchor.spacing if self.anchor.spacing is not None else s_cr_N
-            s_eff = min(s, s_cr_N)
-
-            if c1 >= c_cr_N:
-                # Internal (far from edge)
-                width = s_cr_N + s_eff
-                height = s_cr_N
-            else:
-                # Near edge
-                width = c1_eff + s_cr_N / 2.0
-                height = s_cr_N + s_eff
-            A_c_N = width * height
-
-        elif n == 4:
-            # Four-anchor group (rectangular pattern)
-            s_x = self.anchor.spacing_x if self.anchor.spacing_x is not None else s_cr_N
-            s_y = self.anchor.spacing_y if self.anchor.spacing_y is not None else s_cr_N
-            s_x_eff = min(s_x, s_cr_N)
-            s_y_eff = min(s_y, s_cr_N)
-
-            if c1 >= c_cr_N:
-                width = s_cr_N + s_x_eff
-                height = s_cr_N + s_y_eff
-            else:
-                width = c1_eff + s_cr_N / 2.0 + s_x_eff
-                height = s_cr_N + s_y_eff
-            A_c_N = width * height
-        else:
-            # Default to reference area
-            A_c_N = s_cr_N * s_cr_N
-
-        return A_c_N
+        if not self.anchor.splitting_check_required:
+            return {
+                "skipped": True,
+                "N_Rd_sp": float("inf"),
+                "standard_reference": "ETAG 001 Annex C Section 5.2.2.6",
+            }
+        cone = self.concrete_cone_failure_ETAG_5_2_2_4()
+        s_cr_sp = self.anchor.s_cr_sp
+        c_cr_sp = self.anchor.c_cr_sp
+        A0_c_N = s_cr_sp * s_cr_sp
+        A_c_N = self._calculate_projected_area_tension(s_cr_sp, c_cr_sp)
+        c = self.anchor.edge_distance
+        c_min = min(c, c_cr_sp)
+        psi_s_N = min(0.7 + 0.3 * (c_min / c_cr_sp), 1.0)
+        psi_h = psi_h_sp(
+            self.anchor.concrete_thickness,
+            self.anchor.h_min,
+            self.anchor.embedment_depth,
+        )
+        N_Rk_sp = (
+            self.alpha_seis_concrete
+            * cone["N0_Rk_c"]
+            * (A_c_N / A0_c_N)
+            * psi_s_N
+            * cone["psi_re_N"]
+            * cone["psi_ec1_N"]
+            * cone["psi_ec2_N"]
+            * psi_h
+        )
+        N_Rd_sp = N_Rk_sp / self.gamma_Mc
+        return {
+            "skipped": False,
+            "N0_Rk_c": cone["N0_Rk_c"],
+            "N_Rk_sp": N_Rk_sp,
+            "N_Rd_sp": N_Rd_sp,
+            "A_c_N": A_c_N,
+            "A0_c_N": A0_c_N,
+            "s_cr_sp": s_cr_sp,
+            "c_cr_sp": c_cr_sp,
+            "psi_s_N": psi_s_N,
+            "psi_re_N": cone["psi_re_N"],
+            "psi_h_sp": psi_h,
+            "gamma_Mc": self.gamma_Mc,
+            "standard_reference": "ETAG 001 Annex C Section 5.2.2.6, Eq (5.3)",
+        }
 
     def calculate_tension_capacity_ETAG_5_2_2(self) -> Dict:
         """
@@ -1187,31 +1335,34 @@ class MetalAnchorCapacity_ETAG001_TR045:
         steel_result = self.steel_failure_tension_ETAG_5_2_2_2()
         pullout_result = self.pullout_failure_ETAG_5_2_2_3()
         concrete_result = self.concrete_cone_failure_ETAG_5_2_2_4()
+        splitting_result = self.splitting_failure_ETAG_5_2_2_6()
 
         N_Rd_steel = steel_result["N_Rd_s"]
         N_Rd_pullout = pullout_result["N_Rd_p"]
         N_Rd_concrete = concrete_result["N_Rd_c"]
+        N_Rd_splitting = splitting_result["N_Rd_sp"]
 
-        # Governing capacity is the minimum
-        N_Rd = min(N_Rd_steel, N_Rd_pullout, N_Rd_concrete)
-
-        # Determine which mode governs
-        if N_Rd == N_Rd_steel:
-            governing_mode = "Steel Failure (ETAG 5.2.2.2)"
-        elif N_Rd == N_Rd_pullout:
-            governing_mode = "Pull-out Failure (ETAG 5.2.2.3)"
-        else:
-            governing_mode = "Concrete Cone Failure (ETAG 5.2.2.4)"
+        candidates = {
+            "Steel Failure (ETAG 5.2.2.2)": N_Rd_steel,
+            "Pull-out Failure (ETAG 5.2.2.3)": N_Rd_pullout,
+            "Concrete Cone Failure (ETAG 5.2.2.4)": N_Rd_concrete,
+        }
+        if self.anchor.splitting_check_required:
+            candidates["Splitting Failure (ETAG 5.2.2.6)"] = N_Rd_splitting
+        governing_mode = min(candidates, key=candidates.get)
+        N_Rd = candidates[governing_mode]
 
         return {
             "N_Rd": N_Rd,
             "N_Rd_steel": N_Rd_steel,
             "N_Rd_pullout": N_Rd_pullout,
             "N_Rd_concrete": N_Rd_concrete,
+            "N_Rd_splitting": N_Rd_splitting,
             "governing_mode": governing_mode,
             "steel_details": steel_result,
             "pullout_details": pullout_result,
             "concrete_details": concrete_result,
+            "splitting_details": splitting_result,
             "standard_reference": "ETAG 001 Annex C, Section 5.2.2",
         }
 
@@ -1247,14 +1398,11 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # ETAG 001 Annex C, Section 5.2.3.2 - Basic characteristic resistance from ETA
         V0_Rk_s = self.anchor.V0_Rk_s
 
-        # EOTA TR 045, Eq (5.8) - Apply gap and seismic factors
-        # V_Rk,s,seis = α_gap · α_seis · V⁰_Rk,s
-        # NOTE: α_gap is CRITICAL for shear - reduces capacity by 50% for clearance holes!
-        alpha_gap = self.anchor.alpha_gap
+        # EOTA TR 045 applies alpha_gap to seismic shear only.
+        alpha_gap = self.anchor.alpha_gap if self.anchor.seismic_design else 1.0
         V_Rk_s_seis = alpha_gap * self.alpha_seis_steel_shear * V0_Rk_s
 
-        # ETAG 001 Annex C, Section 3.2.2.2 - Apply partial safety factor
-        V_Rd_s = V_Rk_s_seis / self.gamma_Ms
+        V_Rd_s = V_Rk_s_seis / self.gamma_Ms_V
 
         return {
             "V0_Rk_s": V0_Rk_s,
@@ -1262,7 +1410,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
             "V_Rd_s": V_Rd_s,
             "alpha_gap": alpha_gap,
             "alpha_seis": self.alpha_seis_steel_shear,
-            "gamma_Ms": self.gamma_Ms,
+            "gamma_Ms": self.gamma_Ms_V,
             "standard_reference": "ETAG 001 Annex C Section 5.2.3.2, EOTA TR 045 Eq (5.8)",
         }
 
@@ -1295,7 +1443,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # V_Rk,cp,seis = k · α_gap · α_seis,pryout · N⁰_Rk,c · (A_c,N/A⁰_c,N) · ψ factors
         # Note: We need to recalculate with pryout α_seis instead of concrete α_seis
 
-        alpha_gap = self.anchor.alpha_gap
+        alpha_gap = self.anchor.alpha_gap if self.anchor.seismic_design else 1.0
         N0_Rk_c = concrete_tension["N0_Rk_c"]
         area_ratio = concrete_tension["area_ratio"]
         psi_s_N = concrete_tension["psi_s_N"]
@@ -1317,7 +1465,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
         )
 
         # ETAG 001 Annex C - Apply partial safety factor
-        V_Rd_cp = V_Rk_cp_seis / self.gamma_Mc
+        V_Rd_cp = V_Rk_cp_seis / self.gamma_Mc_shear
 
         return {
             "V0_Rk_cp": k_pryout * N0_Rk_c,
@@ -1332,7 +1480,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
             "psi_ec2_N": psi_ec2_N,
             "alpha_gap": alpha_gap,
             "alpha_seis": self.alpha_seis_pryout,
-            "gamma_Mc": self.gamma_Mc,
+            "gamma_Mc": self.gamma_Mc_shear,
             "standard_reference": "ETAG 001 Annex C Eq (5.6), EOTA TR 045 Eq (5.8)",
         }
 
@@ -1371,22 +1519,18 @@ class MetalAnchorCapacity_ETAG001_TR045:
 
         # Parameters
         c1 = self.anchor.edge_distance  # Edge distance in load direction
-        c2 = (
-            self.anchor.edge_distance_c2
-            if self.anchor.edge_distance_c2 is not None
-            else c1
-        )  # Perpendicular edge
+        c2_1 = self.anchor.edge_distance_c2_1
+        c2_2 = self.anchor.edge_distance_c2_2
         d_nom = self.anchor.diameter
         l_f = self.anchor.l_f  # Effective length for shear
         f_ck_cube = self.anchor.concrete_strength_cube
         h = self.anchor.concrete_thickness
         e_V = self.anchor.e_V  # Eccentricity of shear load
-        alpha_gap = self.anchor.alpha_gap
+        alpha_gap = self.anchor.alpha_gap if self.anchor.seismic_design else 1.0
         alpha_v_deg = 0.0  # Load angle from perpendicular to edge (0° = perpendicular)
 
         # Check for edge failure applicability
-        # If edge distance is very large (e.g., 9999), skip edge failure calculation
-        if c1 >= 9999:
+        if c1 >= NO_CONCRETE_EDGE_MM:
             return {
                 "V0_Rk_c": float("inf"),
                 "V_Rk_c_seis": float("inf"),
@@ -1405,12 +1549,12 @@ class MetalAnchorCapacity_ETAG001_TR045:
 
         # ====================================================================
         # ETAG 001 Annex C, Eq (5.7a) - Basic characteristic resistance
-        # V⁰_Rk,c = k1 · d_nom^β · l_f^α · √f_ck,cube · c1^1.5
+        # V⁰_Rk,c = k1 · d_nom^α · l_f^β · √f_ck,cube · c1^1.5
         # ====================================================================
         V0_Rk_c = (
             k1
-            * np.power(d_nom, beta_exp)
-            * np.power(l_f, alpha_exp)
+            * np.power(d_nom, alpha_exp)
+            * np.power(l_f, beta_exp)
             * np.sqrt(f_ck_cube)
             * np.power(c1, 1.5)
         ) / 1000  # kN
@@ -1425,12 +1569,13 @@ class MetalAnchorCapacity_ETAG001_TR045:
         # Calculate actual projected area A_c,V
         # ====================================================================
         A_c_V = self._calculate_projected_area_shear()
-        area_ratio = A_c_V / A0_c_V if A0_c_V > 0 else 1.0
+        area_ratio = A_c_V / A0_c_V
 
         # ====================================================================
         # ETAG 001 Annex C, Eq (5.7e) - Perpendicular edge factor
-        # ψ_s,V = 0.7 + 0.3 · (c2/(1.5·c1)) ≤ 1.0
+        # ψ_s,V uses the smaller perpendicular edge.
         # ====================================================================
+        c2 = min(c2_1, c2_2)
         psi_s_V = min(0.7 + 0.3 * (c2 / (1.5 * c1)), 1.0)
 
         # ====================================================================
@@ -1484,7 +1629,7 @@ class MetalAnchorCapacity_ETAG001_TR045:
         )
 
         # ETAG 001 Annex C, Section 3.2.2.1 - Apply partial safety factor
-        V_Rd_c = V_Rk_c_seis / self.gamma_Mc
+        V_Rd_c = V_Rk_c_seis / self.gamma_Mc_shear
 
         return {
             "V0_Rk_c": V0_Rk_c,
@@ -1508,66 +1653,21 @@ class MetalAnchorCapacity_ETAG001_TR045:
             "psi_re_V": psi_re_V,
             "alpha_gap": alpha_gap,
             "alpha_seis": self.alpha_seis_concrete_shear,
-            "gamma_Mc": self.gamma_Mc,
+            "gamma_Mc": self.gamma_Mc_shear,
             "standard_reference": "ETAG 001 Annex C Eq (5.7), EOTA TR 045 Eq (5.8)",
         }
 
     def _calculate_projected_area_shear(self) -> float:
-        """
-        Calculate actual projected area A_c,V for concrete edge failure
-
-        Per ETAG 001 Annex C, the projected area for shear depends on:
-        - Number of anchors
-        - Spacing between anchors
-        - Edge distances
-        - Member thickness
-
-        Returns:
-            A_c_V: Actual projected area [mm²]
-        """
-        c1 = self.anchor.edge_distance
-        c2 = (
-            self.anchor.edge_distance_c2
-            if self.anchor.edge_distance_c2 is not None
-            else 1.5 * c1
+        """Projected edge area using both perpendicular edges."""
+        return projected_area_shear(
+            self.anchor.number_of_anchors,
+            self.anchor.edge_distance,
+            self.anchor.edge_distance_c2_1,
+            self.anchor.edge_distance_c2_2,
+            self.anchor.concrete_thickness,
+            self.anchor.spacing,
+            self.anchor.spacing_y,
         )
-        h = self.anchor.concrete_thickness
-        n = self.anchor.number_of_anchors
-
-        # Calculate limiting dimensions
-        h_eff = min(h, 1.5 * c1) if h > 0 else 1.5 * c1
-        c2_eff = min(c2, 1.5 * c1)
-
-        if n == 1:
-            # Single anchor
-            # A_c,V = (2·c2,eff + s) · h_eff, but for single anchor s=0
-            width = 2 * c2_eff
-            height = h_eff
-            A_c_V = width * height
-
-        elif n == 2:
-            # Two-anchor group
-            s = self.anchor.spacing if self.anchor.spacing is not None else 0
-            s_eff = min(s, 3 * c1)  # Limit spacing effect
-
-            width = 2 * c2_eff + s_eff
-            height = h_eff
-            A_c_V = width * height
-
-        elif n == 4:
-            # Four-anchor group
-            s_x = self.anchor.spacing_x if self.anchor.spacing_x is not None else 0
-            s_y = self.anchor.spacing_y if self.anchor.spacing_y is not None else 0
-            s_y_eff = min(s_y, 3 * c1)
-
-            width = 2 * c2_eff + s_y_eff
-            height = h_eff
-            A_c_V = width * height
-        else:
-            # Default to reference area
-            A_c_V = 4.5 * c1 * c1
-
-        return A_c_V
 
     def calculate_shear_capacity_ETAG_5_2_3(self) -> Dict:
         """
@@ -1653,35 +1753,71 @@ class MetalAnchorCapacity_ETAG001_TR045:
                 V_Rd: Design shear capacity [kN]
                 (plus detailed results from capacity calculations)
         """
-        # Calculate design capacities
         tension_result = self.calculate_tension_capacity_ETAG_5_2_2()
         shear_result = self.calculate_shear_capacity_ETAG_5_2_3()
+        n = self.anchor.number_of_anchors
+        if n < 1:
+            raise ValueError(f"number_of_anchors must be >= 1, got {n}")
+        tension_per_anchor = N_Ed / n
+        shear_per_anchor = V_Ed / n
 
-        N_Rd = tension_result["N_Rd"]
-        V_Rd = shear_result["V_Rd"]
+        def _ratio(demand, capacity):
+            if capacity == 0:
+                raise ValueError("Interaction capacity is zero")
+            if math.isinf(capacity):
+                return 0.0
+            return demand / capacity
 
-        # EOTA TR 045, Equation (5.9) - Interaction check
-        beta_N = N_Ed / N_Rd if N_Rd > 0 else 0
-        beta_V = V_Ed / V_Rd if V_Rd > 0 else 0
-        utilization = beta_N + beta_V
+        tension_ratios = {
+            "steel": _ratio(tension_per_anchor, tension_result["N_Rd_steel"]),
+            "pullout": _ratio(tension_per_anchor, tension_result["N_Rd_pullout"]),
+            "cone": _ratio(N_Ed, tension_result["N_Rd_concrete"]),
+        }
+        if self.anchor.splitting_check_required:
+            tension_ratios["splitting"] = _ratio(
+                N_Ed, tension_result["N_Rd_splitting"]
+            )
+        shear_ratios = {
+            "steel": _ratio(shear_per_anchor, shear_result["V_Rd_steel"]),
+            "pryout": _ratio(V_Ed, shear_result["V_Rd_pryout"]),
+            "edge": _ratio(V_Ed, shear_result["V_Rd_concrete"]),
+        }
+        tension_mode = max(tension_ratios, key=tension_ratios.get)
+        shear_mode = max(shear_ratios, key=shear_ratios.get)
+        beta_N = tension_ratios[tension_mode]
+        beta_V = shear_ratios[shear_mode]
+        # TR 045 seismic interaction is linear. Static ETAG Annex C uses
+        # exponent 2 when steel governs both actions, otherwise 1.5.
+        if self.anchor.seismic_design:
+            exponent = 1.0
+            utilization = beta_N + beta_V
+            reference = "EOTA TR 045 Eq. (5.9)"
+        elif tension_mode == "steel" and shear_mode == "steel":
+            exponent = 2.0
+            utilization = beta_N**exponent + beta_V**exponent
+            reference = "ETAG 001 Annex C Eq. (5.9a)"
+        else:
+            exponent = 1.5
+            utilization = beta_N**exponent + beta_V**exponent
+            reference = "ETAG 001 Annex C Eq. (5.9b)"
 
-        # Check compliance per ETAG 001 Annex C, Section 5.2.4
         compliance = utilization <= 1.0
-        status = "PASS" if compliance else "FAIL"
-
         return {
             "utilization": utilization,
             "compliance": compliance,
-            "status": status,
+            "status": "PASS" if compliance else "FAIL",
             "beta_N": beta_N,
             "beta_V": beta_V,
+            "exponent": exponent,
+            "tension_mode": tension_mode,
+            "shear_mode": shear_mode,
             "N_Ed": N_Ed,
             "V_Ed": V_Ed,
-            "N_Rd": N_Rd,
-            "V_Rd": V_Rd,
+            "N_Rd": tension_result["N_Rd"],
+            "V_Rd": shear_result["V_Rd"],
             "tension_result": tension_result,
             "shear_result": shear_result,
-            "standard_reference": "ETAG 001 Annex C Section 5.2.4, EOTA TR 045 Eq. (5.9)",
+            "standard_reference": reference,
         }
 
 
@@ -2085,6 +2221,22 @@ def convert_concrete_grade_to_fck(concrete_grade: str) -> float:
         )
 
 
+def cube_strength_from_grade(concrete_grade: str) -> float:
+    """Cube strength written in the grade, for example 25 from C20/25."""
+    if "/" not in concrete_grade:
+        raise ValueError(
+            f"Invalid concrete grade format: '{concrete_grade}'. "
+            "Expected format: 'C20/25'."
+        )
+    cube = concrete_grade.split("/", 1)[1]
+    try:
+        return float(cube)
+    except ValueError as exc:
+        raise ValueError(
+            f"Concrete grade '{concrete_grade}' has no numeric cube strength."
+        ) from exc
+
+
 def convert_fck_to_concrete_grade(fck: float) -> str:
     """
     Convert f_ck value to the highest European concrete grade that does NOT
@@ -2161,12 +2313,22 @@ def calculate_anchor_capacity_etag(
     spacing: Optional[float] = None,
     spacing_x: Optional[float] = None,
     spacing_y: Optional[float] = None,
-    alpha_gap: float = 1.0,
-    edge_distance_c2: Optional[float] = None,
     e_N_x: float = 0.0,
     e_N_y: float = 0.0,
     e_V: float = 0.0,
     has_edge_reinforcement: bool = False,
+    *,
+    gamma_Ms_N: float,
+    gamma_Ms_V: float,
+    gamma_inst: float,
+    dense_reinforcement: bool,
+    splitting_check_required: bool,
+    alpha_gap: float,
+    edge_distance_c2_1: Optional[float] = None,
+    edge_distance_c2_2: Optional[float] = None,
+    c_cr_sp: Optional[float] = None,
+    s_cr_sp: Optional[float] = None,
+    h_min: Optional[float] = None,
 ) -> Tuple[float, float]:
     """
     Calculate metal anchor capacity per ETAG 001 Annex C and EOTA TR 045
@@ -2228,6 +2390,7 @@ def calculate_anchor_capacity_etag(
     
     # Convert concrete grade to f_ck
     f_ck = convert_concrete_grade_to_fck(concrete_grade)
+    f_ck_cube = cube_strength_from_grade(concrete_grade)
 
     # Get characteristic values from ETA database
     eta_values = get_eta_values(
@@ -2247,9 +2410,11 @@ def calculate_anchor_capacity_etag(
         diameter=diameter,
         embedment_depth=h_ef,
         edge_distance=edge_distance,
-        edge_distance_c2=edge_distance_c2,
+        edge_distance_c2_1=edge_distance_c2_1,
+        edge_distance_c2_2=edge_distance_c2_2,
         # Concrete
         concrete_strength=f_ck,
+        concrete_strength_cube=f_ck_cube,
         concrete_thickness=thickness_concrete,
         is_cracked_concrete=is_cracked_concrete,
         # Characteristic values from ETA
@@ -2260,6 +2425,14 @@ def calculate_anchor_capacity_etag(
         s_cr_N=s_cr_N,
         c_cr_N=c_cr_N,
         l_f=l_f,
+        gamma_Ms_N=gamma_Ms_N,
+        gamma_Ms_V=gamma_Ms_V,
+        gamma_inst=gamma_inst,
+        dense_reinforcement=dense_reinforcement,
+        splitting_check_required=splitting_check_required,
+        c_cr_sp=c_cr_sp,
+        s_cr_sp=s_cr_sp,
+        h_min=h_min,
         # Group configuration
         number_of_anchors=number_of_anchors,
         spacing=spacing,
@@ -2307,12 +2480,22 @@ def calculate_anchor_capacity_etag_detailed(
     spacing: Optional[float] = None,
     spacing_x: Optional[float] = None,
     spacing_y: Optional[float] = None,
-    alpha_gap: float = 1.0,
-    edge_distance_c2: Optional[float] = None,
     e_N_x: float = 0.0,
     e_N_y: float = 0.0,
     e_V: float = 0.0,
     has_edge_reinforcement: bool = False,
+    *,
+    gamma_Ms_N: float,
+    gamma_Ms_V: float,
+    gamma_inst: float,
+    dense_reinforcement: bool,
+    splitting_check_required: bool,
+    alpha_gap: float,
+    edge_distance_c2_1: Optional[float] = None,
+    edge_distance_c2_2: Optional[float] = None,
+    c_cr_sp: Optional[float] = None,
+    s_cr_sp: Optional[float] = None,
+    h_min: Optional[float] = None,
 ) -> Dict:
     """
     Calculate detailed anchor capacity per ETAG 001 Annex C and EOTA TR 045.
@@ -2341,6 +2524,7 @@ def calculate_anchor_capacity_etag_detailed(
         embedment_depth = parsed_embedment
     
     f_ck = convert_concrete_grade_to_fck(concrete_grade)
+    f_ck_cube = cube_strength_from_grade(concrete_grade)
 
     # Get characteristic values from ETA database
     eta_values = get_eta_values(
@@ -2360,11 +2544,11 @@ def calculate_anchor_capacity_etag_detailed(
         diameter=diameter,
         embedment_depth=h_ef,
         edge_distance=edge_distance,
-        edge_distance_c2=(
-            edge_distance_c2 if edge_distance_c2 is not None else edge_distance
-        ),
+        edge_distance_c2_1=edge_distance_c2_1,
+        edge_distance_c2_2=edge_distance_c2_2,
         # Concrete properties
         concrete_strength=f_ck,
+        concrete_strength_cube=f_ck_cube,
         concrete_thickness=thickness_concrete,
         is_cracked_concrete=is_cracked_concrete,
         # Characteristic capacities from ETA
@@ -2375,6 +2559,14 @@ def calculate_anchor_capacity_etag_detailed(
         s_cr_N=s_cr_N,
         c_cr_N=c_cr_N,
         l_f=l_f,
+        gamma_Ms_N=gamma_Ms_N,
+        gamma_Ms_V=gamma_Ms_V,
+        gamma_inst=gamma_inst,
+        dense_reinforcement=dense_reinforcement,
+        splitting_check_required=splitting_check_required,
+        c_cr_sp=c_cr_sp,
+        s_cr_sp=s_cr_sp,
+        h_min=h_min,
         # Gap factor (clearance hole effect)
         alpha_gap=alpha_gap,
         # Group configuration
@@ -2424,6 +2616,12 @@ def calculate_anchor_capacity_etag_detailed(
                 "N_Rd_c_kN": tension_result["N_Rd_concrete"],
                 "details": tension_result["concrete_details"],
                 "note": "Anchor group capacity",
+            },
+            "splitting": {
+                "N_Rd_sp_N": tension_result["N_Rd_splitting"] * 1000,
+                "N_Rd_sp_kN": tension_result["N_Rd_splitting"],
+                "details": tension_result["splitting_details"],
+                "note": "Anchor group capacity. Infinite when the check is omitted.",
             },
         },
         # ===== SHEAR CAPACITIES =====
