@@ -4,11 +4,12 @@
 
 Important limits
 ----------------
-This is NOT a complete CCANZ floor-design program. TM38 also requires, as
-applicable, superposition of stresses from multiple wheels/posts, radial and
-tangential influence diagrams, corner loading, punching shear, bearing,
-uniformly distributed loads, settlement, joint/load-transfer assessment,
-edge thickening, durability, abrasion and reinforcement/crack control.
+The rack-post functions at the end of this module follow the CCANZ
+slab-on-grade workbook: the CBR chart, the granular-subbase correction, the
+joint load-transfer factors, the corner equation, and adjacent-post
+superposition. Punching shear, soil bearing, uniformly distributed loads,
+settlement, edge thickening, durability, abrasion and crack control are not
+part of that workbook and are not calculated here.
 
 All loads called ``tonnes`` below are metric tonne-force units as used in the
 published CCANZ equations (1 tonne-force ~= 9.80665 kN), not mass inputs that
@@ -20,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from enum import Enum
-from math import isfinite, log10, pi, sqrt
+from math import exp, isfinite, log, log10, pi, sqrt
 from typing import Any, Dict, Optional, Union
 import warnings
 
@@ -91,24 +92,23 @@ def _poisson(value: Number) -> float:
 
 
 def ccanz_time_factor(first_max_load_age_days: Number) -> float:
-    """Return CCANZ k1 for the two ages explicitly defined by TM38.
+    """Return CCANZ k1 at the two ages the slab-on-grade program uses.
 
-    TM38 gives k1 = 1.0 at 28 days and k1 = 1.1 for first application of the
-    maximum load at greater than 90 days. It does not prescribe interpolation
-    for intermediate ages, so this function deliberately does not invent one.
-
-    For an intermediate age, provide a project-justified ``k1`` directly to
-    :func:`point_load_check`.
+    k1 is 1.0 at 28 days and 1.1 at 90 days or later. The program does not
+    interpolate between those ages. For an intermediate age, pass a justified
+    ``k1`` directly to :func:`point_load_check`.
     """
 
     age = _positive("first_max_load_age_days", first_max_load_age_days)
     if abs(age - 28.0) <= 1e-9:
         return 1.0
-    if age > 90.0:
+    # The CCANZ slab-on-grade program applies k1 = 1.1 at 90 days, not only
+    # after 90 days. The Option 2 sheet reports the 90-day modulus of rupture.
+    if age >= 90.0:
         return 1.1
     raise ValueError(
-        "CCANZ TM38 explicitly defines k1 only at 28 days (1.0) and for "
-        "greater than 90 days (1.1). Supply a justified k1 directly for this age."
+        "CCANZ defines k1 only at 28 days (1.0) and at 90 days or later (1.1). "
+        "Supply a justified k1 directly for this age."
     )
 
 
@@ -561,6 +561,551 @@ def check_min_reinforcement(f_sy_MPa: Number) -> float:
         stacklevel=2,
     )
     return 0.001 if fy >= 400.0 else 0.002
+
+
+# ---------------------------------------------------------------------------
+# CCANZ slab-on-grade program (rack posts)
+# ---------------------------------------------------------------------------
+#
+# The expressions below are the formulas stored in the CCANZ "Slab-on-Grade"
+# workbook (InputData and Singracks), not a re-derivation. The program converts
+# a point load from kN to its tonne-force equation unit by dividing by 10.
+# Concrete modulus in that workbook is 3320*sqrt(f'c)+6900, with no density term.
+# Poisson's ratio in the workbook is the named value 0.15.
+
+CCANZ_KN_PER_TONNE_FORCE = 10.0
+_CCANZ_PROGRAM_POISSON = 0.15
+
+JOINT_LOAD_TRANSFER_FACTORS = {
+    "Tied Joints": {"interior": 1.0, "edge": 0.85, "corner": 0.7},
+    "Dowel Joints": {"interior": 1.0, "edge": 0.85, "corner": 0.7},
+    "Non-Doweled Joints which open < 1 mm": {
+        "interior": 1.0,
+        "edge": 0.85,
+        "corner": 0.7,
+    },
+    "Non-Doweled Joints which open > 1 mm": {
+        "interior": 1.0,
+        "edge": 1.0,
+        "corner": 1.0,
+    },
+}
+
+
+def subgrade_modulus_from_cbr(cbr_percent: Number) -> float:
+    """Return the workbook point estimate of k (MN/m³) from CBR (%).
+
+    The stiffness sheet treats CBR below 3% as peat and not suitable for a
+    slab on grade. At or below 30% the program uses
+    ``22.5*ln(CBR)+1.4305``; above 30% it uses ``109.2*ln(CBR)-293.32``.
+    """
+
+    cbr = _positive("cbr_percent", cbr_percent)
+    if cbr < 3.0:
+        raise ValueError(
+            "CBR below 3% is classified as peat on the CCANZ stiffness sheet "
+            f"and is not suitable for a slab on grade; got {cbr_percent!r}."
+        )
+    if cbr <= 30.0:
+        modulus = 22.5 * log(cbr) + 1.4305
+    else:
+        modulus = 109.2 * log(cbr) - 293.32
+    if modulus <= 0.0:
+        raise ValueError(
+            f"CBR {cbr_percent!r}% produced a non-positive subgrade modulus "
+            f"({modulus} MN/m³)."
+        )
+    return modulus
+
+
+def modified_subgrade_modulus(
+    subgrade_modulus_MN_m3: Number, granular_subbase_thickness_mm: Number
+) -> float:
+    """Return k′ (MN/m³) after the granular-subbase correction.
+
+    A thickness of 0 mm is no granular layer, so k′ is k. A positive thickness
+    uses the InputData correction. The program refuses the correction when k
+    is already at least 85 MN/m³.
+    """
+
+    modulus = _positive("subgrade_modulus_MN_m3", subgrade_modulus_MN_m3)
+    thickness = float(granular_subbase_thickness_mm)
+    if not isfinite(thickness) or thickness < 0.0:
+        raise ValueError(
+            "granular_subbase_thickness_mm must be a finite non-negative "
+            f"thickness in mm; got {granular_subbase_thickness_mm!r}."
+        )
+    if thickness == 0.0:
+        return modulus
+    if modulus >= 85.0:
+        raise ValueError(
+            "A granular subbase is not effective when the subgrade modulus is "
+            f"at least 85 MN/m³; got k = {modulus} MN/m³."
+        )
+    slope = 0.0612 * log(modulus) - 0.1029
+    intercept = 0.8752 * modulus - 1.453
+    modified = slope * thickness + intercept
+    if modified <= 0.0:
+        raise ValueError(
+            "The granular-subbase correction produced a non-positive modulus "
+            f"k′ = {modified} MN/m³."
+        )
+    return modified
+
+
+def joint_load_transfer_factors(joint_type: str) -> Dict[str, float]:
+    """Return the workbook interior, edge and corner load-transfer factors."""
+
+    if joint_type not in JOINT_LOAD_TRANSFER_FACTORS:
+        known = ", ".join(repr(name) for name in JOINT_LOAD_TRANSFER_FACTORS)
+        raise ValueError(
+            f"joint_type {joint_type!r} is not one of the CCANZ joint details: {known}."
+        )
+    return dict(JOINT_LOAD_TRANSFER_FACTORS[joint_type])
+
+
+def _program_elastic_modulus_MPa(f_c_MPa: Number) -> float:
+    """Elastic modulus used by the CCANZ workbook, in MPa."""
+
+    return 3320.0 * sqrt(_positive("f_c_MPa", f_c_MPa)) + 6900.0
+
+
+def _program_relative_stiffness_mm(
+    h_mm: Number, k_prime_MN_m3: Number, f_c_MPa: Number
+) -> float:
+    return calculate_radius_of_relative_stiffness(
+        _program_elastic_modulus_MPa(f_c_MPa),
+        h_mm,
+        k_prime_MN_m3,
+        _CCANZ_PROGRAM_POISSON,
+    )
+
+
+def _contact_radius_mm(plate_length_mm: Number, plate_width_mm: Number, position: str) -> float:
+    area_radius = loaded_radius_from_rectangular_area(plate_length_mm, plate_width_mm)
+    if position == "edge":
+        return sqrt(2.0) * area_radius
+    if position in ("interior", "corner"):
+        return area_radius
+    raise ValueError(
+        "position must be 'interior', 'edge' or 'corner', "
+        f"got {position!r}."
+    )
+
+
+def _tangential_influence(position: str, distance_over_l: Number) -> float:
+    """Workbook tangential influence at a neighbouring post."""
+
+    if position != "interior":
+        return 0.0
+    ratio = float(distance_over_l)
+    if ratio == 0.0:
+        return 1.0
+    return exp(-1.7 * ratio) - 0.001
+
+
+def _radial_influence(position: str, distance_over_l: Number) -> float:
+    """Workbook radial influence at a neighbouring post."""
+
+    ratio = float(distance_over_l)
+    if position == "interior":
+        if ratio == 0.0:
+            return 1.0
+        if ratio < 2.2:
+            return exp(-3.0 * ratio) - 0.076
+        if ratio < 5.0:
+            return exp(-3.0 * ratio) - 0.076 - (2.2 - ratio) * 0.03
+        return 0.0
+    if position == "edge":
+        if ratio <= 2.0:
+            return (
+                -0.0235422218989 * ratio**5
+                + 0.277430095704 * ratio**4
+                - 1.22353596535 * ratio**3
+                + 2.58102246367 * ratio**2
+                - 2.69234567235 * ratio
+                + 1.02291940214
+            )
+        return -0.140439380183 * (1.0 - (ratio - 2.0) / 2.5)
+    return 0.0
+
+
+def _program_point_stress_MPa(
+    *,
+    position: str,
+    load_kN: Number,
+    load_factor: Number,
+    load_flag: Number,
+    h_mm: Number,
+    relative_stiffness_mm: Number,
+    contact_radius_mm: Number,
+    joint_factor: Number,
+) -> float:
+    """One post's flexural stress, in MPa, using the workbook equations."""
+
+    flag = float(load_flag)
+    if flag == 0.0:
+        return 0.0
+    if flag < 0.0:
+        raise ValueError(f"load_flag must be non-negative; got {load_flag!r}.")
+    load_tonnes = (
+        _nonnegative("load_kN", load_kN)
+        * _positive("load_factor", load_factor)
+        * flag
+        / CCANZ_KN_PER_TONNE_FORCE
+    )
+    equivalent = calculate_equivalent_radius(contact_radius_mm, h_mm)
+    if position == "interior":
+        stress = calculate_interior_point_stress_MPa(
+            load_tonnes,
+            h_mm,
+            relative_stiffness_mm,
+            equivalent,
+            _CCANZ_PROGRAM_POISSON,
+        )
+    elif position == "edge":
+        stress = calculate_edge_point_stress_MPa(
+            load_tonnes,
+            h_mm,
+            relative_stiffness_mm,
+            equivalent,
+            _CCANZ_PROGRAM_POISSON,
+            load_transfer_factor=1.0,
+        )
+    elif position == "corner":
+        ratio = contact_radius_mm / relative_stiffness_mm
+        bracket = 1.0 - sqrt(ratio) / (0.925 + 0.22 * ratio)
+        if bracket <= 0.0:
+            raise ValueError(
+                "CCANZ corner-stress term is non-positive. "
+                "Check the slab thickness and the subgrade modulus."
+            )
+        stress = 41.2 * (load_tonnes / h_mm**2) * bracket * 1_000.0
+    else:
+        raise ValueError(
+            "position must be 'interior', 'edge' or 'corner', "
+            f"got {position!r}."
+        )
+    return _positive("joint_factor", joint_factor) * stress
+
+
+def _neighbour_components(
+    *,
+    position: str,
+    spacing_mm: Number,
+    load_kN: Number,
+    load_factor: Number,
+    h_mm: Number,
+    k_prime_MN_m3: Number,
+    f_c_MPa: Number,
+    plate_length_mm: Number,
+    plate_width_mm: Number,
+    joint_factor: Number,
+    included: bool,
+) -> tuple[float, float]:
+    """Tangential and radial stress, in MPa, delivered by one neighbouring post."""
+
+    if not included:
+        return 0.0, 0.0
+    radius = _contact_radius_mm(plate_length_mm, plate_width_mm, position)
+    spacing = _positive("post_spacing_mm", spacing_mm)
+    if spacing <= radius:
+        raise ValueError(
+            "A rack post spacing must be longer than the loaded radius of the "
+            f"plate; spacing {spacing} mm, loaded radius {radius} mm."
+        )
+    relative = _program_relative_stiffness_mm(h_mm, k_prime_MN_m3, f_c_MPa)
+    ratio = (spacing - radius) / relative
+    full = _program_point_stress_MPa(
+        position=position,
+        load_kN=load_kN,
+        load_factor=load_factor,
+        load_flag=1.0,
+        h_mm=h_mm,
+        relative_stiffness_mm=relative,
+        contact_radius_mm=radius,
+        joint_factor=joint_factor,
+    )
+    return (
+        full * _tangential_influence(position, ratio),
+        full * _radial_influence(position, ratio),
+    )
+
+
+def _self_components(
+    *,
+    position: str,
+    load_kN: Number,
+    load_factor: Number,
+    load_flag: Number,
+    h_mm: Number,
+    k_prime_MN_m3: Number,
+    f_c_MPa: Number,
+    plate_length_mm: Number,
+    plate_width_mm: Number,
+    joint_factor: Number,
+) -> tuple[float, float]:
+    stress = _program_point_stress_MPa(
+        position=position,
+        load_kN=load_kN,
+        load_factor=load_factor,
+        load_flag=load_flag,
+        h_mm=h_mm,
+        relative_stiffness_mm=_program_relative_stiffness_mm(
+            h_mm, k_prime_MN_m3, f_c_MPa
+        ),
+        contact_radius_mm=_contact_radius_mm(
+            plate_length_mm, plate_width_mm, position
+        ),
+        joint_factor=joint_factor,
+    )
+    return stress, stress
+
+
+def rack_post_factored_stress_MPa(
+    *,
+    case: str,
+    h_mm: Number,
+    load_kN: Number,
+    load_factor: Number,
+    k_prime_MN_m3: Number,
+    f_c_MPa: Number,
+    plate_length_mm: Number,
+    plate_width_mm: Number,
+    frame_spacing_mm: Number,
+    bay_spacing_mm: Number,
+    joint_type: str,
+    second_frame_row: bool,
+) -> float:
+    """Combined flexural stress for one of the four workbook rack cases.
+
+    ``interior``, ``down_aisle_edge`` and ``cross_aisle_edge`` add the
+    neighbouring posts the way Singracks does. ``corner`` is the single
+    corner post: the workbook goal-seeks that thickness on the corner-post
+    stress alone.
+    """
+
+    if not isinstance(second_frame_row, bool):
+        raise TypeError(
+            "second_frame_row must be a bool, "
+            f"got {type(second_frame_row).__name__}."
+        )
+    factors = joint_load_transfer_factors(joint_type)
+    h = _positive("h_mm", h_mm)
+    common = {
+        "load_kN": load_kN,
+        "load_factor": load_factor,
+        "h_mm": h,
+        "k_prime_MN_m3": k_prime_MN_m3,
+        "f_c_MPa": f_c_MPa,
+        "plate_length_mm": plate_length_mm,
+        "plate_width_mm": plate_width_mm,
+    }
+    frame = _positive("frame_spacing_mm", frame_spacing_mm)
+    bay = _positive("bay_spacing_mm", bay_spacing_mm)
+
+    if case == "interior":
+        _self_t, self_r = _self_components(
+            position="interior", load_flag=1.0, joint_factor=factors["interior"], **common
+        )
+        bay_t, bay_r = _neighbour_components(
+            position="interior",
+            spacing_mm=bay,
+            joint_factor=factors["interior"],
+            included=True,
+            **common,
+        )
+        frame_t, frame_r = _neighbour_components(
+            position="interior",
+            spacing_mm=frame,
+            joint_factor=factors["interior"],
+            included=True,
+            **common,
+        )
+        far_t, far_r = _neighbour_components(
+            position="interior",
+            spacing_mm=frame,
+            joint_factor=factors["interior"],
+            included=second_frame_row,
+            **common,
+        )
+        along_bay = self_r + frame_t + far_t + bay_r + bay_r
+        along_frame = self_r + bay_t + bay_t + frame_r + far_r
+        return max(along_bay, along_frame)
+
+    if case == "down_aisle_edge":
+        _self_t, self_r = _self_components(
+            position="edge", load_flag=1.0, joint_factor=factors["edge"], **common
+        )
+        frame_t, frame_r = _neighbour_components(
+            position="interior",
+            spacing_mm=frame,
+            joint_factor=factors["interior"],
+            included=True,
+            **common,
+        )
+        bay_t, bay_r = _neighbour_components(
+            position="edge",
+            spacing_mm=bay,
+            joint_factor=factors["edge"],
+            included=True,
+            **common,
+        )
+        return max(
+            self_r + frame_t + bay_r + bay_r,
+            self_r + frame_r + bay_t + bay_t,
+        )
+
+    if case == "cross_aisle_edge":
+        _self_t, self_r = _self_components(
+            position="edge", load_flag=1.0, joint_factor=factors["edge"], **common
+        )
+        bay_t, bay_r = _neighbour_components(
+            position="interior",
+            spacing_mm=bay,
+            joint_factor=factors["interior"],
+            included=True,
+            **common,
+        )
+        frame_t, frame_r = _neighbour_components(
+            position="edge",
+            spacing_mm=frame,
+            joint_factor=factors["edge"],
+            included=True,
+            **common,
+        )
+        far_t, far_r = _neighbour_components(
+            position="edge",
+            spacing_mm=frame,
+            joint_factor=factors["edge"],
+            included=second_frame_row,
+            **common,
+        )
+        return max(
+            self_r + frame_r + far_r + bay_t,
+            self_r + bay_r + frame_t + far_t,
+        )
+
+    if case == "corner":
+        _self_t, self_r = _self_components(
+            position="corner", load_flag=1.0, joint_factor=factors["corner"], **common
+        )
+        return self_r
+
+    raise ValueError(
+        "case must be 'interior', 'down_aisle_edge', 'cross_aisle_edge' or "
+        f"'corner'; got {case!r}."
+    )
+
+
+def required_rack_slab_thickness_mm(
+    *,
+    case: str,
+    load_kN: Number,
+    load_factor: Number,
+    k_prime_MN_m3: Number,
+    f_c_MPa: Number,
+    k1: Number,
+    k2: Number,
+    plate_length_mm: Number,
+    plate_width_mm: Number,
+    frame_spacing_mm: Number,
+    bay_spacing_mm: Number,
+    joint_type: str,
+    second_frame_row: bool,
+) -> float:
+    """Thickness, in mm, at which the workbook stress equals the modulus of rupture."""
+
+    allowable = calculate_modulus_of_rupture_ccanz(f_c_MPa, k1, k2)
+    kwargs = {
+        "case": case,
+        "load_kN": load_kN,
+        "load_factor": load_factor,
+        "k_prime_MN_m3": k_prime_MN_m3,
+        "f_c_MPa": f_c_MPa,
+        "plate_length_mm": plate_length_mm,
+        "plate_width_mm": plate_width_mm,
+        "frame_spacing_mm": frame_spacing_mm,
+        "bay_spacing_mm": bay_spacing_mm,
+        "joint_type": joint_type,
+        "second_frame_row": second_frame_row,
+    }
+    low = 20.0
+    high = 2000.0
+    stress_low = rack_post_factored_stress_MPa(h_mm=low, **kwargs)
+    stress_high = rack_post_factored_stress_MPa(h_mm=high, **kwargs)
+    if stress_low <= allowable:
+        raise ValueError(
+            f"The {case} slab is already within the modulus of rupture at "
+            f"{low:.0f} mm ({stress_low:.3f} MPa against {allowable:.3f} MPa). "
+            "The required thickness is below the searched range."
+        )
+    if stress_high > allowable:
+        raise ValueError(
+            f"The {case} slab is still overstressed at {high:.0f} mm "
+            f"({stress_high:.3f} MPa against a modulus of rupture of "
+            f"{allowable:.3f} MPa)."
+        )
+    for _ in range(80):
+        mid = (low + high) / 2.0
+        if rack_post_factored_stress_MPa(h_mm=mid, **kwargs) > allowable:
+            low = mid
+        else:
+            high = mid
+    thickness = (low + high) / 2.0
+    residual = rack_post_factored_stress_MPa(h_mm=thickness, **kwargs) - allowable
+    if abs(residual) > 1.0e-3:
+        raise ValueError(
+            f"The {case} thickness search did not meet the modulus of rupture "
+            f"(residual {residual} MPa at {thickness} mm)."
+        )
+    return thickness
+
+
+def rack_slab_thicknesses_mm(
+    *,
+    load_kN: Number,
+    load_factor: Number,
+    k_prime_MN_m3: Number,
+    f_c_MPa: Number,
+    k1: Number,
+    k2: Number,
+    plate_length_mm: Number,
+    plate_width_mm: Number,
+    frame_spacing_mm: Number,
+    bay_spacing_mm: Number,
+    joint_type: str,
+    second_frame_row: bool,
+) -> Dict[str, float]:
+    """Required interior, down-aisle edge, cross-aisle edge and corner thicknesses."""
+
+    shared = {
+        "load_kN": load_kN,
+        "load_factor": load_factor,
+        "k_prime_MN_m3": k_prime_MN_m3,
+        "f_c_MPa": f_c_MPa,
+        "k1": k1,
+        "k2": k2,
+        "plate_length_mm": plate_length_mm,
+        "plate_width_mm": plate_width_mm,
+        "frame_spacing_mm": frame_spacing_mm,
+        "bay_spacing_mm": bay_spacing_mm,
+        "joint_type": joint_type,
+        "second_frame_row": second_frame_row,
+    }
+    return {
+        "interior_mm": required_rack_slab_thickness_mm(case="interior", **shared),
+        "down_aisle_edge_mm": required_rack_slab_thickness_mm(
+            case="down_aisle_edge", **shared
+        ),
+        "cross_aisle_edge_mm": required_rack_slab_thickness_mm(
+            case="cross_aisle_edge", **shared
+        ),
+        "corner_mm": required_rack_slab_thickness_mm(case="corner", **shared),
+        "modulus_of_rupture_MPa": calculate_modulus_of_rupture_ccanz(
+            f_c_MPa, k1, k2
+        ),
+    }
 
 
 if __name__ == "__main__":
