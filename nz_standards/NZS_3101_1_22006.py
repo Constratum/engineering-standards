@@ -410,6 +410,8 @@ class SlabPunchingShearCapacity_12_7:
         length_base_plate: float,
         width_base_plate: float,
         position_load_area: str,
+        critical_section_shape: str = "circular",
+        free_edge_parallel_to: str = None,
     ):
         """
         Initialize punching shear calculator with slab properties.
@@ -420,12 +422,19 @@ class SlabPunchingShearCapacity_12_7:
             length_base_plate: Length of loaded area in mm
             width_base_plate: Width of loaded area in mm
             position_load_area: Position of load: "interior", "edge", or "corner"
+            critical_section_shape: "circular" keeps the equivalent-circle perimeter
+                used by existing callers. "rectangular" uses the clause 12.7
+                perimeter around the rectangular loaded area.
+            free_edge_parallel_to: Required for a rectangular edge. "length" or
+                "width" names the plate side that runs parallel to the free edge.
         """
         self.thickness_slab = thickness_slab
         self.concrete_strength = concrete_strength
         self.length_base_plate = length_base_plate
         self.width_base_plate = width_base_plate
         self.position_load_area = position_load_area
+        self.critical_section_shape = critical_section_shape
+        self.free_edge_parallel_to = free_edge_parallel_to
         self._validate_inputs()
 
     def _validate_inputs(self):
@@ -444,6 +453,22 @@ class SlabPunchingShearCapacity_12_7:
 
         if self.length_base_plate <= 0 or self.width_base_plate <= 0:
             raise ValueError("Base plate dimensions must be positive")
+
+        if self.critical_section_shape not in ("circular", "rectangular"):
+            raise ValueError(
+                "critical_section_shape must be 'circular' or 'rectangular', "
+                f"got {self.critical_section_shape!r}."
+            )
+        if (
+            self.critical_section_shape == "rectangular"
+            and self.position_load_area == "edge"
+            and self.free_edge_parallel_to not in ("length", "width")
+        ):
+            raise ValueError(
+                "A rectangular edge perimeter needs free_edge_parallel_to "
+                "equal to 'length' or 'width', naming the plate side parallel "
+                "to the free edge."
+            )
 
     def _calculate_loaded_radius(self) -> float:
         """Calculate equivalent loaded radius based on position - Section 12.7.1(b)"""
@@ -470,8 +495,11 @@ class SlabPunchingShearCapacity_12_7:
 
     def _calculate_perimeter_critical_section(self) -> float:
         """Calculate perimeter of critical section bo at d/2 from face of support - Section 12.7.1(b)"""
-        loaded_radius = self._calculate_loaded_radius()
         d = self.thickness_slab
+        if self.critical_section_shape == "rectangular":
+            return self._rectangular_perimeter_critical_section(d)
+
+        loaded_radius = self._calculate_loaded_radius()
 
         # Critical section is at d/2 from face of loaded area
         # For simplified calculation with equivalent radius
@@ -488,6 +516,26 @@ class SlabPunchingShearCapacity_12_7:
             raise ValueError(f"Invalid position: {self.position_load_area}")
 
         return bo
+
+    def _rectangular_perimeter_critical_section(self, d: float) -> float:
+        """Clause 12.7 perimeter around a rectangular loaded area, in mm."""
+
+        length = self.length_base_plate
+        width = self.width_base_plate
+        if self.position_load_area == "interior":
+            return 2.0 * ((length + d) + (width + d))
+        if self.position_load_area == "corner":
+            return (length + d / 2.0) + (width + d / 2.0)
+        if self.free_edge_parallel_to == "length":
+            parallel, perpendicular = length, width
+        elif self.free_edge_parallel_to == "width":
+            parallel, perpendicular = width, length
+        else:
+            raise ValueError(
+                "A rectangular edge perimeter needs free_edge_parallel_to "
+                "equal to 'length' or 'width'."
+            )
+        return (parallel + d) + 2.0 * (perpendicular + d / 2.0)
 
     def _get_k_ds(self) -> float:
         """Calculate size effect factor k_ds for punching shear - Section 12.7.3.2
@@ -608,6 +656,42 @@ class SlabPunchingShearCapacity_12_7:
         phi = 0.75
         Vc = self.calculate_Vc()
         return phi * Vc  # N
+
+    def punching_section(self, shear_force_N: float) -> dict:
+        """Clause 12.7 stresses and the two utilization ratios for one shear force.
+
+        ``shear_force_N`` is the ultimate shear V*. The force ratio is
+        (V*/phi)/Vc and the stress ratio is v_n/v_max. Shear reinforcement is
+        required when V*/phi exceeds Vc.
+        """
+        if shear_force_N < 0:
+            raise ValueError(
+                f"shear_force_N must be non-negative; got {shear_force_N!r}."
+            )
+        design_capacity_N = self.calculate_design_Vc()
+        capacity_N = self.calculate_Vc()
+        if design_capacity_N <= 0 or capacity_N <= 0:
+            raise ValueError("Punching shear capacity must be positive.")
+        phi = design_capacity_N / capacity_N
+        perimeter_mm = self._calculate_perimeter_critical_section()
+        demand_N = shear_force_N / phi
+        stress_n = demand_N / (perimeter_mm * self.thickness_slab)
+        stress_max = float(self.calculate_vc_max())
+        return {
+            "position": self.position_load_area,
+            "critical_section_shape": self.critical_section_shape,
+            "perimeter_mm": float(perimeter_mm),
+            "vc_a_MPa": float(self._calculate_vc_a()),
+            "vc_b_MPa": float(self._calculate_vc_b()),
+            "vc_c_MPa": float(self._calculate_vc_c()),
+            "vc_MPa": float(self.calculate_vc()),
+            "Vc_kN": float(capacity_N / 1000.0),
+            "v_n_MPa": float(stress_n),
+            "v_max_MPa": stress_max,
+            "force_ratio": float(demand_N / capacity_N),
+            "stress_ratio": float(stress_n / stress_max),
+            "shear_reinforcement_required": bool(demand_N > capacity_N),
+        }
 
 
 # ============================================================================
